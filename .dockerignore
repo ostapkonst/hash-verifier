@@ -1,0 +1,51 @@
+# Git
+.git
+.gitignore
+
+# GitHub Actions
+.github/
+
+# Documentation
+*.md
+
+# Build output
+dist/
+.pkg-build/
+hashverifier
+hashverifier.exe
+
+# Test artifacts
+*.out
+coverage.*
+*.coverprofile
+profile.cov
+*.test
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (not needed inside container)
+build/
+
+# Hash files (user-generated)
+*.sfv
+*.md4
+*.md5
+*.sha1
+*.sha256
+*.sha512
+*.sha3-256
+*.sha3-512
+*.blake3
+
+# Glade temp files
+*.glade~
+*.glade#

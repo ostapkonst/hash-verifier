@@ -1,0 +1,236 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., v2026.1.1)'
+        required: true
+        type: string
+
+run-name: Release ${{ github.event.inputs.version }}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  validate-version:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.validate.outputs.version }}
+    steps:
+      - name: Validate version format
+        id: validate
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            exit 1
+          fi
+          echo "✓ Version format valid: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24'
+          cache: false
+
+      - name: Install dev requirements
+        run: |
+          sudo apt update
+          sudo apt install -y libgtk-3-dev gcc
+
+      - name: Run golangci-lint
+        run: |
+          make lint
+
+  build-linux:
+    needs: [validate-version, lint]
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runs-on: ubuntu-24.04
+          - arch: arm64
+            runs-on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Build Linux (${{ matrix.arch }}) binary
+        run: |
+          make linux-${{ matrix.arch }}
+
+      - name: Upload Linux (${{ matrix.arch }}) artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: hashverifier-linux-${{ matrix.arch }}
+          path: dist/linux-${{ matrix.arch }}/
+          retention-days: 7
+          if-no-files-found: error
+
+  build-windows:
+    runs-on: ubuntu-24.04
+    needs: [validate-version, lint]
+    strategy:
+      matrix:
+        arch: [amd64, i686]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Build Windows (${{ matrix.arch }}) binary
+        run: |
+          make windows-${{ matrix.arch }}
+
+      - name: Upload Windows (${{ matrix.arch }}) artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: hashverifier-windows-${{ matrix.arch }}
+          path: dist/windows-${{ matrix.arch }}/
+          retention-days: 7
+          if-no-files-found: error
+
+  build-packages:
+    needs: [validate-version, build-linux]
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runs-on: ubuntu-24.04
+          - arch: arm64
+            runs-on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: hashverifier-linux-${{ matrix.arch }}
+          path: dist/linux-${{ matrix.arch }}
+
+      - name: Build Linux packages (DEB, RPM) for ${{ matrix.arch }}
+        run: |
+          make deb-${{ matrix.arch }} rpm-${{ matrix.arch }} VERSION="${{ needs.validate-version.outputs.version }}"
+
+      - name: Upload Linux packages (${{ matrix.arch }}) artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: hashverifier-linux-packages-${{ matrix.arch }}
+          path: |
+            .pkg-build/package/*.deb
+            .pkg-build/package/*.rpm
+          retention-days: 7
+          if-no-files-found: error
+
+  build-appimage:
+    runs-on: ubuntu-24.04
+    needs: [validate-version, build-linux]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download Linux amd64 artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: hashverifier-linux-amd64
+          path: dist/linux-amd64
+
+      - name: Build AppImage
+        run: |
+          make appimage VERSION="${{ needs.validate-version.outputs.version }}"
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: hashverifier-linux-appimage
+          path: .pkg-build/package/*.AppImage
+          retention-days: 7
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-24.04
+    needs: [validate-version, build-windows, build-packages, build-appimage]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Create release directory
+        run: mkdir -p release/linux release/windows
+
+      - name: Download Windows amd64 artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: hashverifier-windows-amd64
+          path: release/windows/amd64
+
+      - name: Download Windows i686 artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: hashverifier-windows-i686
+          path: release/windows/i686
+
+      - name: Download Linux packages (amd64) artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: hashverifier-linux-packages-amd64
+          path: release/linux/amd64
+
+      - name: Download Linux packages (arm64) artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: hashverifier-linux-packages-arm64
+          path: release/linux/arm64
+
+      - name: Download AppImage artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: hashverifier-linux-appimage
+          path: release/linux
+
+      - name: Prepare Windows amd64 archive
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          (cd release/windows && zip -r hashverifier-${VERSION}-windows-amd64.zip amd64)
+
+      - name: Prepare Windows i686 archive
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          (cd release/windows && zip -r hashverifier-${VERSION}-windows-i686.zip i686)
+
+      - name: Remove Windows directories
+        run: rm -rf release/windows/amd64 release/windows/i686
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.validate-version.outputs.version }}
+          name: Release ${{ needs.validate-version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            release/windows/*-windows-amd64.zip
+            release/windows/*-windows-i686.zip
+            release/linux/amd64/*.deb
+            release/linux/amd64/*.rpm
+            release/linux/arm64/*.deb
+            release/linux/arm64/*.rpm
+            release/linux/*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

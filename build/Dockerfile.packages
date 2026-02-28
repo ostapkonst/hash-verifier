@@ -1,0 +1,37 @@
+# =============================================================================
+# Package Builder for AMD64 (x86_64)
+# =============================================================================
+FROM debian:bookworm AS package-builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    dpkg-dev \
+    rpm \
+    file \
+    imagemagick \
+    desktop-file-utils \
+    shared-mime-info \
+    tree \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+ENTRYPOINT [ "/bin/bash", "-c" ]
+
+# =============================================================================
+# Package Builder for ARM64 (aarch64)
+# =============================================================================
+FROM debian:bookworm AS package-builder-arm64
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    dpkg-dev \
+    rpm \
+    file \
+    imagemagick \
+    desktop-file-utils \
+    shared-mime-info \
+    tree \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+ENTRYPOINT [ "/bin/bash", "-c" ]

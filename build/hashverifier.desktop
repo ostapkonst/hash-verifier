@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=HashVerifier
+Comment=Checksum generation and verification tool
+Exec=/usr/bin/hashverifier %F
+Icon=hashverifier
+Categories=Utility;
+Terminal=false
+MimeType=inode/directory;application/x-sfv;application/x-md4;application/x-md5;application/x-sha1;application/x-sha256;application/x-sha384;application/x-sha512;application/x-sha3-256;application/x-sha3-384;application/x-sha3-512;application/x-blake3;
+Keywords=checksum;hash;verify;sfv;md5;sha;

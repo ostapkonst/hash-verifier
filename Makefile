@@ -1,0 +1,145 @@
+.PHONY: all build run clean help
+.PHONY: linux-amd64 linux-arm64 windows-amd64 windows-i686 deb-amd64 deb-arm64 rpm-amd64 rpm-arm64 appimage
+.PHONY: lint lint-install lint-fix format
+.PHONY: third-party-notices
+
+GO_LICENSES_VERSION   = v2.0.1
+GOLANGCI_LINT_VERSION = v2.10.1
+
+all: help
+
+build:
+	cd src && go build -ldflags="-s -w" -o ../hashverifier .
+
+run:
+	cd src && go run .
+
+linux-amd64:
+	@echo "Building for Linux/amd64..."
+	@mkdir -p dist/linux-amd64
+	docker compose -f build/docker-compose.dist.yml run --rm --build linux-amd64
+	@echo "✓ Linux/amd64 binary: dist/linux-amd64/hashverifier"
+
+linux-arm64:
+	@echo "Building for Linux/arm64 (aarch64)..."
+	@mkdir -p dist/linux-arm64
+	docker compose -f build/docker-compose.dist.yml run --rm --build linux-arm64
+	@echo "✓ Linux/arm64 binary: dist/linux-arm64/hashverifier"
+
+windows-amd64:
+	@echo "Building for Windows/amd64..."
+	@mkdir -p dist/windows-amd64
+	docker compose -f build/docker-compose.dist.yml run --rm --build windows-amd64
+	@echo "✓ Windows/amd64 binary: dist/windows-amd64/hashverifier.exe"
+
+windows-i686:
+	@echo "Building for Windows/i686..."
+	@mkdir -p dist/windows-i686
+	docker compose -f build/docker-compose.dist.yml run --rm --build windows-i686
+	@echo "✓ Windows/i686 binary: dist/windows-i686/hashverifier.exe"
+
+appimage:
+	@echo "Building AppImage package..."
+	@mkdir -p .pkg-build dist/linux-amd64
+	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
+		docker compose -f build/docker-compose.appimage.yml run --rm appimage-builder /app/build/create-appimage.sh
+	@echo "✓ AppImage package: .pkg-build/package/*.AppImage"
+
+deb-amd64:
+	@echo "Building DEB package for AMD64..."
+	@mkdir -p .pkg-build dist/linux-amd64
+	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
+		docker compose -f build/docker-compose.packages.yml run --rm package-builder /app/build/create-deb.sh
+	@echo "✓ DEB package (amd64): .pkg-build/package/*.deb"
+
+rpm-amd64:
+	@echo "Building RPM package for AMD64..."
+	@mkdir -p .pkg-build dist/linux-amd64
+	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
+		docker compose -f build/docker-compose.packages.yml run --rm package-builder /app/build/create-rpm.sh
+	@echo "✓ RPM package (amd64): .pkg-build/package/*.rpm"
+
+deb-arm64:
+	@echo "Building DEB package for ARM64..."
+	@mkdir -p .pkg-build dist/linux-arm64
+	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
+		docker compose -f build/docker-compose.packages.yml run --rm deb-arm64 /app/build/create-deb.sh
+	@echo "✓ DEB package (arm64): .pkg-build/package/*.deb"
+
+rpm-arm64:
+	@echo "Building RPM package for ARM64..."
+	@mkdir -p .pkg-build dist/linux-arm64
+	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
+		docker compose -f build/docker-compose.packages.yml run --rm rpm-arm64 /app/build/create-rpm.sh
+	@echo "✓ RPM package (arm64): .pkg-build/package/*.rpm"
+
+clean:
+	@if [ -d dist ]; then \
+		echo "Removing dist/ (may require sudo)..."; \
+		sudo rm -rf dist/; \
+	fi
+	@if [ -d .pkg-build ]; then \
+		echo "Removing .pkg-build/ (may require sudo)..."; \
+		sudo rm -rf .pkg-build/; \
+	fi
+	@rm -f hashverifier hashverifier.exe
+	@echo "✓ Cleaned build artifacts"
+
+lint-install:
+	@if [ -f .bin/golangci-lint ]; then \
+		echo "✓ golangci-lint already installed in .bin/"; \
+	else \
+		echo "Installing golangci-lint..."; \
+		mkdir -p .bin; \
+		curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b .bin $(GOLANGCI_LINT_VERSION); \
+		echo "✓ golangci-lint installed to .bin/"; \
+	fi
+
+lint: lint-install
+	cd src && ../.bin/golangci-lint run --config ../.golangci.yml
+
+lint-fix: lint-install
+	cd src && ../.bin/golangci-lint run --fix --config ../.golangci.yml
+
+format: lint-install
+	cd src && ../.bin/golangci-lint fmt --config ../.golangci.yml
+
+third-party-notices:
+	@if [ -f .bin/go-licenses ]; then \
+		echo "✓ go-licenses already installed in .bin/"; \
+	else \
+		echo "Installing go-licenses..."; \
+		mkdir -p .bin; \
+		GOBIN=$$(pwd)/.bin go install github.com/google/go-licenses/v2@$(GO_LICENSES_VERSION); \
+		echo "✓ go-licenses installed to .bin/"; \
+	fi
+	@echo "Generating THIRD_PARTY_NOTICES..."
+	cd build && go run generate-notices.go
+	@echo "✓ THIRD_PARTY_NOTICES generated"
+
+help:
+	@echo "HashVerifier Build System"
+	@echo ""
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Build Targets:"
+	@echo "  build                Build for current platform (native)"
+	@echo "  run                  Build and run the application"
+	@echo "  linux-amd64          Build Linux/amd64 using Docker"
+	@echo "  linux-arm64          Build Linux/arm64 (aarch64) using Docker"
+	@echo "  windows-amd64        Build Windows/amd64 using Docker"
+	@echo "  windows-i686         Build Windows/i686 (32-bit) using Docker"
+	@echo "  deb-amd64            Build DEB package (Debian/Ubuntu) for amd64"
+	@echo "  deb-arm64            Build DEB package (Debian/Ubuntu) for arm64"
+	@echo "  rpm-amd64            Build RPM package (Fedora/RHEL) for x86_64"
+	@echo "  rpm-arm64            Build RPM package (Fedora/RHEL) for aarch64"
+	@echo "  appimage             Build AppImage package (universal Linux)"
+	@echo ""
+	@echo "Other Targets:"
+	@echo "  clean                Remove build artifacts"
+	@echo "  lint-install         Install golangci-lint ($(GOLANGCI_LINT_VERSION)) into .bin/"
+	@echo "  lint                 Run golangci-lint from .bin/"
+	@echo "  lint-fix             Run golangci-lint with auto-fix"
+	@echo "  format               Format code with golangci-lint"
+	@echo "  third-party-notices  Generate THIRD_PARTY_NOTICES"
+	@echo "  help                 Show this help message"

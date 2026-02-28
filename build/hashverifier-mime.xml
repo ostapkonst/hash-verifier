@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-sfv">
+    <comment>SFV Checksum File</comment>
+    <glob pattern="*.sfv"/>
+  </mime-type>
+  <mime-type type="application/x-md4">
+    <comment>MD4 Checksum File</comment>
+    <glob pattern="*.md4"/>
+  </mime-type>
+  <mime-type type="application/x-md5">
+    <comment>MD5 Checksum File</comment>
+    <glob pattern="*.md5"/>
+  </mime-type>
+  <mime-type type="application/x-sha1">
+    <comment>SHA1 Checksum File</comment>
+    <glob pattern="*.sha1"/>
+  </mime-type>
+  <mime-type type="application/x-sha256">
+    <comment>SHA256 Checksum File</comment>
+    <glob pattern="*.sha256"/>
+  </mime-type>
+  <mime-type type="application/x-sha384">
+    <comment>SHA384 Checksum File</comment>
+    <glob pattern="*.sha384"/>
+  </mime-type>
+  <mime-type type="application/x-sha512">
+    <comment>SHA512 Checksum File</comment>
+    <glob pattern="*.sha512"/>
+  </mime-type>
+  <mime-type type="application/x-sha3-256">
+    <comment>SHA3-256 Checksum File</comment>
+    <glob pattern="*.sha3-256"/>
+  </mime-type>
+  <mime-type type="application/x-sha3-384">
+    <comment>SHA3-384 Checksum File</comment>
+    <glob pattern="*.sha3-384"/>
+  </mime-type>
+  <mime-type type="application/x-sha3-512">
+    <comment>SHA3-512 Checksum File</comment>
+    <glob pattern="*.sha3-512"/>
+  </mime-type>
+  <mime-type type="application/x-blake3">
+    <comment>BLAKE3 Checksum File</comment>
+    <glob pattern="*.blake3"/>
+  </mime-type>
+</mime-info>

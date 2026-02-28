@@ -1,0 +1,173 @@
+package checksum
+
+import (
+	"crypto/md5"
+	"crypto/sha1"
+	"crypto/sha256"
+	"crypto/sha3"
+	"crypto/sha512"
+	"fmt"
+	"hash"
+	"hash/crc32"
+	"path/filepath"
+	"strings"
+
+	"golang.org/x/crypto/md4" //nolint:staticcheck
+	"lukechampine.com/blake3"
+)
+
+const HashBufferSize = 128 * 1024 // 128KB
+
+type Algorithm int
+
+const (
+	Unknown Algorithm = iota
+	MD4
+	MD5
+	SHA1
+	CRC32
+	SHA256
+	SHA384
+	SHA512
+	SHA3_256
+	SHA3_384
+	SHA3_512
+	BLAKE3
+)
+
+func (a Algorithm) String() string {
+	switch a {
+	case MD4:
+		return "md4"
+	case MD5:
+		return "md5"
+	case SHA1:
+		return "sha1"
+	case CRC32:
+		return "crc32"
+	case SHA256:
+		return "sha256"
+	case SHA384:
+		return "sha384"
+	case SHA512:
+		return "sha512"
+	case SHA3_256:
+		return "sha3-256"
+	case SHA3_384:
+		return "sha3-384"
+	case SHA3_512:
+		return "sha3-512"
+	case BLAKE3:
+		return "blake3"
+	default:
+		return "unknown"
+	}
+}
+
+func (a Algorithm) Extension() string {
+	if a == CRC32 {
+		return ".sfv"
+	}
+
+	if a == Unknown {
+		panic("failed to get extension for unknown algorithm")
+	}
+
+	return "." + a.String()
+}
+
+type HashResult struct {
+	ReadBytes int64
+	Hash      string
+}
+
+func AlgorithmFromExtension(filename string) (Algorithm, error) {
+	switch ext := strings.ToLower(filepath.Ext(filename)); ext {
+	case ".md4":
+		return MD4, nil
+	case ".md5":
+		return MD5, nil
+	case ".sha1":
+		return SHA1, nil
+	case ".sfv":
+		return CRC32, nil
+	case ".sha256":
+		return SHA256, nil
+	case ".sha384":
+		return SHA384, nil
+	case ".sha512":
+		return SHA512, nil
+	case ".sha3-256":
+		return SHA3_256, nil
+	case ".sha3-384":
+		return SHA3_384, nil
+	case ".sha3-512":
+		return SHA3_512, nil
+	case ".blake3":
+		return BLAKE3, nil
+	default:
+		return Unknown, fmt.Errorf("unsupported extension: %s", ext)
+	}
+}
+
+func getHashLength(algo Algorithm) int {
+	switch algo {
+	case MD4:
+		return 32
+	case MD5:
+		return 32
+	case SHA1:
+		return 40
+	case CRC32:
+		return 8
+	case SHA256:
+		return 64
+	case SHA384:
+		return 96
+	case SHA512:
+		return 128
+	case SHA3_256:
+		return 64
+	case SHA3_384:
+		return 96
+	case SHA3_512:
+		return 128
+	case BLAKE3:
+		return 64
+	default:
+		panic("unsupported algorithm")
+	}
+}
+
+func newHasher(algo Algorithm) hash.Hash {
+	switch algo {
+	case MD4:
+		return md4.New()
+	case MD5:
+		return md5.New()
+	case SHA1:
+		return sha1.New()
+	case CRC32:
+		return crc32.NewIEEE()
+	case SHA256:
+		return sha256.New()
+	case SHA384:
+		return sha512.New384()
+	case SHA512:
+		return sha512.New()
+	case SHA3_256:
+		return sha3.New256()
+	case SHA3_384:
+		return sha3.New384()
+	case SHA3_512:
+		return sha3.New512()
+	case BLAKE3:
+		return blake3.New(32, nil)
+	default:
+		panic("unsupported algorithm")
+	}
+}
+
+func isValidHashLength(hash string, algo Algorithm) bool {
+	return len(hash) == getHashLength(algo)
+}

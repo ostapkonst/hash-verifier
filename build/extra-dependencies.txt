@@ -1,0 +1,19 @@
+# Extra Dependencies for THIRD_PARTY_NOTICES
+# Format: module_path,license_url,license_type
+#
+# module_path   - Go module path (e.g., github.com/user/repo)
+# license_url   - Full URL to the license file (GitHub, GitLab, Gist, etc.)
+# license_type  - License type (e.g., MIT, Apache-2.0, BSD-3-Clause, LGPL-2.0)
+#
+# Lines starting with # are ignored as comments.
+# Empty lines are also ignored.
+#
+# Supported URL formats:
+# - GitHub: https://github.com/owner/repo/blob/v1.0.0/LICENSE
+# - Google Open Source: https://cs.opensource.google/go/x/crypto/+/v0.48.0:LICENSE
+# - Gist (raw): https://gist.githubusercontent.com/user/id/raw/commit/file
+#
+# Example:
+# github.com/example/repo,https://github.com/example/repo/blob/v1.0.0/LICENSE,MIT
+
+gitlab.gnome.org/GNOME/gtk/-/tree/gtk-3-24,https://gist.githubusercontent.com/ostapkonst/03defdac448ca293307bb3035aedfc90/raw/7486204da8413b54afa4b69948df39f3f8382294/gtk-3-24-COPYING,LGPL-2.0

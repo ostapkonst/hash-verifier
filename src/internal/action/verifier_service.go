@@ -1,0 +1,59 @@
+package action
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"github.com/ostapkonst/hash-verifier/internal/checksum"
+)
+
+type VerifyConfig struct {
+	ChecksumFile   string
+	OnFileVerified func(result checksum.VerifyResult)
+}
+
+type VerifyResultStats struct {
+	Stats checksum.VerifierStats
+}
+
+func ValidateChecksumFile(path string) error {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("failed to stat checksum file: %w", err)
+	}
+
+	if fileInfo.IsDir() {
+		return fmt.Errorf("checksum path is not a file")
+	}
+
+	return nil
+}
+
+func VerifyChecksums(ctx context.Context, cfg VerifyConfig) (VerifyResultStats, error) {
+	if err := ValidateChecksumFile(cfg.ChecksumFile); err != nil {
+		return VerifyResultStats{}, fmt.Errorf("invalid checksum file: %w", err)
+	}
+
+	algo, err := checksum.AlgorithmFromExtension(cfg.ChecksumFile)
+	if err != nil {
+		return VerifyResultStats{}, fmt.Errorf("unsupported algorithm: %w", err)
+	}
+
+	verifier := NewVerifier(ctx, cfg.ChecksumFile, algo)
+	verifier.Start()
+
+	var hasError error
+
+	for res := range verifier.Results() {
+		if cfg.OnFileVerified != nil {
+			cfg.OnFileVerified(res)
+		}
+	}
+
+	if err := verifier.Wait(); err != nil {
+		hasError = fmt.Errorf("verification failed: %w", err)
+	}
+
+	return VerifyResultStats{Stats: verifier.Stats()}, hasError
+}

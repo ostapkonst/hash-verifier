@@ -1,0 +1,21 @@
+# Auto-detect text files and normalize to LF
+* text=auto eol=lf
+
+# Binary files (explicitly mark as non-text)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.ico binary
+*.webp binary
+*.svg binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.mp3 binary
+*.mp4 binary
+*.avi binary
+*.mov binary
+

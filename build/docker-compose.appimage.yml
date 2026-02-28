@@ -1,0 +1,16 @@
+services:
+  appimage-builder:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile.appimage
+      platforms:
+        - linux/amd64
+    volumes:
+      - ../dist:/app/dist
+      - ../build:/app/build
+      - ../.pkg-build:/app/.pkg-build
+      - ../LICENSE:/app/LICENSE
+      - ../THIRD_PARTY_NOTICES:/app/THIRD_PARTY_NOTICES
+      - ../build/linuxdeploy-plugin-gtk.sh:/usr/local/bin/linuxdeploy-plugin-gtk.sh
+    environment:
+      - VERSION

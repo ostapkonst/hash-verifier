@@ -1,0 +1,26 @@
+FROM fedora:35 AS appimage-builder
+
+RUN dnf install -y \
+    wget librsvg2-devel file findutils pkgconfig gtk3 gtk3-devel \
+    gobject-introspection-devel \
+    ImageMagick \
+    appstream \
+    && dnf clean all
+
+RUN gtk-query-immodules-3.0-64 --update-cache
+
+ARG MACHINE=x86_64
+
+RUN wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${MACHINE}.AppImage \
+    -O /usr/local/bin/linuxdeploy && \
+    chmod +x /usr/local/bin/linuxdeploy
+
+RUN wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${MACHINE}.AppImage \
+    -O /usr/local/bin/appimagetool && \
+    chmod +x /usr/local/bin/appimagetool
+
+WORKDIR /app
+
+ENV APPIMAGE_EXTRACT_AND_RUN=1
+
+ENTRYPOINT [ "/bin/bash", "-c" ]

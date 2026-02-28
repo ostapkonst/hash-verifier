@@ -1,0 +1,23 @@
+module github.com/ostapkonst/hash-verifier
+
+go 1.24.0
+
+require (
+	github.com/gotk3/gotk3 v0.6.5-0.20251124190141-e7a9e823ca35
+	github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf
+	github.com/karrick/godirwalk v1.16.2
+	github.com/lithammer/dedent v1.1.0
+	github.com/rs/zerolog v1.34.0
+	github.com/spf13/cobra v1.10.2
+	golang.org/x/crypto v0.48.0
+	lukechampine.com/blake3 v1.4.1
+)
+
+require (
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/spf13/pflag v1.0.9 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+)

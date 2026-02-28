@@ -1,0 +1,221 @@
+ARG GO_VERSION=1.24.6
+ARG FEDORA_VERSION=35
+ARG DEBIAN_VERSION=bookworm
+
+# =============================================================================
+# Linux Build (Native GTK3 GUI) - amd64
+# =============================================================================
+FROM debian:${DEBIAN_VERSION} AS linux-builder
+
+ARG GO_VERSION
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    gcc \
+    wget \
+    libgtk-3-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN wget -q https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz -O /tmp/go.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz
+
+ENV PATH=/usr/local/go/bin:$PATH
+
+WORKDIR /app
+
+COPY src/go.mod src/go.sum ./
+RUN go mod download
+
+COPY src .
+
+ENV CGO_ENABLED=1 \
+    GOOS=linux \
+    GOARCH=amd64
+
+RUN go build -ldflags="-s -w" -o hashverifier .
+
+CMD ["sh", "-c", "mkdir -p /dist && cp hashverifier /dist/"]
+
+# =============================================================================
+# Linux Build (Native GTK3 GUI) - arm64 (aarch64)
+# =============================================================================
+FROM debian:${DEBIAN_VERSION} AS linux-arm64-builder
+
+ARG GO_VERSION
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    gcc \
+    wget \
+    libgtk-3-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN wget -q https://go.dev/dl/go${GO_VERSION}.linux-arm64.tar.gz -O /tmp/go.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz
+
+ENV PATH=/usr/local/go/bin:$PATH
+
+WORKDIR /app
+
+COPY src/go.mod src/go.sum ./
+RUN go mod download
+
+COPY src .
+
+ENV CGO_ENABLED=1 \
+    GOOS=linux \
+    GOARCH=arm64
+
+RUN go build -ldflags="-s -w" -o hashverifier .
+
+CMD ["sh", "-c", "mkdir -p /dist && cp hashverifier /dist/"]
+
+# =============================================================================
+# Windows Build (Cross-compile with GUI via MinGW-w64 + GTK3) - amd64
+# =============================================================================
+FROM fedora:${FEDORA_VERSION} AS windows-builder
+
+ARG GO_VERSION
+
+RUN dnf install -y \
+    mingw64-gtk3 \
+    mingw64-gcc \
+    git \
+    wget \
+    && dnf clean all
+
+RUN wget -q https://github.com/thongtech/go-legacy-win7/releases/download/v${GO_VERSION}-1/go-legacy-win7-${GO_VERSION}-1.linux_amd64.tar.gz -O /tmp/go.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz
+
+ENV PATH=/usr/local/go-legacy-win7/bin:$PATH
+
+RUN sed -i -e 's/-Wl,-luuid/-luuid/g' \
+    /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/gdk-3.0.pc
+
+WORKDIR /app
+
+COPY src/go.mod src/go.sum ./
+RUN go mod download
+
+COPY src .
+
+RUN go run github.com/akavel/rsrc@v0.10.2 -arch amd64 -ico ./internal/gui/glade/favicon.ico -o rsrc.syso
+
+ENV CGO_ENABLED=1 \
+    CC=x86_64-w64-mingw32-gcc \
+    GOOS=windows \
+    GOARCH=amd64 \
+    PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig
+
+RUN go build -ldflags="-s -w -H=windowsgui" -o hashverifier.exe .
+
+# =============================================================================
+# Windows Build (Cross-compile with GUI via MinGW-w32 + GTK3) - i686 (32-bit)
+# =============================================================================
+FROM fedora:${FEDORA_VERSION} AS windows-builder-i686
+
+ARG GO_VERSION
+
+RUN dnf install -y \
+    mingw32-gtk3 \
+    mingw32-gcc \
+    git \
+    wget \
+    && dnf clean all
+
+RUN wget -q https://github.com/thongtech/go-legacy-win7/releases/download/v${GO_VERSION}-1/go-legacy-win7-${GO_VERSION}-1.linux_amd64.tar.gz -O /tmp/go.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz
+
+ENV PATH=/usr/local/go-legacy-win7/bin:$PATH
+
+RUN sed -i -e 's/-Wl,-luuid/-luuid/g' \
+    /usr/i686-w64-mingw32/sys-root/mingw/lib/pkgconfig/gdk-3.0.pc
+
+WORKDIR /app
+
+COPY src/go.mod src/go.sum ./
+RUN go mod download
+
+COPY src .
+
+RUN go run github.com/akavel/rsrc@v0.10.2 -arch 386 -ico ./internal/gui/glade/favicon.ico -o rsrc.syso
+
+ENV CGO_ENABLED=1 \
+    CC=i686-w64-mingw32-gcc \
+    GOOS=windows \
+    GOARCH=386 \
+    PKG_CONFIG_PATH=/usr/i686-w64-mingw32/sys-root/mingw/lib/pkgconfig
+
+RUN go build -ldflags="-s -w -H=windowsgui" -o hashverifier.exe .
+
+# =============================================================================
+# Windows Distribution Stage (Bundle .exe + DLLs + Config) - amd64
+# =============================================================================
+FROM fedora:${FEDORA_VERSION} AS windows-dist
+
+RUN dnf install -y mingw64-gtk3 mingw64-glib2 && dnf clean all
+
+WORKDIR /app
+
+COPY --from=windows-builder /app/hashverifier.exe ./
+
+RUN cp /usr/x86_64-w64-mingw32/sys-root/mingw/bin/*.dll ./
+
+RUN mkdir -p etc/gtk-3.0 && \
+    mkdir -p share/glib-2.0/schemas && \
+    mkdir -p share/icons && \
+    mkdir -p share/themes
+
+RUN echo -e "[Settings]\ngtk-theme-name=Adwaita\ngtk-icon-theme-name=Adwaita\ngtk-application-prefer-dark-theme=0" > etc/gtk-3.0/settings.ini
+
+RUN cp /usr/x86_64-w64-mingw32/sys-root/mingw/share/glib-2.0/schemas/*.gschema.xml share/glib-2.0/schemas/ && \
+    glib-compile-schemas share/glib-2.0/schemas
+
+RUN cp -r /usr/x86_64-w64-mingw32/sys-root/mingw/share/themes/Adwaita share/themes/ 2>/dev/null || true && \
+    cp -r /usr/x86_64-w64-mingw32/sys-root/mingw/share/icons/Adwaita share/icons/
+
+COPY LICENSE ./
+COPY THIRD_PARTY_NOTICES ./
+
+CMD ["sh", "-c", "mkdir -p /dist && cp -r . /dist/"]
+
+# =============================================================================
+# Windows Distribution Stage (Bundle .exe + DLLs + Config) - i686 (32-bit)
+# =============================================================================
+FROM fedora:${FEDORA_VERSION} AS windows-dist-i686
+
+RUN dnf install -y mingw32-gtk3 mingw32-glib2 && dnf clean all
+
+WORKDIR /app
+
+COPY --from=windows-builder-i686 /app/hashverifier.exe ./
+
+RUN cp /usr/i686-w64-mingw32/sys-root/mingw/bin/*.dll ./
+
+RUN mkdir -p etc/gtk-3.0 && \
+    mkdir -p share/glib-2.0/schemas && \
+    mkdir -p share/icons && \
+    mkdir -p share/themes
+
+RUN echo -e "[Settings]\ngtk-theme-name=Adwaita\ngtk-icon-theme-name=Adwaita\ngtk-application-prefer-dark-theme=0" > etc/gtk-3.0/settings.ini
+
+RUN cp /usr/i686-w64-mingw32/sys-root/mingw/share/glib-2.0/schemas/*.gschema.xml share/glib-2.0/schemas/ && \
+    glib-compile-schemas share/glib-2.0/schemas
+
+RUN cp -r /usr/i686-w64-mingw32/sys-root/mingw/share/themes/Adwaita share/themes/ 2>/dev/null || true && \
+    cp -r /usr/i686-w64-mingw32/sys-root/mingw/share/icons/Adwaita share/icons/
+
+COPY LICENSE ./
+COPY THIRD_PARTY_NOTICES ./
+
+CMD ["sh", "-c", "mkdir -p /dist && cp -r . /dist/"]
