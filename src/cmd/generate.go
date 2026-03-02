@@ -94,6 +94,7 @@ func execGenerate(ctx context.Context, args []string) error {
 	log.Info().
 		Int("processed", stats.Processed).
 		Int("pending", stats.Pending()).
+		Int("with_errors", stats.WithErrors).
 		Int("total_files", stats.TotalFiles).
 		Msg("Checksum generation stats")
 
@@ -121,7 +122,7 @@ func init() {
 	generateCmd.Flags().BoolVar(&generateNoFollowSymlinks, "no-follow-symlinks", false,
 		"do not follow symbolic links when scanning directories")
 	generateCmd.Flags().BoolVar(&generateNoSortPaths, "no-sort", false,
-		"do not sort files before generating checksums")
+		"do not sort paths before generating checksums")
 
 	rootCmd.AddCommand(generateCmd)
 }
