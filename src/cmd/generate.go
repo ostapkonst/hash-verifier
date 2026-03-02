@@ -18,6 +18,11 @@ import (
 	"github.com/ostapkonst/hash-verifier/utils/gracer"
 )
 
+var (
+	generateNoFollowSymlinks bool
+	generateNoSortPaths      bool
+)
+
 func runGenerate(cmd *cobra.Command, args []string) error {
 	ctx, cancel := context.WithCancel(cmd.Context())
 	defer cancel()
@@ -43,8 +48,10 @@ func execGenerate(ctx context.Context, args []string) error {
 	outputFile := filepath.Clean(args[1])
 
 	cfg := action.GenerateConfig{
-		InputDir:   inputDir,
-		OutputFile: outputFile,
+		InputDir:            inputDir,
+		OutputFile:          outputFile,
+		FollowSymbolicLinks: !generateNoFollowSymlinks,
+		SortPaths:           !generateNoSortPaths,
 		OnFileHashed: func(res checksum.GenerateResult) {
 			commonFields := func(event *zerolog.Event, err error) *zerolog.Event {
 				logger := event.
@@ -111,5 +118,10 @@ var generateCmd = &cobra.Command{
 }
 
 func init() {
+	generateCmd.Flags().BoolVar(&generateNoFollowSymlinks, "no-follow-symlinks", false,
+		"do not follow symbolic links when scanning directories")
+	generateCmd.Flags().BoolVar(&generateNoSortPaths, "no-sort", false,
+		"do not sort files before generating checksums")
+
 	rootCmd.AddCommand(generateCmd)
 }

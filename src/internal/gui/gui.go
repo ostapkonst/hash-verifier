@@ -284,3 +284,24 @@ func getProgressBar(builder *gtk.Builder, id string) *gtk.ProgressBar {
 
 	return bar
 }
+
+func getCheckButton(builder *gtk.Builder, id string) *gtk.CheckButton {
+	button, err := func() (*gtk.CheckButton, error) {
+		obj, err := builder.GetObject(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get check button %s: %w", id, err)
+		}
+
+		button, ok := obj.(*gtk.CheckButton)
+		if !ok {
+			return nil, fmt.Errorf("object %s is not a CheckButton", id)
+		}
+
+		return button, nil
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	return button
+}

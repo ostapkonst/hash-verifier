@@ -25,14 +25,16 @@ type GenerateTab struct {
 	cancel context.CancelFunc
 	wg     sync.WaitGroup
 
-	entryDir        *gtk.Entry
-	btnStart        *gtk.Button
-	btnStop         *gtk.Button
-	btnBrowseDir    *gtk.Button
-	listStore       *gtk.ListStore
-	entryChecksum   *gtk.Entry
-	btnSaveChk      *gtk.Button
-	cmbTxtAlgorithm *gtk.ComboBoxText
+	entryDir             *gtk.Entry
+	btnStart             *gtk.Button
+	btnStop              *gtk.Button
+	btnBrowseDir         *gtk.Button
+	listStore            *gtk.ListStore
+	entryChecksum        *gtk.Entry
+	btnSaveChk           *gtk.Button
+	cmbTxtAlgorithm      *gtk.ComboBoxText
+	chkBtnFollowSymlinks *gtk.CheckButton
+	chkBtnSortPaths      *gtk.CheckButton
 
 	labelProcessedV  *gtk.Label
 	labelWithErrorsV *gtk.Label
@@ -74,6 +76,8 @@ func (t *GenerateTab) getWidgets() {
 	t.entryChecksum = getEntry(t.builder, "entry_gen_checksum")
 	t.btnSaveChk = getButton(t.builder, "btn_save_gen_checksum")
 	t.cmbTxtAlgorithm = getComboBoxText(t.builder, "cmb_gen_algorithm")
+	t.chkBtnFollowSymlinks = getCheckButton(t.builder, "chk_gen_follow_symlinks")
+	t.chkBtnSortPaths = getCheckButton(t.builder, "chk_gen_sort_paths")
 
 	t.totalProgress = getProgressBar(t.builder, "progress_gen_total")
 	t.currFileProgress = getProgressBar(t.builder, "progress_gen_curr_file")
@@ -152,7 +156,14 @@ func (t *GenerateTab) onStart() {
 	ctx, cancel := context.WithCancel(t.ctx)
 	t.cancel = cancel
 
-	results, err := action.GenerateChecksumsStreamingToFile(ctx, inputDir, outputFile)
+	cfg := action.GenerateStreamingConfig{
+		InputDir:            inputDir,
+		OutputFile:          outputFile,
+		FollowSymbolicLinks: t.chkBtnFollowSymlinks.GetActive(),
+		SortPaths:           t.chkBtnSortPaths.GetActive(),
+	}
+
+	results, err := action.GenerateChecksumsStreamingToFile(ctx, cfg)
 	if err != nil {
 		ShowError(t.window, "Error", fmt.Sprintf("Failed to start generation: %v", err))
 		cancel()

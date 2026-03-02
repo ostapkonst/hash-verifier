@@ -10,12 +10,12 @@ import (
 	"github.com/karrick/godirwalk"
 )
 
-func WalkDir(ctx context.Context, path string) ([]string, error) {
+func WalkDir(ctx context.Context, path string, followSymbolicLinks, sortPaths bool) ([]string, error) {
 	var files []string
 
 	err := godirwalk.Walk(path, &godirwalk.Options{
-		FollowSymbolicLinks: true,
-		Unsorted:            true,
+		FollowSymbolicLinks: followSymbolicLinks,
+		Unsorted:            !sortPaths,
 
 		Callback: func(path string, de *godirwalk.Dirent) error {
 			select {

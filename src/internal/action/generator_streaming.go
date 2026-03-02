@@ -22,22 +22,29 @@ type GenerateStreamingResult struct {
 	IsProgressUpdate bool
 }
 
-func GenerateChecksumsStreamingToFile(ctx context.Context, inputDir, outputFile string) (<-chan GenerateStreamingResult, error) {
-	if err := ValidateInputDir(inputDir); err != nil {
+type GenerateStreamingConfig struct {
+	InputDir            string
+	OutputFile          string
+	FollowSymbolicLinks bool
+	SortPaths           bool
+}
+
+func GenerateChecksumsStreamingToFile(ctx context.Context, cfg GenerateStreamingConfig) (<-chan GenerateStreamingResult, error) {
+	if err := ValidateInputDir(cfg.InputDir); err != nil {
 		return nil, fmt.Errorf("invalid input dir: %w", err)
 	}
 
-	algo, err := checksum.AlgorithmFromExtension(outputFile)
+	algo, err := checksum.AlgorithmFromExtension(cfg.OutputFile)
 	if err != nil {
 		return nil, fmt.Errorf("unsupported algorithm: %w", err)
 	}
 
-	dirPrefix, err := checksum.GetPrefixForFilesInChecksum(inputDir, outputFile)
+	dirPrefix, err := checksum.GetPrefixForFilesInChecksum(cfg.InputDir, cfg.OutputFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get prefix: %w", err)
 	}
 
-	f, err := os.Create(outputFile)
+	f, err := os.Create(cfg.OutputFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create checksum file: %w", err)
 	}
@@ -59,7 +66,7 @@ func GenerateChecksumsStreamingToFile(ctx context.Context, inputDir, outputFile 
 		defer cancel()
 		defer f.Close() //nolint:errcheck
 
-		generator := NewGenerator(ctx, inputDir, algo, dirPrefix)
+		generator := NewGenerator(ctx, cfg.InputDir, algo, dirPrefix, cfg.FollowSymbolicLinks, cfg.SortPaths)
 		generator.Start()
 
 		var hasError error

@@ -12,9 +12,11 @@ import (
 )
 
 type GenerateConfig struct {
-	InputDir     string
-	OutputFile   string
-	OnFileHashed func(result checksum.GenerateResult)
+	InputDir            string
+	OutputFile          string
+	FollowSymbolicLinks bool
+	SortPaths           bool
+	OnFileHashed        func(result checksum.GenerateResult)
 }
 
 type GenerateResultStats struct {
@@ -61,7 +63,7 @@ func GenerateChecksums(ctx context.Context, cfg GenerateConfig) (GenerateResultS
 		return GenerateResultStats{}, fmt.Errorf("failed to write program header: %w", err)
 	}
 
-	generator := NewGenerator(ctx, cfg.InputDir, algo, dirPrefix)
+	generator := NewGenerator(ctx, cfg.InputDir, algo, dirPrefix, cfg.FollowSymbolicLinks, cfg.SortPaths)
 	generator.Start()
 
 	var hasError error

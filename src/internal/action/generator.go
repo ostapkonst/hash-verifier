@@ -26,6 +26,8 @@ type Generator struct {
 	root                    string
 	algo                    checksum.Algorithm
 	dirPrefix               string
+	followSymbolicLinks     bool
+	sortPaths               bool
 	stats                   checksum.GeneratorStats
 	currFileHashingProgress atomic.Value
 
@@ -41,19 +43,23 @@ func NewGenerator(
 	root string,
 	algo checksum.Algorithm,
 	dirPrefix string,
+	followSymbolicLinks bool,
+	sortPaths bool,
 ) *Generator {
 	ctx, cancel := context.WithCancel(ctx)
 
 	g := &Generator{
-		ctx:       ctx,
-		cancel:    cancel,
-		resultCh:  make(chan checksum.GenerateResult, 1),
-		done:      make(chan struct{}),
-		err:       make(chan error, 1),
-		root:      root,
-		algo:      algo,
-		dirPrefix: dirPrefix,
-		status:    GeneratorStatusFinished,
+		ctx:                 ctx,
+		cancel:              cancel,
+		resultCh:            make(chan checksum.GenerateResult, 1),
+		done:                make(chan struct{}),
+		err:                 make(chan error, 1),
+		root:                root,
+		algo:                algo,
+		dirPrefix:           dirPrefix,
+		followSymbolicLinks: followSymbolicLinks,
+		sortPaths:           sortPaths,
+		status:              GeneratorStatusFinished,
 	}
 
 	g.stats = checksum.GeneratorStats{CurrentFileOrStatus: "ready to go..."}
@@ -141,7 +147,7 @@ func (g *Generator) run() {
 
 	g.updateCurrentFileOrStatus("forming a list of files for hashing...")
 
-	files, err := checksum.WalkDir(g.ctx, g.root)
+	files, err := checksum.WalkDir(g.ctx, g.root, g.followSymbolicLinks, g.sortPaths)
 	if err != nil {
 		g.err <- err
 		return
