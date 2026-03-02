@@ -15,11 +15,6 @@ readonly PACKAGE_HOMEPAGE="https://github.com/ostapkonst/hash-verifier"
 
 readonly PACKAGE_DEPENDS=(
     "libgtk-3-0"
-    "libglib2.0-0"
-    "libcairo2"
-    "libpango-1.0-0"
-    "libgdk-pixbuf2.0-0"
-    "libatk1.0-0"
 )
 
 DEB_VERSION="${VERSION#v}"  # Без этого: version number does not start with digit

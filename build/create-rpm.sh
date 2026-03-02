@@ -16,11 +16,6 @@ readonly PACKAGE_GROUP="Applications/System"
 
 readonly PACKAGE_DEPENDS=(
     "gtk3"
-    "glib2"
-    "cairo"
-    "pango"
-    "gdk-pixbuf2"
-    "atk"
 )
 
 readonly BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
