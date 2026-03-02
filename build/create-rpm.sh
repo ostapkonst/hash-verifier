@@ -197,12 +197,8 @@ create_spec_file() {
     log_info "Creating spec file..."
 
     local dependencies
-    local post_requires
-    local postun_requires
 
     dependencies=$(printf "Requires:       %s\n" "${PACKAGE_DEPENDS[@]}")
-    post_requires="Requires(post):   desktop-file-utils shared-mime-info gtk3"
-    postun_requires="Requires(postun): desktop-file-utils shared-mime-info gtk3"
 
     cat > "${RPM_SPEC_DIR}/${PACKAGE_NAME}.spec" << EOF
 Name:           ${PACKAGE_NAME}
@@ -214,8 +210,6 @@ Group:          ${PACKAGE_GROUP}
 URL:            ${PACKAGE_URL}
 ExclusiveArch:  ${PACKAGE_ARCH}
 ${dependencies}
-${post_requires}
-${postun_requires}
 Source0:        %{name}-%{version}.tar.gz
 
 %description
