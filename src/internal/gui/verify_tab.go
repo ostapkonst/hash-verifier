@@ -25,11 +25,12 @@ type VerifyTab struct {
 	cancel context.CancelFunc
 	wg     sync.WaitGroup
 
-	entryChecksum *gtk.Entry
-	btnStart      *gtk.Button
-	btnStop       *gtk.Button
-	btnBrowseChk  *gtk.Button
-	listStore     *gtk.ListStore
+	entryChecksum      *gtk.Entry
+	btnStart           *gtk.Button
+	btnStop            *gtk.Button
+	btnBrowseChk       *gtk.Button
+	listStore          *gtk.ListStore
+	chkBoxVerifyOnOpen *gtk.CheckButton
 
 	labelMatchV      *gtk.Label
 	labelMismatchV   *gtk.Label
@@ -59,6 +60,10 @@ func NewVerifyTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window)
 
 func (t *VerifyTab) Fill(path string) {
 	t.entryChecksum.SetText(path)
+
+	if t.chkBoxVerifyOnOpen.GetActive() {
+		t.onStart()
+	}
 }
 
 func (t *VerifyTab) getWidgets() {
@@ -67,6 +72,7 @@ func (t *VerifyTab) getWidgets() {
 	t.btnStop = getButton(t.builder, "btn_stop_validate")
 	t.btnBrowseChk = getButton(t.builder, "btn_browse_val_checksum")
 	t.listStore = getListStore(t.builder, "liststore_validate")
+	t.chkBoxVerifyOnOpen = getCheckButton(t.builder, "chk_val_verify_on_open")
 
 	t.totalProgress = getProgressBar(t.builder, "progress_val_total")
 	t.currFileProgress = getProgressBar(t.builder, "progress_val_curr_file")
@@ -86,6 +92,10 @@ func (t *VerifyTab) setupHandlers() {
 		path, _ := t.entryChecksum.GetText()
 		if file, ok := OpenFileDialog(t.window, "Select Checksum File", path); ok {
 			t.entryChecksum.SetText(file)
+
+			if t.chkBoxVerifyOnOpen.GetActive() {
+				t.onStart()
+			}
 		}
 	})
 
@@ -206,6 +216,7 @@ func (t *VerifyTab) activateStopState() {
 
 	t.btnBrowseChk.SetSensitive(false)
 	t.entryChecksum.SetSensitive(false)
+	t.chkBoxVerifyOnOpen.SetSensitive(false)
 }
 
 func (t *VerifyTab) setStartState() {
@@ -214,6 +225,7 @@ func (t *VerifyTab) setStartState() {
 
 	t.btnBrowseChk.SetSensitive(true)
 	t.entryChecksum.SetSensitive(true)
+	t.chkBoxVerifyOnOpen.SetSensitive(true)
 }
 
 func (t *VerifyTab) updateStats(stats checksum.VerifierStats) {

@@ -158,20 +158,12 @@ func addFileFilters(dialog *gtk.FileChooserDialog) {
 	dialog.SetFilter(filterAllSupported)
 }
 
-func changeFileExtension(filename, newExt string) string {
-	if newExt == "" || newExt[0] != '.' {
-		panic("invalid extension")
-	}
-
-	newExt = strings.TrimPrefix(newExt, ".")
-
+func changeFileExtension(filename, ext string) string {
 	if filename == "" {
 		return ""
 	}
 
-	ext := filepath.Ext(filename)
-
-	return strings.TrimSuffix(filename, ext) + "." + newExt
+	return strings.TrimSuffix(filename, filepath.Ext(filename)) + ext
 }
 
 func splitPath(fullPath string) (directory, filename string) {
@@ -186,5 +178,5 @@ func splitPath(fullPath string) (directory, filename string) {
 }
 
 func genChecksumFilename(directory, ext string) string {
-	return filepath.Clean(directory) + ext
+	return directory + ext
 }

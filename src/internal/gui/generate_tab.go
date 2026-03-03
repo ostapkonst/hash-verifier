@@ -255,6 +255,8 @@ func (t *GenerateTab) activateStopState() {
 	t.entryDir.SetSensitive(false)
 	t.entryChecksum.SetSensitive(false)
 	t.cmbTxtAlgorithm.SetSensitive(false)
+	t.chkBtnFollowSymlinks.SetSensitive(false)
+	t.chkBtnSortPaths.SetSensitive(false)
 }
 
 func (t *GenerateTab) setStartState() {
@@ -266,6 +268,8 @@ func (t *GenerateTab) setStartState() {
 	t.entryDir.SetSensitive(true)
 	t.entryChecksum.SetSensitive(true)
 	t.cmbTxtAlgorithm.SetSensitive(true)
+	t.chkBtnFollowSymlinks.SetSensitive(true)
+	t.chkBtnSortPaths.SetSensitive(true)
 }
 
 func (t *GenerateTab) updateStats(stats checksum.GeneratorStats) {
