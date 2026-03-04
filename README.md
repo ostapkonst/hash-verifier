@@ -11,6 +11,7 @@ A cross-platform checksum generation and verification tool with both CLI and GTK
 - **Multiple Algorithms** — Support for 11 hash algorithms
 - **Dual Interface** — Use via command-line or intuitive GUI
 - **Progress Tracking** — Real-time progress for both generation and verification
+- **Speed Tracking** — Live hashing speed display
 - **Symbolic Link Support** — Follows symbolic links, hard links, and junction points
 - **UTF-8 Encoding** — All checksum files are saved in UTF-8 encoding
 

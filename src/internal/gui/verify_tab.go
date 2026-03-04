@@ -36,6 +36,7 @@ type VerifyTab struct {
 	labelMismatchV   *gtk.Label
 	labelUnreadableV *gtk.Label
 	labelPendingV    *gtk.Label
+	labelSpeedV      *gtk.Label
 
 	labelCurrFileV   *gtk.Label
 	totalProgress    *gtk.ProgressBar
@@ -83,6 +84,7 @@ func (t *VerifyTab) getLabels() {
 	t.labelMismatchV = getLabel(t.builder, "label_val_mismatch_value")
 	t.labelUnreadableV = getLabel(t.builder, "label_val_unreadable_value")
 	t.labelPendingV = getLabel(t.builder, "label_val_pending_value")
+	t.labelSpeedV = getLabel(t.builder, "label_val_speed_value")
 
 	t.labelCurrFileV = getLabel(t.builder, "label_val_curr_file_value")
 }
@@ -233,6 +235,7 @@ func (t *VerifyTab) updateStats(stats checksum.VerifierStats) {
 	t.labelMismatchV.SetText(fmt.Sprintf("%d of %d files", stats.Mismatch, stats.TotalFiles))
 	t.labelUnreadableV.SetText(fmt.Sprintf("%d of %d files", stats.Unreadable, stats.TotalFiles))
 	t.labelPendingV.SetText(fmt.Sprintf("%d of %d files", stats.Pending(), stats.TotalFiles))
+	t.labelSpeedV.SetText(bytesize.New(stats.Speed).String() + "/s")
 
 	t.labelCurrFileV.SetText(stats.CurrentFileOrStatus)
 	t.totalProgress.SetFraction(stats.TotalProgress())

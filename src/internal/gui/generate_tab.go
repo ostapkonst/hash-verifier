@@ -39,6 +39,7 @@ type GenerateTab struct {
 	labelProcessedV  *gtk.Label
 	labelWithErrorsV *gtk.Label
 	labelPendingV    *gtk.Label
+	labelSpeedV      *gtk.Label
 
 	labelCurrFileV   *gtk.Label
 	totalProgress    *gtk.ProgressBar
@@ -87,6 +88,7 @@ func (t *GenerateTab) getLabels() {
 	t.labelProcessedV = getLabel(t.builder, "label_gen_processed_value")
 	t.labelWithErrorsV = getLabel(t.builder, "label_gen_with_errors_value")
 	t.labelPendingV = getLabel(t.builder, "label_gen_pending_value")
+	t.labelSpeedV = getLabel(t.builder, "label_gen_speed_value")
 
 	t.labelCurrFileV = getLabel(t.builder, "label_gen_curr_file_value")
 }
@@ -276,6 +278,7 @@ func (t *GenerateTab) updateStats(stats checksum.GeneratorStats) {
 	t.labelProcessedV.SetText(fmt.Sprintf("%d of %d files", stats.Processed, stats.TotalFiles))
 	t.labelWithErrorsV.SetText(fmt.Sprintf("%d of %d files", stats.WithErrors, stats.TotalFiles))
 	t.labelPendingV.SetText(fmt.Sprintf("%d of %d files", stats.Pending(), stats.TotalFiles))
+	t.labelSpeedV.SetText(bytesize.New(stats.Speed).String() + "/s")
 
 	t.labelCurrFileV.SetText(stats.CurrentFileOrStatus)
 	t.totalProgress.SetFraction(stats.TotalProgress())

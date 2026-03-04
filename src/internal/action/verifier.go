@@ -27,6 +27,7 @@ type Verifier struct {
 	stats                   checksum.VerifierStats
 	algo                    checksum.Algorithm
 	currFileHashingProgress atomic.Value
+	speedTracker            *checksum.SpeedTracker
 
 	status VerifierStatusType
 
@@ -39,14 +40,15 @@ func NewVerifier(ctx context.Context, filename string, algo checksum.Algorithm) 
 	ctx, cancel := context.WithCancel(ctx)
 
 	v := &Verifier{
-		ctx:      ctx,
-		cancel:   cancel,
-		resultCh: make(chan checksum.VerifyResult, 1),
-		done:     make(chan struct{}),
-		err:      make(chan error, 1),
-		filename: filename,
-		algo:     algo,
-		status:   VerifierStatusFinished,
+		ctx:          ctx,
+		cancel:       cancel,
+		resultCh:     make(chan checksum.VerifyResult, 1),
+		done:         make(chan struct{}),
+		err:          make(chan error, 1),
+		filename:     filename,
+		algo:         algo,
+		status:       VerifierStatusFinished,
+		speedTracker: checksum.NewSpeedTracker(),
 	}
 
 	v.stats = checksum.VerifierStats{CurrentFileOrStatus: "ready to go..."}
@@ -67,6 +69,7 @@ func (v *Verifier) Start() {
 
 	v.stats = checksum.VerifierStats{CurrentFileOrStatus: "ready to go..."}
 	v.currFileHashingProgress.Store(func() float64 { return 0 })
+	v.speedTracker.Reset()
 
 	go v.run()
 }
@@ -84,6 +87,7 @@ func (v *Verifier) Stats() checksum.VerifierStats {
 
 	stats := v.stats
 	stats.FileHashingProgress = fileHashingProgress()
+	stats.Speed = v.speedTracker.Speed()
 
 	return stats
 }
@@ -121,7 +125,10 @@ func (v *Verifier) updateStatsPending(totalFiles int) {
 }
 
 func (v *Verifier) run() {
-	defer v.updateCurrentFileOrStatus("ready to go...")
+	defer func() {
+		v.updateCurrentFileOrStatus("ready to go...")
+		v.speedTracker.Reset()
+	}()
 	defer func() {
 		v.rwm.Lock()
 		defer v.rwm.Unlock()
@@ -157,7 +164,7 @@ func (v *Verifier) run() {
 			path = filepath.Join(baseDir, line.RelPath)
 		}
 
-		hashCalc := checksum.NewHashCalculator(path, v.algo)
+		hashCalc := checksum.NewHashCalculator(path, v.algo, v.speedTracker)
 		v.currFileHashingProgress.Store(hashCalc.Progress)
 		hastResult, err := hashCalc.Calculate(v.ctx)
 

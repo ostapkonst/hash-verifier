@@ -23,15 +23,17 @@ type HashCalculator struct {
 	fileSize       int64
 	readBytes      atomic.Int64
 	readAllContent atomic.Bool
+	speedTracker   *SpeedTracker
 }
 
-func NewHashCalculator(path string, algo Algorithm) *HashCalculator {
+func NewHashCalculator(path string, algo Algorithm, speedTracker *SpeedTracker) *HashCalculator {
 	return &HashCalculator{
 		algo:           algo,
 		path:           path,
 		rwm:            sync.RWMutex{},
 		fileSize:       calculateFileSize(path),
 		readAllContent: atomic.Bool{},
+		speedTracker:   speedTracker,
 	}
 }
 
@@ -51,6 +53,10 @@ func (c *HashCalculator) Progress() float64 {
 	}
 
 	return float64(readBytes) / float64(c.fileSize)
+}
+
+func (c *HashCalculator) Speed() float64 {
+	return c.speedTracker.Speed()
 }
 
 func (c *HashCalculator) Calculate(ctx context.Context) (HashResult, error) {
@@ -107,6 +113,7 @@ func (c *HashCalculator) Calculate(ctx context.Context) (HashResult, error) {
 		if n > 0 {
 			result.ReadBytes += int64(n)
 			c.readBytes.Store(result.ReadBytes)
+			c.speedTracker.AddBytes(int64(n))
 
 			if _, werr := h.Write(buf[:n]); werr != nil {
 				return result, werr

@@ -30,6 +30,7 @@ type Generator struct {
 	sortPaths               bool
 	stats                   checksum.GeneratorStats
 	currFileHashingProgress atomic.Value
+	speedTracker            *checksum.SpeedTracker
 
 	status GeneratorStatusType
 
@@ -60,6 +61,7 @@ func NewGenerator(
 		followSymbolicLinks: followSymbolicLinks,
 		sortPaths:           sortPaths,
 		status:              GeneratorStatusFinished,
+		speedTracker:        checksum.NewSpeedTracker(),
 	}
 
 	g.stats = checksum.GeneratorStats{CurrentFileOrStatus: "ready to go..."}
@@ -80,6 +82,7 @@ func (g *Generator) Start() {
 
 	g.stats = checksum.GeneratorStats{CurrentFileOrStatus: "ready to go..."}
 	g.currFileHashingProgress.Store(func() float64 { return 0 })
+	g.speedTracker.Reset()
 
 	go g.run()
 }
@@ -97,6 +100,7 @@ func (g *Generator) Stats() checksum.GeneratorStats {
 
 	stats := g.stats
 	stats.FileHashingProgress = fileHashProgress()
+	stats.Speed = g.speedTracker.Speed()
 
 	return stats
 }
@@ -132,7 +136,10 @@ func (g *Generator) updateStatsPending(totalFiles int) {
 }
 
 func (g *Generator) run() {
-	defer g.updateCurrentFileOrStatus("ready to go...")
+	defer func() {
+		g.updateCurrentFileOrStatus("ready to go...")
+		g.speedTracker.Reset()
+	}()
 	defer func() {
 		g.rwm.Lock()
 		defer g.rwm.Unlock()
@@ -158,7 +165,7 @@ func (g *Generator) run() {
 	for _, file := range files {
 		g.updateCurrentFileOrStatus(file)
 
-		hashCalc := checksum.NewHashCalculator(file, g.algo)
+		hashCalc := checksum.NewHashCalculator(file, g.algo, g.speedTracker)
 		g.currFileHashingProgress.Store(hashCalc.Progress)
 
 		var fileErr error

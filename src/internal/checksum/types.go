@@ -46,6 +46,7 @@ type GeneratorStats struct {
 	WithErrors          int     // не удалось обработать
 	CurrentFileOrStatus string  // текущий файл или статус
 	FileHashingProgress float64 // прогресс вычисления хеша текущего файла
+	Speed               float64 // скорость хеширования в байтах/сек
 }
 
 func (g GeneratorStats) Pending() int { return g.TotalFiles - g.Processed - g.WithErrors }
@@ -66,6 +67,7 @@ type VerifierStats struct {
 	Unreadable          int     // не удалось проверить
 	CurrentFileOrStatus string  // текущий файл или статус
 	FileHashingProgress float64 // прогресс вычисления хеша текущего файла
+	Speed               float64 // скорость хеширования в байтах/сек
 }
 
 func (v VerifierStats) Pending() int { return v.TotalFiles - v.Matched - v.Mismatch - v.Unreadable }
