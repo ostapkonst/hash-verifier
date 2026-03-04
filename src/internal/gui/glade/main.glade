@@ -570,6 +570,9 @@ Author: ostapkonst
                   </packing>
                 </child>
               </object>
+              <packing>
+                <property name="reorderable">True</property>
+              </packing>
             </child>
             <child type="tab">
               <object class="GtkLabel">
@@ -1041,6 +1044,7 @@ Author: ostapkonst
               </object>
               <packing>
                 <property name="position">1</property>
+                <property name="reorderable">True</property>
               </packing>
             </child>
             <child type="tab">
@@ -1051,6 +1055,18 @@ Author: ostapkonst
               </object>
               <packing>
                 <property name="position">1</property>
+                <property name="tab-fill">False</property>
+              </packing>
+            </child>
+            <child type="action-end">
+              <object class="GtkButton" id="main_about">
+                <property name="label" translatable="yes">About</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="relief">none</property>
+              </object>
+              <packing>
                 <property name="tab-fill">False</property>
               </packing>
             </child>

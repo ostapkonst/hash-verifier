@@ -5,7 +5,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
+
+	"github.com/ostapkonst/hash-verifier/internal/header"
 )
 
 func ShowError(parent *gtk.Window, title, message string) {
@@ -33,7 +36,8 @@ func SelectDirectoryDialog(parent *gtk.Window, title, folder string) (string, bo
 		gtk.RESPONSE_CANCEL,
 	)
 	if err != nil {
-		panic(fmt.Errorf("failed to create select directory dialog: %w", err))
+		ShowError(parent, "Error", fmt.Sprintf("Failed to create select directory dialog: %v", err))
+		return "", false
 	}
 
 	defer dialog.Destroy()
@@ -59,7 +63,8 @@ func OpenFileDialog(parent *gtk.Window, title, path string) (string, bool) {
 		gtk.RESPONSE_CANCEL,
 	)
 	if err != nil {
-		panic(fmt.Errorf("failed to create open file dialog: %w", err))
+		ShowError(parent, "Error", fmt.Sprintf("Failed to create open file dialog: %v", err))
+		return "", false
 	}
 
 	defer dialog.Destroy()
@@ -90,7 +95,8 @@ func SaveFileDialog(parent *gtk.Window, title, path, ext string) (string, bool) 
 		gtk.RESPONSE_CANCEL,
 	)
 	if err != nil {
-		panic(fmt.Errorf("failed to create save file dialog: %w", err))
+		ShowError(parent, "Error", fmt.Sprintf("Failed to create save file dialog: %v", err))
+		return "", false
 	}
 
 	defer dialog.Destroy()
@@ -179,4 +185,27 @@ func splitPath(fullPath string) (directory, filename string) {
 
 func genChecksumFilename(directory, ext string) string {
 	return directory + ext
+}
+
+func ShowAboutDialog(parent *gtk.Window, icon *gdk.Pixbuf) {
+	about, err := gtk.AboutDialogNew()
+	if err != nil {
+		ShowError(parent, "Error", fmt.Sprintf("Failed to create about dialog: %v", err))
+		return
+	}
+	defer about.Destroy()
+
+	gtkVersion := fmt.Sprintf("%d.%d.%d", gtk.GetMajorVersion(), gtk.GetMinorVersion(), gtk.GetMicroVersion())
+
+	about.SetTransientFor(parent)
+	about.SetModal(true)
+	about.SetLogo(icon)
+	about.SetProgramName(header.Name)
+	about.SetWebsite(header.Link)
+	about.SetWebsiteLabel(header.Link)
+	about.SetComments("A cross-platform application for generating and validating file checksums using multiple cryptographic hash algorithms.\n\nGTK Version: " + gtkVersion)
+	about.SetCopyright("© Ostap Konstantinov")
+	about.SetLicenseType(gtk.LICENSE_MIT_X11)
+
+	about.Run()
 }

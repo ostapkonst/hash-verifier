@@ -26,6 +26,7 @@ type App struct {
 	builder     *gtk.Builder
 	generateTab *GenerateTab
 	verifyTab   *VerifyTab
+	icon        *gdk.Pixbuf
 	ctx         context.Context
 }
 
@@ -36,12 +37,13 @@ func Run(path string) error {
 	defer cancel()
 
 	app := &App{ctx: ctx}
-	if err := app.initUI(); err != nil {
-		return fmt.Errorf("failed to initialize UI: %w", err)
-	}
 
 	if err := app.setIcon(); err != nil {
 		return fmt.Errorf("failed to set icon: %w", err)
+	}
+
+	if err := app.initUI(); err != nil {
+		return fmt.Errorf("failed to initialize UI: %w", err)
 	}
 
 	app.fillTabAndSwitch(path)
@@ -96,6 +98,8 @@ func (a *App) setIcon() error {
 
 	a.window.SetIcon(pixbuf)
 
+	a.icon = pixbuf
+
 	return nil
 }
 
@@ -132,8 +136,30 @@ func (a *App) initUI() error {
 		gracer.GracefulShutdown()
 	})
 
+	if err := a.connectAboutButton(); err != nil {
+		return fmt.Errorf("failed to connect about button: %w", err)
+	}
+
 	a.generateTab = NewGenerateTab(a.ctx, a.builder, a.window)
 	a.verifyTab = NewVerifyTab(a.ctx, a.builder, a.window)
+
+	return nil
+}
+
+func (a *App) connectAboutButton() error {
+	obj, err := a.builder.GetObject("main_about")
+	if err != nil {
+		return fmt.Errorf("failed to get about button: %w", err)
+	}
+
+	menuItem, ok := obj.(*gtk.Button)
+	if !ok {
+		return fmt.Errorf("object is not a GtkButton")
+	}
+
+	menuItem.Connect("clicked", func() {
+		ShowAboutDialog(a.window, a.icon)
+	})
 
 	return nil
 }
