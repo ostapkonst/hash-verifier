@@ -201,6 +201,7 @@ func ShowAboutDialog(parent *gtk.Window, icon *gdk.Pixbuf) {
 	about.SetModal(true)
 	about.SetLogo(icon)
 	about.SetProgramName(header.Name)
+	about.SetVersion(header.Version)
 	about.SetWebsite(header.Link)
 	about.SetWebsiteLabel(header.Link)
 	about.SetComments("A cross-platform application for generating and validating file checksums using multiple cryptographic hash algorithms.\n\nGTK Version: " + gtkVersion)

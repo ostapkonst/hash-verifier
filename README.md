@@ -94,6 +94,13 @@ Download and extract the ZIP archive for your architecture:
 
 ### CLI Mode
 
+**Print version:**
+
+```bash
+./hashverifier --version
+./hashverifier -v
+```
+
 **Generate checksums:**
 
 ```bash
@@ -113,7 +120,7 @@ Download and extract the ZIP archive for your architecture:
 **SHA256 example:**
 
 ```
-; Generated at <timestamp> by HashVerifier
+; Generated at <timestamp> by HashVerifier <version>
 
 a1b2c3d4e5f6... *documents/report.pdf
 f6e5d4c3b2a1... *documents/notes.txt
@@ -122,7 +129,7 @@ f6e5d4c3b2a1... *documents/notes.txt
 **CRC32/SFV example:**
 
 ```
-; Generated at <timestamp> by HashVerifier
+; Generated at <timestamp> by HashVerifier <version>
 
 documents/report.pdf a1b2c3d4
 documents/notes.txt f6e5d4c3

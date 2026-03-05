@@ -5,11 +5,12 @@
 
 GO_LICENSES_VERSION   = v2.0.1
 GOLANGCI_LINT_VERSION = v2.10.1
+VERSION              ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "unknown")
 
 all: help
 
 build:
-	cd src && go build -ldflags="-s -w" -o ../hashverifier .
+	cd src && go build -ldflags="-s -w -X 'github.com/ostapkonst/hash-verifier/internal/header.Version=$(VERSION)'" -o ../hashverifier .
 
 run:
 	cd src && go run .
@@ -17,60 +18,55 @@ run:
 linux-amd64:
 	@echo "Building for Linux/amd64..."
 	@mkdir -p dist/linux-amd64
-	docker compose -f build/docker-compose.dist.yml run --rm --build linux-amd64
+	VERSION=$(VERSION) docker compose -f build/docker-compose.dist.yml run --rm --build linux-amd64
 	@echo "✓ Linux/amd64 binary: dist/linux-amd64/hashverifier"
 
 linux-arm64:
 	@echo "Building for Linux/arm64 (aarch64)..."
 	@mkdir -p dist/linux-arm64
-	docker compose -f build/docker-compose.dist.yml run --rm --build linux-arm64
+	VERSION=$(VERSION) docker compose -f build/docker-compose.dist.yml run --rm --build linux-arm64
 	@echo "✓ Linux/arm64 binary: dist/linux-arm64/hashverifier"
 
 windows-amd64:
 	@echo "Building for Windows/amd64..."
 	@mkdir -p dist/windows-amd64
-	docker compose -f build/docker-compose.dist.yml run --rm --build windows-amd64
+	VERSION=$(VERSION) docker compose -f build/docker-compose.dist.yml run --rm --build windows-amd64
 	@echo "✓ Windows/amd64 binary: dist/windows-amd64/hashverifier.exe"
 
 windows-i686:
 	@echo "Building for Windows/i686..."
 	@mkdir -p dist/windows-i686
-	docker compose -f build/docker-compose.dist.yml run --rm --build windows-i686
+	VERSION=$(VERSION) docker compose -f build/docker-compose.dist.yml run --rm --build windows-i686
 	@echo "✓ Windows/i686 binary: dist/windows-i686/hashverifier.exe"
 
 appimage:
 	@echo "Building AppImage package..."
 	@mkdir -p .pkg-build dist/linux-amd64
-	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
-		docker compose -f build/docker-compose.appimage.yml run --rm appimage-builder /app/build/create-appimage.sh
+	VERSION=$(VERSION) docker compose -f build/docker-compose.appimage.yml run --rm appimage-builder /app/build/create-appimage.sh
 	@echo "✓ AppImage package: .pkg-build/package/*.AppImage"
 
 deb-amd64:
 	@echo "Building DEB package for AMD64..."
 	@mkdir -p .pkg-build dist/linux-amd64
-	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
-		docker compose -f build/docker-compose.packages.yml run --rm package-builder /app/build/create-deb.sh
+	VERSION=$(VERSION) docker compose -f build/docker-compose.packages.yml run --rm package-builder /app/build/create-deb.sh
 	@echo "✓ DEB package (amd64): .pkg-build/package/*.deb"
 
 rpm-amd64:
 	@echo "Building RPM package for AMD64..."
 	@mkdir -p .pkg-build dist/linux-amd64
-	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
-		docker compose -f build/docker-compose.packages.yml run --rm package-builder /app/build/create-rpm.sh
+	VERSION=$(VERSION) docker compose -f build/docker-compose.packages.yml run --rm package-builder /app/build/create-rpm.sh
 	@echo "✓ RPM package (amd64): .pkg-build/package/*.rpm"
 
 deb-arm64:
 	@echo "Building DEB package for ARM64..."
 	@mkdir -p .pkg-build dist/linux-arm64
-	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
-		docker compose -f build/docker-compose.packages.yml run --rm deb-arm64 /app/build/create-deb.sh
+	VERSION=$(VERSION) docker compose -f build/docker-compose.packages.yml run --rm deb-arm64 /app/build/create-deb.sh
 	@echo "✓ DEB package (arm64): .pkg-build/package/*.deb"
 
 rpm-arm64:
 	@echo "Building RPM package for ARM64..."
 	@mkdir -p .pkg-build dist/linux-arm64
-	VERSION=$(or $(VERSION),$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")) \
-		docker compose -f build/docker-compose.packages.yml run --rm rpm-arm64 /app/build/create-rpm.sh
+	VERSION=$(VERSION) docker compose -f build/docker-compose.packages.yml run --rm rpm-arm64 /app/build/create-rpm.sh
 	@echo "✓ RPM package (arm64): .pkg-build/package/*.rpm"
 
 clean:
