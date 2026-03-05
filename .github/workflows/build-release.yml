@@ -73,7 +73,7 @@ jobs:
 
       - name: Build Linux (${{ matrix.arch }}) binary
         run: |
-          make linux-${{ matrix.arch }}
+          make linux-${{ matrix.arch }} VERSION="${{ needs.validate-version.outputs.version }}"
 
       - name: Upload Linux (${{ matrix.arch }}) artifact
         uses: actions/upload-artifact@v6
@@ -95,7 +95,7 @@ jobs:
 
       - name: Build Windows (${{ matrix.arch }}) binary
         run: |
-          make windows-${{ matrix.arch }}
+          make windows-${{ matrix.arch }} VERSION="${{ needs.validate-version.outputs.version }}"
 
       - name: Upload Windows (${{ matrix.arch }}) artifact
         uses: actions/upload-artifact@v6
