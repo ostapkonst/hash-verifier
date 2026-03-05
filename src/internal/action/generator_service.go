@@ -37,10 +37,10 @@ func formatStatsFooter(stats checksum.GeneratorStats) string {
 	return fmt.Sprintf(
 		"%s"+
 			"; Statistics:%s"+
-			";   Status:         %s%s"+
-			";   Total files:    %d%s"+
-			";   Hashed:         %d%s"+
-			";   With errors:    %d%s",
+			";   Status: %s%s"+
+			";   Total files: %d%s"+
+			";   Hashed: %d%s"+
+			";   With errors: %d%s",
 		optionalNewLine,
 		eof.PlatformEOF,
 		status,
