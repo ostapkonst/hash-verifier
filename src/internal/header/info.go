@@ -12,7 +12,7 @@ const (
 	Link = "https://github.com/ostapkonst/hash-verifier"
 )
 
-// Version устанавливается при компиляции через -ldflags -X
+// Version устанавливается при компиляции через -ldflags -X.
 var Version = "unknown"
 
 func GetChecksumHeader() string {

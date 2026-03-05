@@ -111,6 +111,10 @@ func GenerateChecksumsStreamingToFile(ctx context.Context, cfg GenerateStreaming
 			hasError = fmt.Errorf("failed to generate checksums: %w", err)
 		}
 
+		if _, err := bw.WriteString(formatStatsFooter(generator.Stats())); err != nil && hasError == nil {
+			hasError = fmt.Errorf("failed to write stats footer: %w", err)
+		}
+
 		if err := bw.Flush(); err != nil && hasError == nil {
 			hasError = fmt.Errorf("failed to flush buffer: %w", err)
 		}

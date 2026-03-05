@@ -38,10 +38,6 @@ func Run(path string) error {
 
 	app := &App{ctx: ctx}
 
-	if err := app.setIcon(); err != nil {
-		return fmt.Errorf("failed to set icon: %w", err)
-	}
-
 	if err := app.initUI(); err != nil {
 		return fmt.Errorf("failed to initialize UI: %w", err)
 	}
@@ -85,52 +81,29 @@ func (a *App) fillTabAndSwitch(path string) {
 	noteBook.SetCurrentPage(1)
 }
 
-func (a *App) setIcon() error {
-	uiContent, err := assets.ReadFile(uiFavIcon)
-	if err != nil {
-		return fmt.Errorf("failed to read UI file: %w", err)
-	}
-
-	pixbuf, err := gdk.PixbufNewFromDataOnly(uiContent)
-	if err != nil {
-		return fmt.Errorf("failed to create pixbuf: %w", err)
-	}
-
-	a.window.SetIcon(pixbuf)
-
-	a.icon = pixbuf
-
-	return nil
-}
-
 func (a *App) initUI() error {
-	builder, err := gtk.BuilderNew()
+	builder, err := getMainForm()
 	if err != nil {
-		return fmt.Errorf("failed to create builder: %w", err)
-	}
-
-	uiContent, err := assets.ReadFile(uiMain)
-	if err != nil {
-		return fmt.Errorf("failed to read UI file: %w", err)
-	}
-
-	if err := builder.AddFromString(string(uiContent)); err != nil {
-		return fmt.Errorf("failed to parse UI: %w", err)
+		return fmt.Errorf("failed to get main form: %w", err)
 	}
 
 	a.builder = builder
 
-	obj, err := builder.GetObject("main_window")
+	favIcon, err := getMainIcon()
+	if err != nil {
+		return fmt.Errorf("failed to get main icon: %w", err)
+	}
+
+	a.icon = favIcon
+
+	window, err := getMainWindow(builder)
 	if err != nil {
 		return fmt.Errorf("failed to get main window: %w", err)
 	}
 
-	window, ok := obj.(*gtk.Window)
-	if !ok {
-		return fmt.Errorf("object is not a GtkWindow")
-	}
-
 	a.window = window
+
+	window.SetIcon(favIcon)
 
 	window.Connect("destroy", func() {
 		gracer.GracefulShutdown()
@@ -162,6 +135,52 @@ func (a *App) connectAboutButton() error {
 	})
 
 	return nil
+}
+
+func getMainIcon() (*gdk.Pixbuf, error) {
+	uiContent, err := assets.ReadFile(uiFavIcon)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read UI file: %w", err)
+	}
+
+	pixbuf, err := gdk.PixbufNewFromDataOnly(uiContent)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create pixbuf: %w", err)
+	}
+
+	return pixbuf, nil
+}
+
+func getMainForm() (*gtk.Builder, error) {
+	builder, err := gtk.BuilderNew()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create builder: %w", err)
+	}
+
+	uiContent, err := assets.ReadFile(uiMain)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read UI file: %w", err)
+	}
+
+	if err := builder.AddFromString(string(uiContent)); err != nil {
+		return nil, fmt.Errorf("failed to parse UI: %w", err)
+	}
+
+	return builder, nil
+}
+
+func getMainWindow(builder *gtk.Builder) (*gtk.Window, error) {
+	obj, err := builder.GetObject("main_window")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get main window: %w", err)
+	}
+
+	window, ok := obj.(*gtk.Window)
+	if !ok {
+		return nil, fmt.Errorf("object is not a GtkWindow")
+	}
+
+	return window, nil
 }
 
 func getButton(builder *gtk.Builder, id string) *gtk.Button {

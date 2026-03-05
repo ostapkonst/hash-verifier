@@ -132,15 +132,18 @@ func (t *VerifyTab) onStart() {
 
 	t.wg.Add(1)
 
+	var hasError error
+
+	lastState := checksum.VerifierStats{}
+
 	go func() {
 		defer t.wg.Done()
-
-		var hasError error
 
 		for res := range results {
 			if res.IsProgressUpdate {
 				glib.IdleAdd(func() {
-					t.updateStats(res.Stats)
+					lastState = res.Stats
+					t.updateStats(lastState)
 				})
 
 				if res.Err != nil {
@@ -175,29 +178,41 @@ func (t *VerifyTab) onStart() {
 					_ = t.listStore.SetValue(iter, 6, unwrap.UnwrapAndNormalize(res.Result.Err))
 				}
 
-				t.updateStats(res.Stats)
+				lastState = res.Stats
+				t.updateStats(lastState)
 			})
 		}
-
-		if hasError != nil {
-			if errors.Is(hasError, context.Canceled) {
-				log.Warn().Msg("Verification canceled")
-				return
-			}
-
-			log.Error().Err(hasError).Msg("Failed to verify checksums")
-			glib.IdleAdd(func() {
-				ShowError(t.window, "Error", fmt.Sprintf("Failed to verify checksums: %v", hasError))
-			})
-
-			return
-		}
-
-		log.Info().Msg("Verification completed")
 	}()
 
 	go func() {
 		t.wg.Wait()
+
+		func() {
+			if hasError != nil {
+				if errors.Is(hasError, context.Canceled) {
+					log.Warn().Msg("Verification canceled")
+					return
+				}
+
+				log.Error().Err(hasError).Msg("Failed to verify checksums")
+				glib.IdleAdd(func() {
+					ShowError(t.window, "Error", fmt.Sprintf("Failed to verify checksums: %v", hasError))
+				})
+
+				return
+			}
+
+			log.Info().
+				Int("matched", lastState.Matched).
+				Int("mismatch", lastState.Mismatch).
+				Int("unreadable", lastState.Unreadable).
+				Int("pending", lastState.Pending()).
+				Int("total_files", lastState.TotalFiles).
+				Msg("Verification stats")
+
+			log.Info().Msg("Verification completed")
+		}()
+
 		glib.IdleAdd(func() {
 			cancel()
 			t.cancel = nil

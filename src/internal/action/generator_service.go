@@ -23,6 +23,37 @@ type GenerateResultStats struct {
 	Stats checksum.GeneratorStats
 }
 
+func formatStatsFooter(stats checksum.GeneratorStats) string {
+	status := "Success"
+	if stats.WithErrors > 0 {
+		status = "Completed with errors"
+	}
+
+	optionalNewLine := eof.PlatformEOF
+	if stats.TotalFiles == 0 {
+		optionalNewLine = ""
+	}
+
+	return fmt.Sprintf(
+		"%s"+
+			"; Statistics:%s"+
+			";   Status:         %s%s"+
+			";   Total files:    %d%s"+
+			";   Hashed:         %d%s"+
+			";   With errors:    %d%s",
+		optionalNewLine,
+		eof.PlatformEOF,
+		status,
+		eof.PlatformEOF,
+		stats.TotalFiles,
+		eof.PlatformEOF,
+		stats.Processed,
+		eof.PlatformEOF,
+		stats.WithErrors,
+		eof.PlatformEOF,
+	)
+}
+
 func ValidateInputDir(path string) error {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
@@ -83,6 +114,10 @@ func GenerateChecksums(ctx context.Context, cfg GenerateConfig) (GenerateResultS
 
 	if err := generator.Wait(); err != nil && hasError == nil {
 		hasError = fmt.Errorf("failed to generate checksums: %w", err)
+	}
+
+	if _, err := bw.WriteString(formatStatsFooter(generator.Stats())); err != nil && hasError == nil {
+		hasError = fmt.Errorf("failed to write stats footer: %w", err)
 	}
 
 	if err := bw.Flush(); err != nil && hasError == nil {

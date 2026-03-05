@@ -83,7 +83,7 @@ func execGenerate(ctx context.Context, args []string) error {
 	result, err := action.GenerateChecksums(ctx, cfg)
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
-			log.Info().Msg("Checksum generation canceled")
+			log.Warn().Msg("Checksum generation canceled")
 			return nil
 		}
 
@@ -100,7 +100,6 @@ func execGenerate(ctx context.Context, args []string) error {
 
 	log.Info().
 		Str("file", outputFile).
-		Int("files", stats.Processed).
 		Msg("Checksum generation completed")
 
 	return nil

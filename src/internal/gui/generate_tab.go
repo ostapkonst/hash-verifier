@@ -182,15 +182,18 @@ func (t *GenerateTab) onStart() {
 
 	t.wg.Add(1)
 
+	var hasError error
+
+	lastStats := checksum.GeneratorStats{}
+
 	go func() {
 		defer t.wg.Done()
-
-		var hasError error
 
 		for res := range results {
 			if res.IsProgressUpdate {
 				glib.IdleAdd(func() {
-					t.updateStats(res.Stats)
+					lastStats = res.Stats
+					t.updateStats(lastStats)
 				})
 
 				if res.Err != nil {
@@ -211,29 +214,42 @@ func (t *GenerateTab) onStart() {
 					_ = t.listStore.SetValue(iter, 3, unwrap.UnwrapAndNormalize(res.Result.Err))
 				}
 
-				t.updateStats(res.Stats)
+				lastStats = res.Stats
+				t.updateStats(lastStats)
 			})
 		}
-
-		if hasError != nil {
-			if errors.Is(hasError, context.Canceled) {
-				log.Warn().Msg("Checksum generation canceled")
-				return
-			}
-
-			log.Error().Err(hasError).Msg("Failed to generate checksums")
-			glib.IdleAdd(func() {
-				ShowError(t.window, "Error", fmt.Sprintf("Failed to generate checksums: %v", hasError))
-			})
-
-			return
-		}
-
-		log.Info().Str("file", outputFile).Msg("Checksum generation completed")
 	}()
 
 	go func() {
 		t.wg.Wait()
+
+		func() {
+			if hasError != nil {
+				if errors.Is(hasError, context.Canceled) {
+					log.Warn().Msg("Checksum generation canceled")
+					return
+				}
+
+				log.Error().Err(hasError).Msg("Failed to generate checksums")
+				glib.IdleAdd(func() {
+					ShowError(t.window, "Error", fmt.Sprintf("Failed to generate checksums: %v", hasError))
+				})
+
+				return
+			}
+
+			log.Info().
+				Int("processed", lastStats.Processed).
+				Int("pending", lastStats.Pending()).
+				Int("with_errors", lastStats.WithErrors).
+				Int("total_files", lastStats.TotalFiles).
+				Msg("Checksum generation stats")
+
+			log.Info().
+				Str("file", outputFile).
+				Msg("Checksum generation completed")
+		}()
+
 		glib.IdleAdd(func() {
 			t.cancel()
 			t.setStartState()
