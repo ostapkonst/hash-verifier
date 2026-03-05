@@ -24,9 +24,9 @@ type GenerateResultStats struct {
 }
 
 func formatStatsFooter(stats checksum.GeneratorStats) string {
-	status := "Success"
+	status := "success"
 	if stats.WithErrors > 0 {
-		status = "Completed with errors"
+		status = "completed with errors"
 	}
 
 	optionalNewLine := eof.PlatformEOF
