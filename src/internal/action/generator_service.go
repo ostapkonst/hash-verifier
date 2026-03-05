@@ -25,12 +25,13 @@ type GenerateResultStats struct {
 
 func formatStatsFooter(stats checksum.GeneratorStats) string {
 	status := "success"
+	statsPending := stats.Pending()
 
 	if stats.WithErrors > 0 {
 		status = "completed with errors"
 	}
 
-	if stats.Pending() > 0 {
+	if statsPending > 0 {
 		status = "cancelled"
 	}
 
@@ -39,7 +40,7 @@ func formatStatsFooter(stats checksum.GeneratorStats) string {
 		optionalNewLine = ""
 	}
 
-	return fmt.Sprintf(
+	statistics := fmt.Sprintf(
 		"%s"+
 			"; Statistics:%s"+
 			";   Status: %s%s"+
@@ -57,6 +58,16 @@ func formatStatsFooter(stats checksum.GeneratorStats) string {
 		stats.WithErrors,
 		eof.PlatformEOF,
 	)
+
+	if status == "cancelled" {
+		statistics += fmt.Sprintf(
+			";   Pending: %d%s",
+			statsPending,
+			eof.PlatformEOF,
+		)
+	}
+
+	return statistics
 }
 
 func ValidateInputDir(path string) error {

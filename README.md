@@ -94,13 +94,6 @@ Download and extract the ZIP archive for your architecture:
 
 ### CLI Mode
 
-**Print version:**
-
-```bash
-./hashverifier --version
-./hashverifier -v
-```
-
 **Generate checksums:**
 
 ```bash
@@ -134,6 +127,30 @@ f6e5d4c3b2a1... *documents/notes.txt
 documents/report.pdf a1b2c3d4
 documents/notes.txt f6e5d4c3
 ```
+
+**Footer with statistics (appended to all checksum files):**
+
+```
+; Statistics:
+;   Status: success
+;   Total files: 2
+;   Hashed: 2
+;   With errors: 0
+```
+
+**Status values:**
+
+| Status | Description |
+|--------|-------------|
+| `success` | All files were hashed successfully |
+| `completed with errors` | Some files could not be hashed (e.g., permission denied) |
+| `cancelled` | Operation was cancelled by the user |
+
+**Additional fields:**
+
+| Field | When appears | Description |
+|-------|--------------|-------------|
+| `Pending` | Only when status is `cancelled` | Number of files that were not processed |
 
 ### Verification Results
 

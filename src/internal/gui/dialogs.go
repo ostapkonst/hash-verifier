@@ -202,11 +202,11 @@ func ShowAboutDialog(parent *gtk.Window, icon *gdk.Pixbuf) {
 	about.SetLogo(icon)
 	about.SetProgramName(header.Name)
 	about.SetVersion(header.Version)
-	about.SetWebsite(header.Link)
+	// about.SetWebsite(header.Link)
 	about.SetWebsiteLabel(header.Link)
 	about.SetComments("A cross-platform application for generating and validating file checksums using multiple cryptographic hash algorithms.\n\nGTK Version: " + gtkVersion)
 	about.SetCopyright("© Ostap Konstantinov")
-	about.SetLicenseType(gtk.LICENSE_MIT_X11)
+	// about.SetLicenseType(gtk.LICENSE_MIT_X11)
 
 	about.Run()
 }
