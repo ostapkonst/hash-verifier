@@ -25,8 +25,13 @@ type GenerateResultStats struct {
 
 func formatStatsFooter(stats checksum.GeneratorStats) string {
 	status := "success"
+
 	if stats.WithErrors > 0 {
 		status = "completed with errors"
+	}
+
+	if stats.Pending() > 0 {
+		status = "cancelled"
 	}
 
 	optionalNewLine := eof.PlatformEOF
