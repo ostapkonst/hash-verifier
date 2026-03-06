@@ -35,9 +35,9 @@ func formatStatsFooter(stats checksum.GeneratorStats) string {
 		status = "cancelled"
 	}
 
-	optionalNewLine := eof.PlatformEOF
-	if stats.TotalFiles == 0 {
-		optionalNewLine = ""
+	optionalNewLine := ""
+	if statsPending < stats.TotalFiles {
+		optionalNewLine = eof.PlatformEOF
 	}
 
 	statistics := fmt.Sprintf(
