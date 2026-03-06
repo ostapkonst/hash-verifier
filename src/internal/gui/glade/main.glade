@@ -82,6 +82,7 @@ Author: ostapkonst
             <property name="scrollable">True</property>
             <child>
               <object class="GtkBox">
+                <property name="name">generate</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
@@ -610,6 +611,7 @@ Author: ostapkonst
             </child>
             <child>
               <object class="GtkBox">
+                <property name="name">verify</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>

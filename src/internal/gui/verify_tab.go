@@ -14,6 +14,7 @@ import (
 
 	"github.com/ostapkonst/hash-verifier/internal/action"
 	"github.com/ostapkonst/hash-verifier/internal/checksum"
+	"github.com/ostapkonst/hash-verifier/internal/settings"
 	"github.com/ostapkonst/hash-verifier/utils/unwrap"
 )
 
@@ -25,10 +26,14 @@ type VerifyTab struct {
 	cancel context.CancelFunc
 	wg     sync.WaitGroup
 
+	settings     *settings.Settings
+	columnConfig *ColumnConfig
+
 	entryChecksum      *gtk.Entry
 	btnStart           *gtk.Button
 	btnStop            *gtk.Button
 	btnBrowseChk       *gtk.Button
+	treeValidate       *gtk.TreeView
 	listStore          *gtk.ListStore
 	chkBoxVerifyOnOpen *gtk.CheckButton
 
@@ -43,16 +48,19 @@ type VerifyTab struct {
 	currFileProgress *gtk.ProgressBar
 }
 
-func NewVerifyTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window) *VerifyTab {
+func NewVerifyTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window, settings *settings.Settings) *VerifyTab {
 	tab := &VerifyTab{
-		builder: builder,
-		window:  window,
-		ctx:     ctx,
+		builder:      builder,
+		window:       window,
+		ctx:          ctx,
+		settings:     settings,
+		columnConfig: NewVerifyColumnConfig(),
 	}
 
 	tab.getWidgets()
 	tab.getLabels()
 
+	tab.applySettingsToUI()
 	tab.setupHandlers()
 	tab.setStartState()
 
@@ -72,6 +80,7 @@ func (t *VerifyTab) getWidgets() {
 	t.btnStart = getButton(t.builder, "btn_start_validate")
 	t.btnStop = getButton(t.builder, "btn_stop_validate")
 	t.btnBrowseChk = getButton(t.builder, "btn_browse_val_checksum")
+	t.treeValidate = getTreeView(t.builder, "tree_validate")
 	t.listStore = getListStore(t.builder, "liststore_validate")
 	t.chkBoxVerifyOnOpen = getCheckButton(t.builder, "chk_val_verify_on_open")
 
@@ -103,6 +112,17 @@ func (t *VerifyTab) setupHandlers() {
 
 	t.btnStart.Connect("clicked", t.onStart)
 	t.btnStop.Connect("clicked", t.onStop)
+
+	t.chkBoxVerifyOnOpen.Connect("toggled", func() {
+		if err := t.saveSettings(); err != nil {
+			log.Error().Err(err).Msg("Failed to save settings")
+		}
+	})
+	t.treeValidate.Connect("columns-changed", func() {
+		if err := t.saveSettings(); err != nil {
+			log.Error().Err(err).Msg("Failed to save settings")
+		}
+	})
 }
 
 func (t *VerifyTab) onStart() {
@@ -259,4 +279,24 @@ func (t *VerifyTab) updateStats(stats checksum.VerifierStats) {
 
 func (t *VerifyTab) Wait() {
 	t.wg.Wait()
+}
+
+func (t *VerifyTab) applySettingsToUI() {
+	if t.settings == nil {
+		return
+	}
+
+	t.chkBoxVerifyOnOpen.SetActive(t.settings.Verify.VerifyOnOpen)
+	t.columnConfig.ApplyColumnOrder(t.treeValidate, t.settings.Verify.ColumnOrder)
+}
+
+func (t *VerifyTab) saveSettings() error {
+	if t.settings == nil {
+		return nil
+	}
+
+	t.settings.Verify.VerifyOnOpen = t.chkBoxVerifyOnOpen.GetActive()
+	t.settings.Verify.ColumnOrder = t.columnConfig.GetColumnOrder(t.treeValidate)
+
+	return t.settings.Save()
 }

@@ -15,12 +15,8 @@ import (
 
 	"github.com/ostapkonst/hash-verifier/internal/action"
 	"github.com/ostapkonst/hash-verifier/internal/checksum"
+	"github.com/ostapkonst/hash-verifier/internal/settings"
 	"github.com/ostapkonst/hash-verifier/utils/gracer"
-)
-
-var (
-	generateNoFollowSymlinks bool
-	generateNoSortPaths      bool
 )
 
 func runGenerate(cmd *cobra.Command, args []string) error {
@@ -47,11 +43,18 @@ func execGenerate(ctx context.Context, args []string) error {
 	inputDir := filepath.Clean(args[0])
 	outputFile := filepath.Clean(args[1])
 
+	cfgSettings, err := settings.Load()
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to load settings, using defaults")
+
+		cfgSettings = settings.DefaultSettings()
+	}
+
 	cfg := action.GenerateConfig{
 		InputDir:            inputDir,
 		OutputFile:          outputFile,
-		FollowSymbolicLinks: !generateNoFollowSymlinks,
-		SortPaths:           !generateNoSortPaths,
+		FollowSymbolicLinks: cfgSettings.Generate.FollowSymbolicLinks,
+		SortPaths:           cfgSettings.Generate.SortPaths,
 		OnFileHashed: func(res checksum.GenerateResult) {
 			commonFields := func(event *zerolog.Event, err error) *zerolog.Event {
 				logger := event.
@@ -111,17 +114,14 @@ var generateCmd = &cobra.Command{
 	Long: strings.Trim(dedent.Dedent(`
 		Generate checksum file recursively from directory.
 		Algorithm is determined automatically from file extension:
-		.sfv, .md4, .md5, .sha1, .sha256, .sha384, .sha512, .sha3-256, .sha3-384, .sha3-512, .blake3.`,
+		.sfv, .md4, .md5, .sha1, .sha256, .sha384, .sha512, .sha3-256, .sha3-384, .sha3-512, .blake3.
+
+		Settings for FollowSymbolicLinks and SortPaths are loaded from configuration file.`,
 	), "\n"),
 	Args: cobra.ExactArgs(2),
 	RunE: runGenerate,
 }
 
 func init() {
-	generateCmd.Flags().BoolVar(&generateNoFollowSymlinks, "no-follow-symlinks", false,
-		"do not follow symbolic links when scanning directories")
-	generateCmd.Flags().BoolVar(&generateNoSortPaths, "no-sort", false,
-		"do not sort paths before generating checksums")
-
 	rootCmd.AddCommand(generateCmd)
 }

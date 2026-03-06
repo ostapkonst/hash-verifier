@@ -110,7 +110,7 @@ func AlgorithmFromExtension(filename string) (Algorithm, error) {
 	}
 }
 
-func getHashLength(algo Algorithm) int {
+func GetHashLength(algo Algorithm) int {
 	switch algo {
 	case MD4:
 		return 32
@@ -139,7 +139,7 @@ func getHashLength(algo Algorithm) int {
 	}
 }
 
-func newHasher(algo Algorithm) hash.Hash {
+func NewHasher(algo Algorithm) hash.Hash {
 	switch algo {
 	case MD4:
 		return md4.New()
@@ -168,6 +168,6 @@ func newHasher(algo Algorithm) hash.Hash {
 	}
 }
 
-func isValidHashLength(hash string, algo Algorithm) bool {
-	return len(hash) == getHashLength(algo)
+func IsValidHashLength(hash string, algo Algorithm) bool {
+	return len(hash) == GetHashLength(algo)
 }

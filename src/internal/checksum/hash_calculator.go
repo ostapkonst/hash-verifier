@@ -72,7 +72,7 @@ func (c *HashCalculator) Calculate(ctx context.Context) (HashResult, error) {
 	}()
 
 	result := HashResult{
-		Hash: strings.Repeat("0", getHashLength(c.algo)), // заглушка, чтобы не было пустого хеша при ошибке
+		Hash: strings.Repeat("0", GetHashLength(c.algo)), // заглушка, чтобы не было пустого хеша при ошибке
 	}
 
 	select {
@@ -98,7 +98,7 @@ func (c *HashCalculator) Calculate(ctx context.Context) (HashResult, error) {
 
 	defer f.Close() //nolint:errcheck
 
-	h := newHasher(c.algo)
+	h := NewHasher(c.algo)
 	buf := make([]byte, HashBufferSize)
 
 	for {

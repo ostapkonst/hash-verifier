@@ -9,7 +9,9 @@ import (
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
+	"github.com/rs/zerolog/log"
 
+	"github.com/ostapkonst/hash-verifier/internal/settings"
 	"github.com/ostapkonst/hash-verifier/utils/gracer"
 )
 
@@ -28,6 +30,8 @@ type App struct {
 	verifyTab   *VerifyTab
 	icon        *gdk.Pixbuf
 	ctx         context.Context
+	settings    *settings.Settings
+	notebook    *gtk.Notebook
 }
 
 func Run(path string) error {
@@ -113,8 +117,21 @@ func (a *App) initUI() error {
 		return fmt.Errorf("failed to connect about button: %w", err)
 	}
 
-	a.generateTab = NewGenerateTab(a.ctx, a.builder, a.window)
-	a.verifyTab = NewVerifyTab(a.ctx, a.builder, a.window)
+	a.settings, err = settings.Load()
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to load settings, using defaults")
+
+		a.settings = settings.DefaultSettings()
+	}
+
+	a.generateTab = NewGenerateTab(a.ctx, a.builder, a.window, a.settings)
+	a.verifyTab = NewVerifyTab(a.ctx, a.builder, a.window, a.settings)
+
+	a.notebook = getNotebook(a.builder, "notebook")
+	a.applyTabOrder()
+	a.applyCurrentPage()
+	a.connectTabReorderHandler()
+	a.connectTabSwitchHandler()
 
 	return nil
 }
@@ -349,4 +366,117 @@ func getCheckButton(builder *gtk.Builder, id string) *gtk.CheckButton {
 	}
 
 	return button
+}
+
+func getTreeView(builder *gtk.Builder, id string) *gtk.TreeView {
+	tree, err := func() (*gtk.TreeView, error) {
+		obj, err := builder.GetObject(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get tree view %s: %w", id, err)
+		}
+
+		treeView, ok := obj.(*gtk.TreeView)
+		if !ok {
+			return nil, fmt.Errorf("object %s is not a TreeView", id)
+		}
+
+		return treeView, nil
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	return tree
+}
+
+func (a *App) getTabOrder() []string {
+	var order []string
+
+	nPages := a.notebook.GetNPages()
+
+	for i := 0; i < nPages; i++ {
+		child, err := a.notebook.GetNthPage(i)
+		if err != nil {
+			continue
+		}
+
+		widget, ok := child.(*gtk.Box)
+		if !ok {
+			continue
+		}
+
+		name, err := widget.GetName()
+		if err == nil && name != "" {
+			order = append(order, name)
+		}
+	}
+
+	return order
+}
+
+func (a *App) applyTabOrder() {
+	order := a.settings.Window.TabOrder
+	if len(order) == 0 {
+		return
+	}
+
+	nPages := a.notebook.GetNPages()
+	pageMap := make(map[string]*gtk.Box)
+
+	for i := 0; i < nPages; i++ {
+		child, err := a.notebook.GetNthPage(i)
+		if err != nil {
+			continue
+		}
+
+		widget, ok := child.(*gtk.Box)
+		if !ok {
+			continue
+		}
+
+		name, err := widget.GetName()
+		if err == nil && name != "" {
+			pageMap[name] = widget
+		}
+	}
+
+	for i, name := range order {
+		if child, ok := pageMap[name]; ok {
+			a.notebook.ReorderChild(child, i)
+		}
+	}
+}
+
+func (a *App) connectTabReorderHandler() {
+	a.notebook.Connect("page-reordered", func() {
+		a.settings.Window.TabOrder = a.getTabOrder()
+
+		a.settings.Window.CurrentPage = a.notebook.GetCurrentPage()
+		if err := a.settings.Save(); err != nil {
+			log.Error().Err(err).Msg("Failed to save tab order")
+		}
+	})
+}
+
+func (a *App) applyCurrentPage() {
+	page := a.settings.Window.CurrentPage
+	if page >= 0 && page < a.notebook.GetNPages() {
+		a.notebook.SetCurrentPage(page)
+	}
+}
+
+func (a *App) connectTabSwitchHandler() {
+	a.notebook.Connect(
+		"switch-page",
+		func(
+			self interface{},
+			page interface{},
+			page_num uint, // пришлось делать так, т. к. GetCurrentPage() возвращает старое значение
+		) {
+			a.settings.Window.CurrentPage = int(page_num)
+			if err := a.settings.Save(); err != nil {
+				log.Error().Err(err).Msg("Failed to save current page")
+			}
+		},
+	)
 }

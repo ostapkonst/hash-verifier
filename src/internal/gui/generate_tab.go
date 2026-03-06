@@ -14,6 +14,7 @@ import (
 
 	"github.com/ostapkonst/hash-verifier/internal/action"
 	"github.com/ostapkonst/hash-verifier/internal/checksum"
+	"github.com/ostapkonst/hash-verifier/internal/settings"
 	"github.com/ostapkonst/hash-verifier/utils/unwrap"
 )
 
@@ -25,10 +26,14 @@ type GenerateTab struct {
 	cancel context.CancelFunc
 	wg     sync.WaitGroup
 
+	settings     *settings.Settings
+	columnConfig *ColumnConfig
+
 	entryDir             *gtk.Entry
 	btnStart             *gtk.Button
 	btnStop              *gtk.Button
 	btnBrowseDir         *gtk.Button
+	treeGenerate         *gtk.TreeView
 	listStore            *gtk.ListStore
 	entryChecksum        *gtk.Entry
 	btnSaveChk           *gtk.Button
@@ -46,16 +51,19 @@ type GenerateTab struct {
 	currFileProgress *gtk.ProgressBar
 }
 
-func NewGenerateTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window) *GenerateTab {
+func NewGenerateTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window, settings *settings.Settings) *GenerateTab {
 	tab := &GenerateTab{
-		builder: builder,
-		window:  window,
-		ctx:     ctx,
+		builder:      builder,
+		window:       window,
+		ctx:          ctx,
+		settings:     settings,
+		columnConfig: NewGenerateColumnConfig(),
 	}
 
 	tab.getWidgets()
 	tab.getLabels()
 
+	tab.applySettingsToUI()
 	tab.setupHandlers()
 	tab.setStartState()
 
@@ -73,6 +81,7 @@ func (t *GenerateTab) getWidgets() {
 	t.btnStart = getButton(t.builder, "btn_start_generate")
 	t.btnStop = getButton(t.builder, "btn_stop_generate")
 	t.btnBrowseDir = getButton(t.builder, "btn_browse_gen_dir")
+	t.treeGenerate = getTreeView(t.builder, "tree_generate")
 	t.listStore = getListStore(t.builder, "liststore_generate")
 	t.entryChecksum = getEntry(t.builder, "entry_gen_checksum")
 	t.btnSaveChk = getButton(t.builder, "btn_save_gen_checksum")
@@ -143,6 +152,27 @@ func (t *GenerateTab) setupHandlers() {
 	t.btnStart.Connect("clicked", t.onStart)
 	t.btnStop.Connect("clicked", t.onStop)
 	t.cmbTxtAlgorithm.Connect("changed", onAlgorithmChanged)
+
+	t.chkBtnFollowSymlinks.Connect("toggled", func() {
+		if err := t.saveSettings(); err != nil {
+			log.Error().Err(err).Msg("Failed to save settings")
+		}
+	})
+	t.chkBtnSortPaths.Connect("toggled", func() {
+		if err := t.saveSettings(); err != nil {
+			log.Error().Err(err).Msg("Failed to save settings")
+		}
+	})
+	t.cmbTxtAlgorithm.Connect("changed", func() {
+		if err := t.saveSettings(); err != nil {
+			log.Error().Err(err).Msg("Failed to save settings")
+		}
+	})
+	t.treeGenerate.Connect("columns-changed", func() {
+		if err := t.saveSettings(); err != nil {
+			log.Error().Err(err).Msg("Failed to save settings")
+		}
+	})
 }
 
 func (t *GenerateTab) onStart() {
@@ -303,4 +333,28 @@ func (t *GenerateTab) updateStats(stats checksum.GeneratorStats) {
 
 func (t *GenerateTab) Wait() {
 	t.wg.Wait()
+}
+
+func (t *GenerateTab) applySettingsToUI() {
+	if t.settings == nil {
+		return
+	}
+
+	t.chkBtnFollowSymlinks.SetActive(t.settings.Generate.FollowSymbolicLinks)
+	t.chkBtnSortPaths.SetActive(t.settings.Generate.SortPaths)
+	t.cmbTxtAlgorithm.SetActiveID(t.settings.Generate.Algorithm)
+	t.columnConfig.ApplyColumnOrder(t.treeGenerate, t.settings.Generate.ColumnOrder)
+}
+
+func (t *GenerateTab) saveSettings() error {
+	if t.settings == nil {
+		return nil
+	}
+
+	t.settings.Generate.FollowSymbolicLinks = t.chkBtnFollowSymlinks.GetActive()
+	t.settings.Generate.SortPaths = t.chkBtnSortPaths.GetActive()
+	t.settings.Generate.Algorithm = t.cmbTxtAlgorithm.GetActiveID()
+	t.settings.Generate.ColumnOrder = t.columnConfig.GetColumnOrder(t.treeGenerate)
+
+	return t.settings.Save()
 }

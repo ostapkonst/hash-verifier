@@ -64,7 +64,7 @@ func ParseCheckSum(ctx context.Context, filename string, algo Algorithm) ([]Chec
 }
 
 func parseLine(line string, algo Algorithm) (relPath, expectedHash string, err error) {
-	format := formatFromAlgorithm(algo)
+	format := FormatFromAlgorithm(algo)
 
 	switch format {
 	case FormatHashFirst:
@@ -87,7 +87,7 @@ func parseLine(line string, algo Algorithm) (relPath, expectedHash string, err e
 		return "", "", errors.New("unknown format")
 	}
 
-	if !isValidHashLength(expectedHash, algo) {
+	if !IsValidHashLength(expectedHash, algo) {
 		return "", "", fmt.Errorf("invalid hash length %d for %s", len(expectedHash), algo.String())
 	}
 

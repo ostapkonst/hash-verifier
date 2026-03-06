@@ -14,6 +14,8 @@ A cross-platform checksum generation and verification tool with both CLI and GTK
 - **Speed Tracking** — Live hashing speed display
 - **Symbolic Link Support** — Follows symbolic links, hard links, and junction points
 - **UTF-8 Encoding** — All checksum files are saved in UTF-8 encoding
+- **Persistent Settings** — GUI preferences and column order are saved automatically
+- **CLI Configuration** — View and edit settings via command line
 
 ## Supported Platforms
 
@@ -107,6 +109,50 @@ Download and extract the ZIP archive for your architecture:
 ./hashverifier verify ./data.sha256
 ./hashverifier verify ./archive.md5
 ```
+
+### Configuration
+
+**View settings:**
+
+```bash
+./hashverifier config
+./hashverifier config show
+```
+
+**Edit settings:**
+
+```bash
+./hashverifier config edit
+```
+
+Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
+
+**Reset settings:**
+
+```bash
+./hashverifier config reset
+```
+
+**Settings location:**
+
+| Platform | Path |
+|----------|------|
+| Linux | `~/.config/hashverifier/settings.yaml` |
+| Windows | `%APPDATA%\hashverifier\settings.yaml` |
+| macOS | `~/Library/Application Support/hashverifier/settings.yaml` |
+
+**Available settings:**
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `window.tab_order` | `generate, verify` | Order of tabs in main window |
+| `window.current_page` | `0` | Currently active tab |
+| `generate.follow_symbolic_links` | `true` | Follow symbolic links when scanning directories |
+| `generate.sort_paths` | `true` | Sort paths before hashing |
+| `generate.algorithm` | `.md5` | Default hash algorithm |
+| `generate.column_order` | `path, size, hash, note` | Order of columns in Generate tab |
+| `verify.verify_on_open` | `true` | Auto-start verification when opening checksum file |
+| `verify.column_order` | `status, path, size, hash, expected_hash, note` | Order of columns in Verify tab |
 
 ### Output Format
 

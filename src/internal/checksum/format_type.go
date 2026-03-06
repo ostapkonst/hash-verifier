@@ -7,7 +7,7 @@ const (
 	FormatPathFirst
 )
 
-func formatFromAlgorithm(algo Algorithm) FormatType {
+func FormatFromAlgorithm(algo Algorithm) FormatType {
 	switch algo {
 	case CRC32:
 		return FormatPathFirst
