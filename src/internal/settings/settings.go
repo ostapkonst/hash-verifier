@@ -32,9 +32,9 @@ type WindowSettings struct {
 }
 
 type Settings struct {
+	Window   WindowSettings   `yaml:"window"`
 	Generate GenerateSettings `yaml:"generate"`
 	Verify   VerifySettings   `yaml:"verify"`
-	Window   WindowSettings   `yaml:"window"`
 }
 
 func DefaultSettings() *Settings {

@@ -140,6 +140,7 @@ func getDefaultEditor() string {
 		return editor
 	}
 
+	// тут можно убрать windows case потому, что для Windows пользователей мы собираем только GUI
 	switch runtime.GOOS {
 	case "windows":
 		defaultEditors := []string{"notepad.exe", "code", "notepad++.exe"}

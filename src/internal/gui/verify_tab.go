@@ -61,8 +61,9 @@ func NewVerifyTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window,
 	tab.getLabels()
 
 	tab.applySettingsToUI()
-	tab.setupHandlers()
 	tab.setStartState()
+
+	tab.setupHandlers()
 
 	return tab
 }
@@ -291,7 +292,8 @@ func (t *VerifyTab) applySettingsToUI() {
 }
 
 func (t *VerifyTab) saveSettings() error {
-	if t.settings == nil {
+	if t.settings == nil ||
+		t.window.InDestruction() {
 		return nil
 	}
 

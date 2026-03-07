@@ -96,7 +96,7 @@ func GetAllSettingsInfo(cfg, defaults *Settings) []SettingsSection {
 	}
 }
 
-func formatSettingValue(v interface{}) string {
+func formatSettingValue(v any) string {
 	switch val := v.(type) {
 	case bool:
 		return fmt.Sprintf("%t", val)

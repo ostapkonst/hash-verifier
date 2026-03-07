@@ -139,7 +139,6 @@ Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
 |----------|------|
 | Linux | `~/.config/hashverifier/settings.yaml` |
 | Windows | `%APPDATA%\hashverifier\settings.yaml` |
-| macOS | `~/Library/Application Support/hashverifier/settings.yaml` |
 
 **Available settings:**
 

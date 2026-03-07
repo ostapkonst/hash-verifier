@@ -64,8 +64,9 @@ func NewGenerateTab(ctx context.Context, builder *gtk.Builder, window *gtk.Windo
 	tab.getLabels()
 
 	tab.applySettingsToUI()
-	tab.setupHandlers()
 	tab.setStartState()
+
+	tab.setupHandlers()
 
 	return tab
 }
@@ -347,7 +348,8 @@ func (t *GenerateTab) applySettingsToUI() {
 }
 
 func (t *GenerateTab) saveSettings() error {
-	if t.settings == nil {
+	if t.settings == nil ||
+		t.window.InDestruction() {
 		return nil
 	}
 

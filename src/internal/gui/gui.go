@@ -72,17 +72,15 @@ func (a *App) fillTabAndSwitch(path string) {
 		return
 	}
 
-	noteBook := getNotebook(a.builder, "notebook")
-
 	if fileInfo, err := os.Stat(cleanPath); err != nil || fileInfo.IsDir() {
 		a.generateTab.Fill(cleanPath)
-		noteBook.SetCurrentPage(0)
+		a.applySelectedPage(a.getTabNumberByName("generate"))
 
 		return
 	}
 
 	a.verifyTab.Fill(cleanPath)
-	noteBook.SetCurrentPage(1)
+	a.applySelectedPage(a.getTabNumberByName("verify"))
 }
 
 func (a *App) initUI() error {
@@ -128,8 +126,10 @@ func (a *App) initUI() error {
 	a.verifyTab = NewVerifyTab(a.ctx, a.builder, a.window, a.settings)
 
 	a.notebook = getNotebook(a.builder, "notebook")
+
 	a.applyTabOrder()
 	a.applyCurrentPage()
+
 	a.connectTabReorderHandler()
 	a.connectTabSwitchHandler()
 
@@ -449,9 +449,13 @@ func (a *App) applyTabOrder() {
 
 func (a *App) connectTabReorderHandler() {
 	a.notebook.Connect("page-reordered", func() {
-		a.settings.Window.TabOrder = a.getTabOrder()
+		if a.window.InDestruction() {
+			return
+		}
 
+		a.settings.Window.TabOrder = a.getTabOrder()
 		a.settings.Window.CurrentPage = a.notebook.GetCurrentPage()
+
 		if err := a.settings.Save(); err != nil {
 			log.Error().Err(err).Msg("Failed to save tab order")
 		}
@@ -459,7 +463,10 @@ func (a *App) connectTabReorderHandler() {
 }
 
 func (a *App) applyCurrentPage() {
-	page := a.settings.Window.CurrentPage
+	a.applySelectedPage(a.settings.Window.CurrentPage)
+}
+
+func (a *App) applySelectedPage(page int) {
 	if page >= 0 && page < a.notebook.GetNPages() {
 		a.notebook.SetCurrentPage(page)
 	}
@@ -469,14 +476,41 @@ func (a *App) connectTabSwitchHandler() {
 	a.notebook.Connect(
 		"switch-page",
 		func(
-			self interface{},
-			page interface{},
+			self any,
+			page any,
 			page_num uint, // пришлось делать так, т. к. GetCurrentPage() возвращает старое значение
 		) {
+			if a.window.InDestruction() {
+				return
+			}
+
 			a.settings.Window.CurrentPage = int(page_num)
 			if err := a.settings.Save(); err != nil {
 				log.Error().Err(err).Msg("Failed to save current page")
 			}
 		},
 	)
+}
+
+func (a *App) getTabNumberByName(name string) int {
+	nPages := a.notebook.GetNPages()
+
+	for i := 0; i < nPages; i++ {
+		child, err := a.notebook.GetNthPage(i)
+		if err != nil {
+			continue
+		}
+
+		widget, ok := child.(*gtk.Box)
+		if !ok {
+			continue
+		}
+
+		widgetName, err := widget.GetName()
+		if err == nil && widgetName == name {
+			return i
+		}
+	}
+
+	return -1
 }
