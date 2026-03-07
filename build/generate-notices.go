@@ -261,7 +261,24 @@ func loadExtraDependencies() ([]LicenseInfo, error) {
 }
 
 func extractRepoInfo(licenseURL string) (version, rawURL string) {
-	if strings.Contains(licenseURL, "github.com") {
+	if strings.Contains(licenseURL, "raw.githubusercontent.com") {
+		// https://raw.githubusercontent.com/owner/repo/VERSION/LICENSE
+		// or https://raw.githubusercontent.com/owner/repo/refs/tags/VERSION/LICENSE
+		parts := strings.Split(strings.TrimPrefix(licenseURL, "https://raw.githubusercontent.com/"), "/")
+		if len(parts) >= 3 {
+			repoPath := parts[0] + "/" + parts[1]
+			// Handle /refs/tags/VERSION or /refs/heads/VERSION format
+			if len(parts) > 3 && parts[2] == "refs" && len(parts) > 4 {
+				version = parts[4]
+				path := strings.Join(parts[5:], "/")
+				rawURL = fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s", repoPath, version, path)
+			} else {
+				version = parts[2]
+				path := strings.Join(parts[3:], "/")
+				rawURL = fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s", repoPath, version, path)
+			}
+		}
+	} else if strings.Contains(licenseURL, "github.com") {
 		// https://github.com/owner/repo/blob/VERSION/LICENSE
 		//   -> https://raw.githubusercontent.com/owner/repo/VERSION/LICENSE
 		if idx := strings.Index(licenseURL, "/blob/"); idx >= 0 {

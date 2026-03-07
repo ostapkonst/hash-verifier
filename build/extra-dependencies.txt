@@ -17,3 +17,4 @@
 # github.com/example/repo,https://github.com/example/repo/blob/v1.0.0/LICENSE,MIT
 
 gitlab.gnome.org/GNOME/gtk/-/tree/gtk-3-24,https://gist.githubusercontent.com/ostapkonst/03defdac448ca293307bb3035aedfc90/raw/7486204da8413b54afa4b69948df39f3f8382294/gtk-3-24-COPYING,LGPL-2.0
+lukechampine.com/blake3,https://raw.githubusercontent.com/lukechampine/blake3/v1.4.1/LICENSE,MIT
