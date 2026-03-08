@@ -3,6 +3,7 @@ package action
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -111,7 +112,8 @@ func GenerateChecksumsStreamingToFile(ctx context.Context, cfg GenerateStreaming
 			hasError = fmt.Errorf("failed to generate checksums: %w", err)
 		}
 
-		if _, err := bw.WriteString(formatStatsFooter(generator.Stats())); err != nil && hasError == nil {
+		isCanceled := errors.Is(hasError, context.Canceled)
+		if _, err := bw.WriteString(formatStatsFooter(generator.Stats(), isCanceled)); err != nil && hasError == nil {
 			hasError = fmt.Errorf("failed to write stats footer: %w", err)
 		}
 

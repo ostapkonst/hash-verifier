@@ -3,6 +3,7 @@ package action
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
@@ -23,17 +24,17 @@ type GenerateResultStats struct {
 	Stats checksum.GeneratorStats
 }
 
-func formatStatsFooter(stats checksum.GeneratorStats) string {
+func formatStatsFooter(stats checksum.GeneratorStats, isCanceled bool) string {
 	status := "success"
-	statsPending := stats.Pending()
 
-	if stats.WithErrors > 0 {
+	switch {
+	case isCanceled:
+		status = "cancelled"
+	case stats.WithErrors > 0:
 		status = "completed with errors"
 	}
 
-	if statsPending > 0 {
-		status = "cancelled"
-	}
+	statsPending := stats.Pending()
 
 	optionalNewLine := ""
 	if statsPending < stats.TotalFiles {
@@ -43,23 +44,30 @@ func formatStatsFooter(stats checksum.GeneratorStats) string {
 	statistics := fmt.Sprintf(
 		"%s"+
 			"; Statistics:%s"+
-			";   Status: %s%s"+
-			";   Total files: %d%s"+
-			";   Hashed: %d%s"+
-			";   With errors: %d%s",
+			";   Status: %s%s",
 		optionalNewLine,
 		eof.PlatformEOF,
 		status,
 		eof.PlatformEOF,
-		stats.TotalFiles,
-		eof.PlatformEOF,
-		stats.Processed,
-		eof.PlatformEOF,
-		stats.WithErrors,
-		eof.PlatformEOF,
 	)
 
-	if status == "cancelled" {
+	if stats.Processed > 0 {
+		statistics += fmt.Sprintf(
+			";   Processed: %d%s",
+			stats.Processed,
+			eof.PlatformEOF,
+		)
+	}
+
+	if stats.WithErrors > 0 {
+		statistics += fmt.Sprintf(
+			";   Failures: %d%s",
+			stats.WithErrors,
+			eof.PlatformEOF,
+		)
+	}
+
+	if statsPending > 0 {
 		statistics += fmt.Sprintf(
 			";   Pending: %d%s",
 			statsPending,
@@ -132,7 +140,8 @@ func GenerateChecksums(ctx context.Context, cfg GenerateConfig) (GenerateResultS
 		hasError = fmt.Errorf("failed to generate checksums: %w", err)
 	}
 
-	if _, err := bw.WriteString(formatStatsFooter(generator.Stats())); err != nil && hasError == nil {
+	isCanceled := errors.Is(hasError, context.Canceled)
+	if _, err := bw.WriteString(formatStatsFooter(generator.Stats(), isCanceled)); err != nil && hasError == nil {
 		hasError = fmt.Errorf("failed to write stats footer: %w", err)
 	}
 

@@ -182,9 +182,7 @@ documents/notes.txt f6e5d4c3
 ```
 ; Statistics:
 ;   Status: success
-;   Total files: 2
-;   Hashed: 2
-;   With errors: 0
+;   Processed: 2
 ```
 
 **Status values:**
@@ -194,12 +192,6 @@ documents/notes.txt f6e5d4c3
 | `success` | All files were hashed successfully |
 | `completed with errors` | Some files could not be hashed (e.g., permission denied) |
 | `cancelled` | Operation was cancelled by the user |
-
-**Additional fields:**
-
-| Field | When appears | Description |
-|-------|--------------|-------------|
-| `Pending` | Only when status is `cancelled` | Number of files that were not processed |
 
 ### Verification Results
 
