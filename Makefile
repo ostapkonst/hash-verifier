@@ -81,6 +81,11 @@ clean:
 	@rm -f hashverifier hashverifier.exe
 	@echo "✓ Cleaned build artifacts"
 
+reset-config:
+	@echo "Resetting user settings to defaults..."
+	cd src && go run . config reset -y
+	@echo "✓ User settings reset to defaults"
+
 lint-install:
 	@if [ -f .bin/golangci-lint ]; then \
 		echo "✓ golangci-lint already installed in .bin/"; \
@@ -133,6 +138,7 @@ help:
 	@echo ""
 	@echo "Other Targets:"
 	@echo "  clean                Remove build artifacts"
+	@echo "  reset-config         Reset user settings to defaults"
 	@echo "  lint-install         Install golangci-lint ($(GOLANGCI_LINT_VERSION)) into .bin/"
 	@echo "  lint                 Run golangci-lint from .bin/"
 	@echo "  lint-fix             Run golangci-lint with auto-fix"
