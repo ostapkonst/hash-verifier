@@ -194,8 +194,8 @@ func (v *Verifier) run() {
 
 		v.resultCh <- checksum.VerifyResult{
 			Path:         line.RelPath,
-			ExpectedHash: line.Hash,
-			ActualHash:   hastResult.Hash,
+			ExpectedHash: strings.ToLower(line.Hash),
+			ActualHash:   strings.ToLower(hastResult.Hash),
 			ReadBytes:    hastResult.ReadBytes,
 			Status:       fileStatus,
 			Err:          fileErr,

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -192,7 +193,7 @@ func (g *Generator) run() {
 
 		g.resultCh <- checksum.GenerateResult{
 			RelPath:   finalPath,
-			Hash:      hastResult.Hash,
+			Hash:      strings.ToLower(hastResult.Hash),
 			ReadBytes: hastResult.ReadBytes,
 			Err:       fileErr,
 		}
