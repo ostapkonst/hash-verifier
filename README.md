@@ -150,8 +150,12 @@ Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
 | `generate.sort_paths` | `true` | Sort paths before hashing |
 | `generate.algorithm` | `.md5` | Default hash algorithm |
 | `generate.column_order` | `path, size, hash, note` | Order of columns in Generate tab |
+| `generate.sort_column` | `path` | Column to sort by in Generate tab |
+| `generate.sort_order` | `asc` | Sort order in Generate tab (asc/desc) |
 | `verify.verify_on_open` | `true` | Auto-start verification when opening checksum file |
 | `verify.column_order` | `status, path, size, hash, expected_hash, note` | Order of columns in Verify tab |
+| `verify.sort_column` | `status` | Column to sort by in Verify tab |
+| `verify.sort_order` | `desc` | Sort order in Verify tab (asc/desc) |
 
 ### Output Format
 

@@ -124,6 +124,17 @@ func (t *VerifyTab) setupHandlers() {
 			log.Error().Err(err).Msg("Failed to save settings")
 		}
 	})
+
+	columns := t.treeValidate.GetColumns()
+	for l := columns; l != nil; l = l.Next() {
+		if col, ok := l.Data().(*gtk.TreeViewColumn); ok {
+			col.Connect("clicked", func() {
+				if err := t.saveSettings(); err != nil {
+					log.Error().Err(err).Msg("Failed to save settings")
+				}
+			})
+		}
+	}
 }
 
 func (t *VerifyTab) onStart() {
@@ -198,6 +209,8 @@ func (t *VerifyTab) onStart() {
 				if res.Result.Err != nil {
 					_ = t.listStore.SetValue(iter, 6, unwrap.UnwrapAndNormalize(res.Result.Err))
 				}
+
+				_ = t.listStore.SetValue(iter, 7, res.Result.ReadBytes)
 
 				lastState = res.Stats
 				t.updateStats(lastState)
@@ -289,6 +302,15 @@ func (t *VerifyTab) applySettingsToUI() {
 
 	t.chkBoxVerifyOnOpen.SetActive(t.settings.Verify.VerifyOnOpen)
 	t.columnConfig.ApplyColumnOrder(t.treeValidate, t.settings.Verify.ColumnOrder)
+
+	var sortOrder gtk.SortType
+	if t.settings.Verify.SortOrder == settings.SortOrderDesc {
+		sortOrder = gtk.SORT_DESCENDING
+	} else {
+		sortOrder = gtk.SORT_ASCENDING
+	}
+
+	t.columnConfig.ApplySortState(t.treeValidate, t.settings.Verify.SortColumn, sortOrder)
 }
 
 func (t *VerifyTab) saveSettings() error {
@@ -299,6 +321,15 @@ func (t *VerifyTab) saveSettings() error {
 
 	t.settings.Verify.VerifyOnOpen = t.chkBoxVerifyOnOpen.GetActive()
 	t.settings.Verify.ColumnOrder = t.columnConfig.GetColumnOrder(t.treeValidate)
+
+	sortColumn, sortOrder := t.columnConfig.GetSortState(t.treeValidate)
+
+	t.settings.Verify.SortColumn = sortColumn
+	if sortOrder == gtk.SORT_DESCENDING {
+		t.settings.Verify.SortOrder = settings.SortOrderDesc
+	} else {
+		t.settings.Verify.SortOrder = settings.SortOrderAsc
+	}
 
 	return t.settings.Save()
 }

@@ -174,6 +174,17 @@ func (t *GenerateTab) setupHandlers() {
 			log.Error().Err(err).Msg("Failed to save settings")
 		}
 	})
+
+	columns := t.treeGenerate.GetColumns()
+	for l := columns; l != nil; l = l.Next() {
+		if col, ok := l.Data().(*gtk.TreeViewColumn); ok {
+			col.Connect("clicked", func() {
+				if err := t.saveSettings(); err != nil {
+					log.Error().Err(err).Msg("Failed to save settings")
+				}
+			})
+		}
+	}
 }
 
 func (t *GenerateTab) onStart() {
@@ -244,6 +255,8 @@ func (t *GenerateTab) onStart() {
 				if res.Result.Err != nil {
 					_ = t.listStore.SetValue(iter, 3, unwrap.UnwrapAndNormalize(res.Result.Err))
 				}
+
+				_ = t.listStore.SetValue(iter, 4, res.Result.ReadBytes)
 
 				lastStats = res.Stats
 				t.updateStats(lastStats)
@@ -345,6 +358,15 @@ func (t *GenerateTab) applySettingsToUI() {
 	t.chkBtnSortPaths.SetActive(t.settings.Generate.SortPaths)
 	t.cmbTxtAlgorithm.SetActiveID(t.settings.Generate.Algorithm)
 	t.columnConfig.ApplyColumnOrder(t.treeGenerate, t.settings.Generate.ColumnOrder)
+
+	var sortOrder gtk.SortType
+	if t.settings.Generate.SortOrder == settings.SortOrderDesc {
+		sortOrder = gtk.SORT_DESCENDING
+	} else {
+		sortOrder = gtk.SORT_ASCENDING
+	}
+
+	t.columnConfig.ApplySortState(t.treeGenerate, t.settings.Generate.SortColumn, sortOrder)
 }
 
 func (t *GenerateTab) saveSettings() error {
@@ -357,6 +379,15 @@ func (t *GenerateTab) saveSettings() error {
 	t.settings.Generate.SortPaths = t.chkBtnSortPaths.GetActive()
 	t.settings.Generate.Algorithm = t.cmbTxtAlgorithm.GetActiveID()
 	t.settings.Generate.ColumnOrder = t.columnConfig.GetColumnOrder(t.treeGenerate)
+
+	sortColumn, sortOrder := t.columnConfig.GetSortState(t.treeGenerate)
+
+	t.settings.Generate.SortColumn = sortColumn
+	if sortOrder == gtk.SORT_DESCENDING {
+		t.settings.Generate.SortOrder = settings.SortOrderDesc
+	} else {
+		t.settings.Generate.SortOrder = settings.SortOrderAsc
+	}
 
 	return t.settings.Save()
 }

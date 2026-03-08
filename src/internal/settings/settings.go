@@ -19,11 +19,15 @@ type GenerateSettings struct {
 	SortPaths           bool     `yaml:"sort_paths"`
 	Algorithm           string   `yaml:"algorithm"`
 	ColumnOrder         []string `yaml:"column_order"`
+	SortColumn          string   `yaml:"sort_column"`
+	SortOrder           string   `yaml:"sort_order"`
 }
 
 type VerifySettings struct {
 	VerifyOnOpen bool     `yaml:"verify_on_open"`
 	ColumnOrder  []string `yaml:"column_order"`
+	SortColumn   string   `yaml:"sort_column"`
+	SortOrder    string   `yaml:"sort_order"`
 }
 
 type WindowSettings struct {
@@ -48,10 +52,14 @@ func DefaultSettings() *Settings {
 			SortPaths:           true,
 			Algorithm:           ".md5",
 			ColumnOrder:         []string{"path", "size", "hash", "note"},
+			SortColumn:          "path",
+			SortOrder:           SortOrderAsc,
 		},
 		Verify: VerifySettings{
 			VerifyOnOpen: true,
 			ColumnOrder:  []string{"status", "path", "size", "hash", "expected_hash", "note"},
+			SortColumn:   "status",
+			SortOrder:    SortOrderDesc,
 		},
 	}
 }

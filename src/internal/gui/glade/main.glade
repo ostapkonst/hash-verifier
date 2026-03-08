@@ -43,6 +43,8 @@ Author: ostapkonst
       <column type="gchararray"/>
       <!-- column-name gchararray3 -->
       <column type="gchararray"/>
+      <!-- column-name gint1 -->
+      <column type="gint64"/>
     </columns>
   </object>
   <object class="GtkListStore" id="liststore_validate">
@@ -61,6 +63,8 @@ Author: ostapkonst
       <column type="gchararray"/>
       <!-- column-name gchararray6 -->
       <column type="gchararray"/>
+      <!-- column-name gint1 -->
+      <column type="gint64"/>
     </columns>
   </object>
   <object class="GtkWindow" id="main_window">
@@ -107,6 +111,7 @@ Author: ostapkonst
                             <property name="resizable">True</property>
                             <property name="title" translatable="yes">Path</property>
                             <property name="reorderable">True</property>
+                            <property name="sort-column-id">0</property>
                             <child>
                               <object class="GtkCellRendererText"/>
                               <attributes>
@@ -121,6 +126,7 @@ Author: ostapkonst
                             <property name="title" translatable="yes">Size</property>
                             <property name="alignment">1</property>
                             <property name="reorderable">True</property>
+                            <property name="sort-column-id">4</property>
                             <child>
                               <object class="GtkCellRendererText">
                                 <property name="xalign">1</property>
@@ -149,6 +155,7 @@ Author: ostapkonst
                             <property name="resizable">True</property>
                             <property name="title" translatable="yes">Note</property>
                             <property name="reorderable">True</property>
+                            <property name="sort-column-id">3</property>
                             <child>
                               <object class="GtkCellRendererText">
                                 <property name="foreground">red</property>
@@ -636,6 +643,7 @@ Author: ostapkonst
                             <property name="resizable">True</property>
                             <property name="title" translatable="yes">Path</property>
                             <property name="reorderable">True</property>
+                            <property name="sort-column-id">0</property>
                             <child>
                               <object class="GtkCellRendererText"/>
                               <attributes>
@@ -650,6 +658,7 @@ Author: ostapkonst
                             <property name="title" translatable="yes">Size</property>
                             <property name="alignment">1</property>
                             <property name="reorderable">True</property>
+                            <property name="sort-column-id">7</property>
                             <child>
                               <object class="GtkCellRendererText">
                                 <property name="xalign">1</property>
@@ -666,6 +675,7 @@ Author: ostapkonst
                             <property name="title" translatable="yes">Status</property>
                             <property name="alignment">0.5</property>
                             <property name="reorderable">True</property>
+                            <property name="sort-column-id">2</property>
                             <child>
                               <object class="GtkCellRendererText">
                                 <property name="xalign">0.5</property>
@@ -708,6 +718,7 @@ Author: ostapkonst
                             <property name="resizable">True</property>
                             <property name="title" translatable="yes">Note</property>
                             <property name="reorderable">True</property>
+                            <property name="sort-column-id">6</property>
                             <child>
                               <object class="GtkCellRendererText">
                                 <property name="foreground">red</property>

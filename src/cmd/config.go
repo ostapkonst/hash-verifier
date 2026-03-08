@@ -40,6 +40,10 @@ var configResetCmd = &cobra.Command{
 	RunE:  runConfigReset,
 }
 
+func init() {
+	configResetCmd.Flags().BoolP("yes", "y", false, "Skip confirmation prompt")
+}
+
 func runConfigShow(cmd *cobra.Command, args []string) error {
 	cfg, err := settings.Load()
 	if err != nil {
@@ -111,15 +115,22 @@ func runConfigEdit(cmd *cobra.Command, args []string) error {
 }
 
 func runConfigReset(cmd *cobra.Command, args []string) error {
-	fmt.Println("This will reset all settings to their default values.")
-	fmt.Print("Are you sure? (y/N): ")
+	skipConfirm, err := cmd.Flags().GetBool("yes")
+	if err != nil {
+		return fmt.Errorf("failed to get yes flag: %w", err)
+	}
 
-	var response string
-	fmt.Scanln(&response) //nolint:errcheck
+	if !skipConfirm {
+		fmt.Println("This will reset all settings to their default values.")
+		fmt.Print("Are you sure? (y/N): ")
 
-	if strings.ToLower(strings.TrimSpace(response)) != "y" {
-		fmt.Println("Reset cancelled.")
-		return nil
+		var response string
+		fmt.Scanln(&response) //nolint:errcheck
+
+		if strings.ToLower(strings.TrimSpace(response)) != "y" {
+			fmt.Println("Reset cancelled.")
+			return nil
+		}
 	}
 
 	if err := settings.Reset(); err != nil {

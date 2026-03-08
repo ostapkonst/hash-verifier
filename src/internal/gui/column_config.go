@@ -88,3 +88,45 @@ func (c *ColumnConfig) getColumnTitle(col *gtk.TreeViewColumn) string {
 
 	return ""
 }
+
+func (c *ColumnConfig) GetSortState(treeView *gtk.TreeView) (columnName string, order gtk.SortType) {
+	columns := treeView.GetColumns()
+	for l := columns; l != nil; l = l.Next() {
+		col, ok := l.Data().(*gtk.TreeViewColumn)
+		if !ok {
+			continue
+		}
+
+		if col.GetSortIndicator() {
+			name := c.getColumnTitle(col)
+			if name != "" {
+				sortOrder := col.GetSortOrder()
+				return name, sortOrder
+			}
+		}
+	}
+
+	return "", gtk.SORT_ASCENDING
+}
+
+func (c *ColumnConfig) ApplySortState(treeView *gtk.TreeView, columnName string, order gtk.SortType) {
+	if columnName == "" {
+		return
+	}
+
+	columns := treeView.GetColumns()
+	for l := columns; l != nil; l = l.Next() {
+		col, ok := l.Data().(*gtk.TreeViewColumn)
+		if !ok {
+			continue
+		}
+
+		name := c.getColumnTitle(col)
+		if name == columnName {
+			col.SetSortIndicator(true)
+			col.SetSortOrder(order)
+
+			return
+		}
+	}
+}
