@@ -14,7 +14,8 @@ readonly PACKAGE_DESCRIPTION="Cross-platform checksum generation and verificatio
 readonly PACKAGE_HOMEPAGE="https://github.com/ostapkonst/hash-verifier"
 
 readonly PACKAGE_DEPENDS=(
-    "libgtk-3-0"
+    "libgtk-3-0 (>= 3.24)"
+    "libc6 (>= 2.34)"
 )
 
 DEB_VERSION="${VERSION#v}"  # Без этого: version number does not start with digit

@@ -15,7 +15,8 @@ readonly PACKAGE_MAINTAINER="ostapkonst"
 readonly PACKAGE_GROUP="Applications/System"
 
 readonly PACKAGE_DEPENDS=(
-    "gtk3"
+    "gtk3 >= 3.24"
+    "glibc >= 2.34"
 )
 
 readonly BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

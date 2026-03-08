@@ -28,7 +28,7 @@ A cross-platform checksum generation and verification tool with both CLI and GTK
 
 **Minimum OS versions:**
 
-- **Linux:** Debian 11+, Ubuntu 20.04+, Fedora 35+, RHEL 8+
+- **Linux:** Ubuntu 22.04+, Fedora 35+, Debian 12+, RHEL 9+ (GLIBC 2.34+, GTK 3.24+)
 - **Windows:** Windows 7 SP1 and later (32-bit and 64-bit)
 
 > **Note for Windows:** Windows binaries run in GUI mode only (no CLI support).
