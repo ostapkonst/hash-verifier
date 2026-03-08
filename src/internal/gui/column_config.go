@@ -114,6 +114,13 @@ func (c *ColumnConfig) ApplySortState(treeView *gtk.TreeView, columnName string,
 		return
 	}
 
+	model, _ := treeView.GetModel()
+
+	listStore, ok := model.(*gtk.ListStore)
+	if !ok {
+		return
+	}
+
 	columns := treeView.GetColumns()
 	for l := columns; l != nil; l = l.Next() {
 		col, ok := l.Data().(*gtk.TreeViewColumn)
@@ -123,6 +130,7 @@ func (c *ColumnConfig) ApplySortState(treeView *gtk.TreeView, columnName string,
 
 		name := c.getColumnTitle(col)
 		if name == columnName {
+			listStore.SetSortColumnId(col.GetSortColumnID(), order)
 			col.SetSortIndicator(true)
 			col.SetSortOrder(order)
 
