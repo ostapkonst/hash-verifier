@@ -31,6 +31,10 @@
       <image>https://raw.githubusercontent.com/ostapkonst/hash-verifier/master/docs/screenshots/checksum-result.png</image>
     </screenshot>
   </screenshots>
+  <branding>
+    <color type="primary" scheme_preference="light">#ff9899</color>
+    <color type="primary" scheme_preference="dark">#8b2316</color>
+  </branding>
   <url type="homepage">https://github.com/ostapkonst/hash-verifier</url>
   <url type="bugtracker">https://github.com/ostapkonst/hash-verifier/issues</url>
   <url type="help">https://github.com/ostapkonst/hash-verifier/blob/master/README.md</url>

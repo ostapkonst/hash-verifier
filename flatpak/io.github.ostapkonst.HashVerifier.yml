@@ -18,12 +18,11 @@ modules:
     build-options:
       append-path: /usr/lib/sdk/golang/bin
       env:
-        CGO_ENABLED: 1
-        VERSION: 'flatpak'
+        CGO_ENABLED: '1'
     build-commands:
       # Build Go application
       - mv vendor src
-      - cd src && go build -trimpath -mod=vendor -ldflags="-s -w -X 'github.com/ostapkonst/hash-verifier/internal/header.Version=${VERSION}'" -o hashverifier .
+      - cd src && go build -trimpath -mod=vendor -ldflags="-s -w -X 'github.com/ostapkonst/hash-verifier/internal/header.Version=v2026.3.9'" -o hashverifier .
       - install -Dm755 src/hashverifier ${FLATPAK_DEST}/bin/hashverifier
 
       # Install desktop file
@@ -45,7 +44,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/ostapkonst/hash-verifier.git
-        branch: master
+        tag: v2026.3.9
       - type: file
         path: modules.txt
         dest: vendor
