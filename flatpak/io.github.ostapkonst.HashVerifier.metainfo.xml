@@ -19,7 +19,16 @@
   <launchable type="desktop-id">io.github.ostapkonst.HashVerifier.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/ostapkonst/hash-verifier/master/docs/screenshots/main-window.png</image>
+      <caption>Generate tab</caption>
+      <image>https://raw.githubusercontent.com/ostapkonst/hash-verifier/master/docs/screenshots/generate-tab.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Verify tab</caption>
+      <image>https://raw.githubusercontent.com/ostapkonst/hash-verifier/master/docs/screenshots/verify-tab.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Checksum result</caption>
+      <image>https://raw.githubusercontent.com/ostapkonst/hash-verifier/master/docs/screenshots/checksum-result.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/ostapkonst/hash-verifier</url>

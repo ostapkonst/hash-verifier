@@ -2,7 +2,7 @@
 
 A cross-platform checksum generation and verification tool with both CLI and GTK3 graphical interface.
 
-![HashVerifier GUI](docs/screenshots/main-window.png)
+![HashVerifier GUI](docs/screenshots/verify-tab.png)
 
 ## Features
 
