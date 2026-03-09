@@ -10,7 +10,7 @@ VERSION              ?= $(shell git describe --tags --always --dirty 2>/dev/null
 all: help
 
 build:
-	cd src && go build -ldflags="-s -w -X 'github.com/ostapkonst/hash-verifier/internal/header.Version=$(VERSION)'" -o ../hashverifier .
+	cd src && go build -trimpath -ldflags="-s -w -X 'github.com/ostapkonst/hash-verifier/internal/header.Version=$(VERSION)'" -o ../hashverifier .
 
 run:
 	cd src && go run .
