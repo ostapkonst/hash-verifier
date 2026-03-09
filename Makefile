@@ -1,5 +1,6 @@
 .PHONY: all build run clean help
 .PHONY: linux-amd64 linux-arm64 windows-amd64 windows-i686 deb-amd64 deb-arm64 rpm-amd64 rpm-arm64 appimage
+.PHONY: flatpak flatpak-run flatpak-validate
 .PHONY: lint lint-install lint-fix format
 .PHONY: third-party-notices
 
@@ -44,6 +45,41 @@ appimage:
 	@mkdir -p .pkg-build dist/linux-amd64
 	VERSION=$(VERSION) docker compose -f build/docker-compose.appimage.yml run --rm appimage-builder /app/build/create-appimage.sh
 	@echo "✓ AppImage package: .pkg-build/package/*.AppImage"
+
+flatpak: flatpak-validate
+	@echo "Building Flatpak package..."
+	@mkdir -p .pkg-build/flatpak/build-dir
+	@flatpak install --user -y flathub org.gnome.Sdk//49 org.freedesktop.Sdk.Extension.golang//25.08
+	@cd flatpak && flatpak-builder --user --force-clean --sandbox ../.pkg-build/flatpak/build-dir io.github.ostapkonst.HashVerifier.yml
+	@echo "✓ Flatpak package: .pkg-build/flatpak/build-dir"
+
+flatpak-run:
+	@echo "Running HashVerifier Flatpak..."
+	@mkdir -p .pkg-build/flatpak/repo
+	@flatpak build-export .pkg-build/flatpak/repo .pkg-build/flatpak/build-dir
+	@flatpak remote-delete --user --force local-repo > /dev/null 2>&1 || true
+	@flatpak remote-add --user --if-not-exists --no-gpg-verify local-repo .pkg-build/flatpak/repo
+	@flatpak install --user --reinstall -y local-repo io.github.ostapkonst.HashVerifier
+	@flatpak run --user io.github.ostapkonst.HashVerifier
+
+flatpak-validate:
+	@echo "Validating Flatpak manifest and metainfo files..."
+	@echo ""
+	@echo "Checking io.github.ostapkonst.HashVerifier.yml syntax..."
+	@if command -v python3 >/dev/null 2>&1; then \
+		python3 -c "import yaml; yaml.safe_load(open('flatpak/io.github.ostapkonst.HashVerifier.yml'))" && echo "  ✓ YAML syntax is valid" || echo "  ✗ YAML syntax error"; \
+	else \
+		echo "  Note: Python3 not available, skipping YAML syntax check"; \
+	fi
+	@echo ""
+	@echo "Validating io.github.ostapkonst.HashVerifier.metainfo.xml..."
+	@if command -v python3 >/dev/null 2>&1; then \
+		python3 -c "import xml.etree.ElementTree as ET; ET.parse('flatpak/io.github.ostapkonst.HashVerifier.metainfo.xml')" && echo "  ✓ XML syntax is valid" || echo "  ✗ XML syntax error"; \
+	else \
+		echo "  Note: Python3 not available, skipping XML syntax check"; \
+	fi
+	@echo ""
+	@echo "✓ Flatpak validation complete"
 
 deb-amd64:
 	@echo "Building DEB package for AMD64..."
@@ -135,6 +171,9 @@ help:
 	@echo "  rpm-amd64            Build RPM package (Fedora/RHEL) for x86_64"
 	@echo "  rpm-arm64            Build RPM package (Fedora/RHEL) for aarch64"
 	@echo "  appimage             Build AppImage package (universal Linux)"
+	@echo "  flatpak              Build Flatpak package (requires flatpak-builder)"
+	@echo "  flatpak-run          Build and run Flatpak package"
+	@echo "  flatpak-validate     Validate Flatpak manifest and metainfo files"
 	@echo ""
 	@echo "Other Targets:"
 	@echo "  clean                Remove build artifacts"

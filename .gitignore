@@ -56,3 +56,4 @@ dist/
 
 # Package build temp
 .pkg-build/
+flatpak/.flatpak-builder
