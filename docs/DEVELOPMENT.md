@@ -60,20 +60,21 @@ make appimage         # AppImage (amd64 only)
 
 ```
 HashVerifier/
+├── .github/workflows/    # GitHub Actions CI/CD
+├── .pkg-build/           # Package build temporary files (git-ignored)
 ├── src/                  # Go source code
 ├── build/                # Docker build files (Dockerfile, docker-compose, scripts)
-├── .github/workflows/    # GitHub Actions CI/CD
+├── flatpak/              # Required to publish an application on FlatHub
 ├── dist/                 # Build output (git-ignored)
-├── .pkg-build/           # Package build temporary files (git-ignored)
 ├── docs/                 # Documentation
-├── Makefile              # Build automation
 ├── .golangci.yml         # Go linter configuration
 ├── .gitattributes        # Git attributes (line endings, binary files)
 ├── .gitignore            # Git ignore rules
 ├── .dockerignore         # Docker build context exclusions
 ├── LICENSE               # MIT License
 ├── THIRD_PARTY_NOTICES   # Third-party software notices
-└── README.md             # Main documentation
+├── README.md             # Main documentation
+└── Makefile              # Build automation
 ```
 
 ## Technologies
