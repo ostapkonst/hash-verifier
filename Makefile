@@ -50,7 +50,7 @@ flatpak: flatpak-validate
 	@echo "Building Flatpak package..."
 	@mkdir -p .pkg-build/flatpak/build-dir
 	@flatpak install --user -y flathub org.gnome.Sdk//49 org.freedesktop.Sdk.Extension.golang//25.08
-	@cd flatpak && flatpak-builder --user --force-clean --sandbox ../.pkg-build/flatpak/build-dir io.github.ostapkonst.HashVerifier.yml
+	@cd flatpak && flatpak-builder --user --force-clean ../.pkg-build/flatpak/build-dir io.github.ostapkonst.HashVerifier.yml
 	@echo "✓ Flatpak package: .pkg-build/flatpak/build-dir"
 
 flatpak-run:
