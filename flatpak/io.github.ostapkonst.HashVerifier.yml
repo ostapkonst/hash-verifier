@@ -45,7 +45,7 @@ modules:
       - type: git
         url: https://github.com/ostapkonst/hash-verifier.git
         tag: v2026.3.9
-        commit: 5f80596a2a04492523577093cc44b0ee5b45ae48
+        commit: 188ec53849531e16144fe9e529f623abfa80e08e
       - type: file
         path: modules.txt
         dest: vendor
