@@ -8,7 +8,7 @@ set -euo pipefail
 readonly PACKAGE_NAME="hashverifier"
 readonly PACKAGE_LICENSE="MIT"
 readonly PACKAGE_SUMMARY="Cross-platform checksum generation and verification tool"
-readonly PACKAGE_URL="https://github.com/ostapkonst/hash-verifier"
+readonly PACKAGE_URL="https://github.com/ostapkonst/HashVerifier"
 readonly PACKAGE_ARCH="${PACKAGE_ARCH:-x86_64}"
 readonly PACKAGE_RELEASE="1"
 readonly PACKAGE_MAINTAINER="ostapkonst"

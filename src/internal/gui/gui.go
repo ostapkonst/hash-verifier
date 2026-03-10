@@ -11,8 +11,8 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/rs/zerolog/log"
 
-	"github.com/ostapkonst/hash-verifier/internal/settings"
-	"github.com/ostapkonst/hash-verifier/utils/gracer"
+	"github.com/ostapkonst/HashVerifier/internal/settings"
+	"github.com/ostapkonst/HashVerifier/utils/gracer"
 )
 
 //go:embed glade/*

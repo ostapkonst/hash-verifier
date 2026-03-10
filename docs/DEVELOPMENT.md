@@ -22,8 +22,8 @@ This document contains information for developers and builders of the project.
 
 ```bash
 # Clone repository
-git clone https://github.com/ostapkonst/hash-verifier.git
-cd hash-verifier
+git clone https://github.com/ostapkonst/HashVerifier.git
+cd HashVerifier
 
 # Native build
 make build
@@ -59,7 +59,7 @@ make appimage         # AppImage (amd64 only)
 ## Project Structure
 
 ```
-hash-verifier/
+HashVerifier/
 ├── src/                  # Go source code
 ├── build/                # Docker build files (Dockerfile, docker-compose, scripts)
 ├── .github/workflows/    # GitHub Actions CI/CD

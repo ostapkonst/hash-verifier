@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ostapkonst/hash-verifier/internal/checksum"
-	"github.com/ostapkonst/hash-verifier/internal/header"
-	"github.com/ostapkonst/hash-verifier/utils/eof"
+	"github.com/ostapkonst/HashVerifier/internal/checksum"
+	"github.com/ostapkonst/HashVerifier/internal/header"
+	"github.com/ostapkonst/HashVerifier/utils/eof"
 )
 
 const statsUpdateInterval = 50 * time.Millisecond

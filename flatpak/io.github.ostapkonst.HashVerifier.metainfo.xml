@@ -20,24 +20,24 @@
   <screenshots>
     <screenshot type="default">
       <caption>Generate tab</caption>
-      <image>https://raw.githubusercontent.com/ostapkonst/hash-verifier/master/docs/screenshots/generate-tab.png</image>
+      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/master/docs/screenshots/generate-tab.png</image>
     </screenshot>
     <screenshot>
       <caption>Verify tab</caption>
-      <image>https://raw.githubusercontent.com/ostapkonst/hash-verifier/master/docs/screenshots/verify-tab.png</image>
+      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/master/docs/screenshots/verify-tab.png</image>
     </screenshot>
     <screenshot>
       <caption>Checksum result</caption>
-      <image>https://raw.githubusercontent.com/ostapkonst/hash-verifier/master/docs/screenshots/checksum-result.png</image>
+      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/master/docs/screenshots/checksum-result.png</image>
     </screenshot>
   </screenshots>
   <branding>
     <color type="primary" scheme_preference="light">#ff9899</color>
     <color type="primary" scheme_preference="dark">#8b2316</color>
   </branding>
-  <url type="homepage">https://github.com/ostapkonst/hash-verifier</url>
-  <url type="bugtracker">https://github.com/ostapkonst/hash-verifier/issues</url>
-  <url type="help">https://github.com/ostapkonst/hash-verifier/blob/master/README.md</url>
+  <url type="homepage">https://github.com/ostapkonst/HashVerifier</url>
+  <url type="bugtracker">https://github.com/ostapkonst/HashVerifier/issues</url>
+  <url type="help">https://github.com/ostapkonst/HashVerifier/blob/master/README.md</url>
   <developer id="io.github.ostapkonst">
     <name translate="no">Ostap Konstantinov</name>
   </developer>

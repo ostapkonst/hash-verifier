@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ostapkonst/hash-verifier/internal/settings"
+	"github.com/ostapkonst/HashVerifier/internal/settings"
 )
 
 var configCmd = &cobra.Command{

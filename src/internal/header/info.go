@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ostapkonst/hash-verifier/utils/eof"
+	"github.com/ostapkonst/HashVerifier/utils/eof"
 )
 
 const (
 	Name = "HashVerifier"
-	Link = "https://github.com/ostapkonst/hash-verifier"
+	Link = "https://github.com/ostapkonst/HashVerifier"
 )
 
 // Version устанавливается при компиляции через -ldflags -X.

@@ -1,4 +1,4 @@
-module github.com/ostapkonst/hash-verifier
+module github.com/ostapkonst/HashVerifier
 
 go 1.24.0
 

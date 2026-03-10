@@ -12,10 +12,10 @@ import (
 	"github.com/inhies/go-bytesize"
 	"github.com/rs/zerolog/log"
 
-	"github.com/ostapkonst/hash-verifier/internal/action"
-	"github.com/ostapkonst/hash-verifier/internal/checksum"
-	"github.com/ostapkonst/hash-verifier/internal/settings"
-	"github.com/ostapkonst/hash-verifier/utils/unwrap"
+	"github.com/ostapkonst/HashVerifier/internal/action"
+	"github.com/ostapkonst/HashVerifier/internal/checksum"
+	"github.com/ostapkonst/HashVerifier/internal/settings"
+	"github.com/ostapkonst/HashVerifier/utils/unwrap"
 )
 
 type GenerateTab struct {

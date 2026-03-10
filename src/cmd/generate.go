@@ -13,10 +13,10 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
-	"github.com/ostapkonst/hash-verifier/internal/action"
-	"github.com/ostapkonst/hash-verifier/internal/checksum"
-	"github.com/ostapkonst/hash-verifier/internal/settings"
-	"github.com/ostapkonst/hash-verifier/utils/gracer"
+	"github.com/ostapkonst/HashVerifier/internal/action"
+	"github.com/ostapkonst/HashVerifier/internal/checksum"
+	"github.com/ostapkonst/HashVerifier/internal/settings"
+	"github.com/ostapkonst/HashVerifier/utils/gracer"
 )
 
 func runGenerate(cmd *cobra.Command, args []string) error {

@@ -29,8 +29,8 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"github.com/ostapkonst/hash-verifier/cmd"
-	"github.com/ostapkonst/hash-verifier/internal/gui"
+	"github.com/ostapkonst/HashVerifier/cmd"
+	"github.com/ostapkonst/HashVerifier/internal/gui"
 )
 
 func main() {

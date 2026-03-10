@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ostapkonst/hash-verifier/internal/gui"
-	"github.com/ostapkonst/hash-verifier/internal/header"
+	"github.com/ostapkonst/HashVerifier/internal/gui"
+	"github.com/ostapkonst/HashVerifier/internal/header"
 )
 
 func Execute() error {

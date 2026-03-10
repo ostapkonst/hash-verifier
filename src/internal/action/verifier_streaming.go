@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ostapkonst/hash-verifier/internal/checksum"
+	"github.com/ostapkonst/HashVerifier/internal/checksum"
 )
 
 type VerifyStreamingResult struct {

@@ -11,7 +11,7 @@ readonly PACKAGE_PRIORITY="optional"
 readonly PACKAGE_ARCH="${PACKAGE_ARCH:-amd64}"
 readonly PACKAGE_MAINTAINER="ostapkonst"
 readonly PACKAGE_DESCRIPTION="Cross-platform checksum generation and verification tool"
-readonly PACKAGE_HOMEPAGE="https://github.com/ostapkonst/hash-verifier"
+readonly PACKAGE_HOMEPAGE="https://github.com/ostapkonst/HashVerifier"
 
 readonly PACKAGE_DEPENDS=(
     "libgtk-3-0 (>= 3.24)"

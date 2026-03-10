@@ -9,7 +9,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/ostapkonst/hash-verifier/internal/checksum"
+	"github.com/ostapkonst/HashVerifier/internal/checksum"
 )
 
 type GeneratorStatusType int

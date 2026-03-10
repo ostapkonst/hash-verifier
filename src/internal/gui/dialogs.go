@@ -8,7 +8,7 @@ import (
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 
-	"github.com/ostapkonst/hash-verifier/internal/header"
+	"github.com/ostapkonst/HashVerifier/internal/header"
 )
 
 func ShowError(parent *gtk.Window, title, message string) {

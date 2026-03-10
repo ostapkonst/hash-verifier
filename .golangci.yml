@@ -29,7 +29,7 @@ formatters:
     - gofumpt
   settings:
     gofumpt:
-      module-path: github.com/ostapkonst/hash-verifier
+      module-path: github.com/ostapkonst/HashVerifier
     goimports:
       local-prefixes:
-        - github.com/ostapkonst/hash-verifier
+        - github.com/ostapkonst/HashVerifier
