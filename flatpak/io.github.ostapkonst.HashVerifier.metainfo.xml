@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component>
   <id>io.github.ostapkonst.HashVerifier</id>
-  <metadata_license>MIT</metadata_license>
+  <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
   <name>HashVerifier</name>
   <summary>Cross-platform checksum generation and verification tool</summary>
@@ -76,5 +76,10 @@
     <mimetype>application/x-sha3-512</mimetype>
     <mimetype>application/x-blake3</mimetype>
   </provides>
+  <releases>
+    <release version="v2026.3.11" date="2026-03-11">
+      <url>https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.11</url>
+    </release>
+  </releases>
   <content_rating type="oars-1.1"/>
 </component>
