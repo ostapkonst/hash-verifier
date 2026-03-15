@@ -46,6 +46,7 @@ func Run(path string) error {
 		return fmt.Errorf("failed to initialize UI: %w", err)
 	}
 
+	app.showFlatpakWarningIfNeeded()
 	app.fillTabAndSwitch(path)
 	app.window.ShowAll()
 
@@ -513,4 +514,23 @@ func (a *App) getTabNumberByName(name string) int {
 	}
 
 	return -1
+}
+
+func (a *App) showFlatpakWarningIfNeeded() {
+	if !isRunningInFlatpak() {
+		return
+	}
+
+	if a.settings.Flatpak.SuppressSandboxWarning {
+		return
+	}
+
+	suppress := ShowFlatpakSandboxWarningDialog(a.window)
+
+	if suppress {
+		a.settings.Flatpak.SuppressSandboxWarning = true
+		if err := a.settings.Save(); err != nil {
+			log.Error().Err(err).Msg("Failed to save Flatpak warning suppression setting")
+		}
+	}
 }

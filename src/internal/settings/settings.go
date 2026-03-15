@@ -35,10 +35,15 @@ type WindowSettings struct {
 	CurrentPage int      `yaml:"current_page"`
 }
 
+type FlatpakSettings struct {
+	SuppressSandboxWarning bool `yaml:"suppress_sandbox_warning"`
+}
+
 type Settings struct {
 	Window   WindowSettings   `yaml:"window"`
 	Generate GenerateSettings `yaml:"generate"`
 	Verify   VerifySettings   `yaml:"verify"`
+	Flatpak  FlatpakSettings  `yaml:"flatpak"`
 }
 
 func DefaultSettings() *Settings {
@@ -60,6 +65,9 @@ func DefaultSettings() *Settings {
 			ColumnOrder:  []string{"status", "path", "size", "hash", "expected_hash", "note"},
 			SortColumn:   "status",
 			SortOrder:    SortOrderDesc,
+		},
+		Flatpak: FlatpakSettings{
+			SuppressSandboxWarning: false,
 		},
 	}
 }

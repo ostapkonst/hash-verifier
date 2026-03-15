@@ -21,15 +21,19 @@ A cross-platform checksum generation and verification tool with both CLI and GTK
 
 | Operating System | Architecture | Binary | Package |
 |------------------|--------------|--------|---------|
-| Linux | x86_64 (amd64) | ✅ | DEB, RPM, AppImage |
-| Linux | ARM64 (aarch64) | ✅ | DEB, RPM |
+| Linux | x86_64 (amd64) | ✅ | DEB, RPM, AppImage, Flatpak |
+| Linux | ARM64 (aarch64) | ✅ | DEB, RPM, Flatpak |
 | Windows | x86_64 (amd64) | ✅ | ZIP |
 | Windows | x86 (i686) | ✅ | ZIP |
+
+**Recommended installation:** Flatpak is the recommended installation method for Linux as it provides automatic updates and includes all dependencies.
 
 **Minimum OS versions:**
 
 - **Linux:** Ubuntu 22.04+, Fedora 35+, Debian 12+, RHEL 9+ (GLIBC 2.34+, GTK 3.24+)
 - **Windows:** Windows 7 SP1 and later (32-bit and 64-bit)
+
+> **Note for Flatpak:** Minimum requirements depend on the Flatpak runtime version.
 
 > **Note for Windows:** Windows binaries run in GUI mode only (no CLI support).
 
@@ -52,6 +56,15 @@ A cross-platform checksum generation and verification tool with both CLI and GTK
 ## Installation
 
 ### Linux
+
+**Flatpak (Recommended):**
+
+```bash
+flatpak install flathub io.github.ostapkonst.HashVerifier
+flatpak run io.github.ostapkonst.HashVerifier
+```
+
+> **Flatpak Sandbox Notice:** When running as a Flatpak, the application operates in a sandboxed environment with restricted file system access. By default, only the **Documents** and **Desktop** folders are accessible. To access other locations, use [Flatseal](https://github.com/tchx84/Flatseal) to grant additional permissions manually.
 
 **DEB (Debian/Ubuntu):**
 

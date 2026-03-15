@@ -60,3 +60,11 @@ Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
 | `verify.column_order` | `status, path, size, hash, expected_hash, note` | Order of columns in Verify tab |
 | `verify.sort_column` | `status` | Column to sort by in Verify tab |
 | `verify.sort_order` | `desc` | Sort order in Verify tab (asc/desc) |
+
+### Flatpak Settings
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `flatpak.suppress_sandbox_warning` | `false` | Suppress the Flatpak sandbox warning dialog on startup |
+
+> **Note:** Flatpak settings only apply when running the application as a Flatpak package.

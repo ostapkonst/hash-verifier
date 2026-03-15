@@ -18,18 +18,19 @@ type SettingsSection struct {
 }
 
 var descriptionsMap = map[string]string{
-	"generate.follow_symbolic_links": "Follow symbolic links when scanning directories",
-	"generate.sort_paths":            "Sort paths before hashing",
-	"generate.algorithm":             "Default hash algorithm (e.g., .sha256, .md5)",
-	"generate.column_order":          "Order of columns in Generate tab",
-	"generate.sort_column":           "Column to sort by in Generate tab",
-	"generate.sort_order":            "Sort order in Generate tab (asc/desc)",
-	"verify.verify_on_open":          "Auto-start verification when opening checksum file",
-	"verify.column_order":            "Order of columns in Verify tab",
-	"verify.sort_column":             "Column to sort by in Verify tab",
-	"verify.sort_order":              "Sort order in Verify tab (asc/desc)",
-	"window.tab_order":               "Order of tabs in main window",
-	"window.current_page":            "Currently active tab",
+	"generate.follow_symbolic_links":   "Follow symbolic links when scanning directories",
+	"generate.sort_paths":              "Sort paths before hashing",
+	"generate.algorithm":               "Default hash algorithm (e.g., .sha256, .md5)",
+	"generate.column_order":            "Order of columns in Generate tab",
+	"generate.sort_column":             "Column to sort by in Generate tab",
+	"generate.sort_order":              "Sort order in Generate tab (asc/desc)",
+	"verify.verify_on_open":            "Auto-start verification when opening checksum file",
+	"verify.column_order":              "Order of columns in Verify tab",
+	"verify.sort_column":               "Column to sort by in Verify tab",
+	"verify.sort_order":                "Sort order in Verify tab (asc/desc)",
+	"window.tab_order":                 "Order of tabs in main window",
+	"window.current_page":              "Currently active tab",
+	"flatpak.suppress_sandbox_warning": "Suppress the Flatpak sandbox warning dialog on startup (Flatpak only)",
 }
 
 func GetAllSettingsInfo(cfg, defaults *Settings) []SettingsSection {
@@ -118,6 +119,17 @@ func GetAllSettingsInfo(cfg, defaults *Settings) []SettingsSection {
 					Value:       formatSettingValue(cfg.Verify.SortOrder),
 					Default:     formatSettingValue(defaults.Verify.SortOrder),
 					Description: descriptionsMap["verify.sort_order"],
+				},
+			},
+		},
+		{
+			Name: "Flatpak",
+			Settings: []SettingInfo{
+				{
+					Name:        "suppress_sandbox_warning",
+					Value:       formatSettingValue(cfg.Flatpak.SuppressSandboxWarning),
+					Default:     formatSettingValue(defaults.Flatpak.SuppressSandboxWarning),
+					Description: descriptionsMap["flatpak.suppress_sandbox_warning"],
 				},
 			},
 		},
