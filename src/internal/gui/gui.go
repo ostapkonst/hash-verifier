@@ -11,6 +11,7 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/rs/zerolog/log"
 
+	"github.com/ostapkonst/HashVerifier/internal/checksum"
 	"github.com/ostapkonst/HashVerifier/internal/settings"
 	"github.com/ostapkonst/HashVerifier/utils/gracer"
 )
@@ -73,7 +74,15 @@ func (a *App) fillTabAndSwitch(path string) {
 		return
 	}
 
-	if fileInfo, err := os.Stat(cleanPath); err != nil || fileInfo.IsDir() {
+	fileInfo, err := os.Stat(cleanPath)
+	if err == nil && fileInfo.IsDir() {
+		a.generateTab.Fill(cleanPath)
+		a.applySelectedPage(a.getTabNumberByName("generate"))
+
+		return
+	}
+
+	if _, err = checksum.AlgorithmFromExtension(cleanPath); err != nil {
 		a.generateTab.Fill(cleanPath)
 		a.applySelectedPage(a.getTabNumberByName("generate"))
 
