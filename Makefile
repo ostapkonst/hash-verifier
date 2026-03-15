@@ -5,7 +5,7 @@
 .PHONY: third-party-notices
 
 GO_LICENSES_VERSION   = v2.0.1
-GOLANGCI_LINT_VERSION = v2.10.1
+GOLANGCI_LINT_VERSION = v2.11.3
 VERSION              ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "unknown")
 
 all: help
