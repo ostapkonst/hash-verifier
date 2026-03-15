@@ -526,20 +526,22 @@ func (a *App) getTabNumberByName(name string) int {
 }
 
 func (a *App) showFlatpakWarningIfNeeded() {
-	if !isRunningInFlatpak() {
+	if a.settings.Flatpak.SuppressSandboxWarning {
 		return
 	}
 
-	if a.settings.Flatpak.SuppressSandboxWarning {
+	if !isRunningInFlatpak() {
 		return
 	}
 
 	suppress := ShowFlatpakSandboxWarningDialog(a.window)
 
-	if suppress {
-		a.settings.Flatpak.SuppressSandboxWarning = true
-		if err := a.settings.Save(); err != nil {
-			log.Error().Err(err).Msg("Failed to save Flatpak warning suppression setting")
-		}
+	if !suppress {
+		return
+	}
+
+	a.settings.Flatpak.SuppressSandboxWarning = true
+	if err := a.settings.Save(); err != nil {
+		log.Error().Err(err).Msg("Failed to save Flatpak warning suppression setting")
 	}
 }
