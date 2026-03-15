@@ -112,50 +112,15 @@ Download and extract the ZIP archive for your architecture:
 
 ### Configuration
 
-**View settings:**
+See [Configuration Guide](docs/CONFIGURATION.md) for detailed settings documentation.
+
+**Quick commands:**
 
 ```bash
-./hashverifier config
-./hashverifier config show
+./hashverifier config        # View settings
+./hashverifier config edit   # Edit settings
+./hashverifier config reset  # Reset to defaults
 ```
-
-**Edit settings:**
-
-```bash
-./hashverifier config edit
-```
-
-Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
-
-**Reset settings:**
-
-```bash
-./hashverifier config reset
-```
-
-**Settings location:**
-
-| Platform | Path |
-|----------|------|
-| Linux | `~/.config/hashverifier/settings.yaml` |
-| Windows | `%APPDATA%\hashverifier\settings.yaml` |
-
-**Available settings:**
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `window.tab_order` | `generate, verify` | Order of tabs in main window |
-| `window.current_page` | `0` | Currently active tab |
-| `generate.follow_symbolic_links` | `true` | Follow symbolic links when scanning directories |
-| `generate.sort_paths` | `true` | Sort paths before hashing |
-| `generate.algorithm` | `.md5` | Default hash algorithm |
-| `generate.column_order` | `path, size, hash, note` | Order of columns in Generate tab |
-| `generate.sort_column` | `path` | Column to sort by in Generate tab |
-| `generate.sort_order` | `asc` | Sort order in Generate tab (asc/desc) |
-| `verify.verify_on_open` | `true` | Auto-start verification when opening checksum file |
-| `verify.column_order` | `status, path, size, hash, expected_hash, note` | Order of columns in Verify tab |
-| `verify.sort_column` | `status` | Column to sort by in Verify tab |
-| `verify.sort_order` | `desc` | Sort order in Verify tab (asc/desc) |
 
 ### Output Format
 

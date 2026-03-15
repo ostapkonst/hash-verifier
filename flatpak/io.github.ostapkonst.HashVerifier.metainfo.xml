@@ -64,17 +64,17 @@
   </keywords>
   <provides>
     <binary>hashverifier</binary>
-    <mimetype>application/x-sfv</mimetype>
-    <mimetype>application/x-md4</mimetype>
-    <mimetype>application/x-md5</mimetype>
-    <mimetype>application/x-sha1</mimetype>
-    <mimetype>application/x-sha256</mimetype>
-    <mimetype>application/x-sha384</mimetype>
-    <mimetype>application/x-sha512</mimetype>
-    <mimetype>application/x-sha3-256</mimetype>
-    <mimetype>application/x-sha3-384</mimetype>
-    <mimetype>application/x-sha3-512</mimetype>
-    <mimetype>application/x-blake3</mimetype>
+    <mediatype>application/x-sfv</mediatype>
+    <mediatype>application/x-md4</mediatype>
+    <mediatype>application/x-md5</mediatype>
+    <mediatype>application/x-sha1</mediatype>
+    <mediatype>application/x-sha256</mediatype>
+    <mediatype>application/x-sha384</mediatype>
+    <mediatype>application/x-sha512</mediatype>
+    <mediatype>application/x-sha3-256</mediatype>
+    <mediatype>application/x-sha3-384</mediatype>
+    <mediatype>application/x-sha3-512</mediatype>
+    <mediatype>application/x-blake3</mediatype>
   </provides>
   <releases>
     <release version="v2026.3.11" date="2026-03-11">
