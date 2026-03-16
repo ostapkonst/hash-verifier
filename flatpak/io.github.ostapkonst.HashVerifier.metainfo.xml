@@ -77,6 +77,9 @@
     <mediatype>application/x-blake3</mediatype>
   </provides>
   <releases>
+    <release version="v2026.3.16" date="2026-03-16">
+      <url>https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.16</url>
+    </release>
     <release version="v2026.3.15" date="2026-03-15">
       <url>https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.15</url>
     </release>
