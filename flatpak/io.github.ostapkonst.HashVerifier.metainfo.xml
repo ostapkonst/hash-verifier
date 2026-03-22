@@ -47,7 +47,7 @@
     <control>touch</control>
   </recommends>
   <requires>
-    <display_length compare="ge">360</display_length>
+    <display_length compare="ge">550</display_length>
   </requires>
   <categories>
     <category>Utility</category>
