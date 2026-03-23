@@ -4,7 +4,7 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
   <name>HashVerifier</name>
-  <summary>Cross-platform checksum generation and verification tool</summary>
+  <summary>Checksum generation and verification</summary>
   <description>
     <p>
       Cross-platform checksum generation and verification tool with CLI and GTK3 GUI.
@@ -38,15 +38,13 @@
   <url type="homepage">https://github.com/ostapkonst/HashVerifier</url>
   <url type="bugtracker">https://github.com/ostapkonst/HashVerifier/issues</url>
   <url type="help">https://github.com/ostapkonst/HashVerifier/blob/master/README.md</url>
+  <url type="vcs-browser">https://github.com/ostapkonst/HashVerifier</url>
   <developer id="io.github.ostapkonst">
     <name translate="no">Ostap Konstantinov</name>
   </developer>
-  <recommends>
+  <requires>
     <control>keyboard</control>
     <control>pointing</control>
-    <control>touch</control>
-  </recommends>
-  <requires>
     <display_length compare="ge">550</display_length>
   </requires>
   <categories>
@@ -79,6 +77,9 @@
   <releases>
     <release version="v2026.3.17" date="2026-03-17">
       <url>https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.17</url>
+      <description>
+        <p>Initial release</p>
+      </description>
     </release>
   </releases>
   <content_rating type="oars-1.1"/>
