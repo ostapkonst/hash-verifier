@@ -15,7 +15,7 @@ RUN wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continu
     -O /usr/local/bin/linuxdeploy && \
     chmod +x /usr/local/bin/linuxdeploy
 
-RUN wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${MACHINE}.AppImage \
+RUN wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${MACHINE}.AppImage \
     -O /usr/local/bin/appimagetool && \
     chmod +x /usr/local/bin/appimagetool
 

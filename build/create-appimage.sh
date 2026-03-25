@@ -27,7 +27,6 @@ readonly APPDIR_NAME="${PACKAGE_NAME}.AppDir"
 readonly APPDIR_ROOT="${WORK_DIR}/dist/appimage/${APPDIR_NAME}"
 readonly APPDIR_BIN="${APPDIR_ROOT}/usr/bin"
 readonly APPDIR_DESKTOP="${APPDIR_ROOT}/usr/share/applications"
-readonly APPDIR_META="${APPDIR_ROOT}/usr/share/metainfo"
 readonly APPDIR_DOC="${APPDIR_ROOT}/usr/share/doc/${PACKAGE_NAME}"
 
 readonly DESKTOP_NAME="HashVerifier"
@@ -134,7 +133,6 @@ prepare_appdir() {
     mkdir -p "${APPDIR_ROOT}"
     mkdir -p "${APPDIR_BIN}"
     mkdir -p "${APPDIR_DESKTOP}"
-    mkdir -p "${APPDIR_META}"
     mkdir -p "${APPDIR_DOC}"
     mkdir -p "${OUT_DIR}"
 

@@ -42,9 +42,12 @@
   <developer id="io.github.ostapkonst">
     <name translate="no">Ostap Konstantinov</name>
   </developer>
-  <requires>
+  <recommends>
     <control>keyboard</control>
     <control>pointing</control>
+    <control>touch</control>
+  </recommends>
+  <requires>
     <display_length compare="ge">550</display_length>
   </requires>
   <categories>
@@ -75,8 +78,19 @@
     <mediatype>application/x-blake3</mediatype>
   </provides>
   <releases>
+    <release version="v2026.3.25" date="2026-03-25">
+      <url type="details">https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.25</url>
+      <description>
+        <ul>
+          <li>Fixed AppStream metadata</li>
+          <li>Added context menu when right-clicking on tables, allows copying data</li>
+          <li>Added columns with indexes</li>
+          <li>Changed the display of start and stop buttons on both tabs</li>
+        </ul>
+      </description>
+    </release>
     <release version="v2026.3.17" date="2026-03-17">
-      <url>https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.17</url>
+      <url type="details">https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.17</url>
       <description>
         <p>Initial release</p>
       </description>
