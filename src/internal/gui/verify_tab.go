@@ -29,13 +29,14 @@ type VerifyTab struct {
 	settings     *settings.Settings
 	columnConfig *ColumnConfig
 
-	entryChecksum      *gtk.Entry
-	btnStart           *gtk.Button
-	btnStop            *gtk.Button
-	btnBrowseChk       *gtk.Button
-	treeValidate       *gtk.TreeView
-	listStore          *gtk.ListStore
-	chkBoxVerifyOnOpen *gtk.CheckButton
+	entryChecksum       *gtk.Entry
+	btnStart            *gtk.Button
+	btnStop             *gtk.Button
+	btnBrowseChk        *gtk.Button
+	treeValidate        *gtk.TreeView
+	listStore           *gtk.ListStore
+	chkBoxVerifyOnOpen  *gtk.CheckButton
+	contextMenuProvider *ContextMenuProvider
 
 	labelMatchV      *gtk.Label
 	labelMismatchV   *gtk.Label
@@ -59,6 +60,8 @@ func NewVerifyTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window,
 
 	tab.getWidgets()
 	tab.getLabels()
+
+	tab.contextMenuProvider = NewContextMenuProvider(tab.treeValidate, tab.listStore)
 
 	tab.applySettingsToUI()
 	tab.setStartState()
@@ -124,6 +127,8 @@ func (t *VerifyTab) setupHandlers() {
 			log.Error().Err(err).Msg("Failed to save settings")
 		}
 	})
+
+	t.setupContextMenu()
 
 	columns := t.treeValidate.GetColumns()
 	for l := columns; l != nil; l = l.Next() {
@@ -205,11 +210,11 @@ func (t *VerifyTab) onStart() {
 				_ = t.listStore.SetValue(iter, 3, res.Result.ActualHash)
 				_ = t.listStore.SetValue(iter, 4, res.Result.ExpectedHash)
 
-				_ = t.listStore.SetValue(iter, 5, colorOfStatus)
 				if res.Result.Err != nil {
-					_ = t.listStore.SetValue(iter, 6, unwrap.UnwrapAndNormalize(res.Result.Err))
+					_ = t.listStore.SetValue(iter, 5, unwrap.UnwrapAndNormalize(res.Result.Err))
 				}
 
+				_ = t.listStore.SetValue(iter, 6, colorOfStatus)
 				_ = t.listStore.SetValue(iter, 7, res.Result.ReadBytes)
 
 				lastState = res.Stats
@@ -332,4 +337,13 @@ func (t *VerifyTab) saveSettings() error {
 	}
 
 	return t.settings.Save()
+}
+
+func (t *VerifyTab) setupContextMenu() {
+	columnLabels := []string{"Path", "Size", "Status", "Hash", "Expected Hash", "Note"}
+
+	t.contextMenuProvider.CreateMenu(columnLabels)
+	t.contextMenuProvider.ConnectRightClick(func() {
+		t.contextMenuProvider.ShowMenu()
+	})
 }

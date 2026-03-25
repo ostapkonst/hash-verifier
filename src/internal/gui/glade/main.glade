@@ -681,7 +681,7 @@ Author: ostapkonst
                                 <property name="xalign">0.5</property>
                               </object>
                               <attributes>
-                                <attribute name="background">5</attribute>
+                                <attribute name="background">6</attribute>
                                 <attribute name="text">2</attribute>
                               </attributes>
                             </child>
@@ -724,7 +724,7 @@ Author: ostapkonst
                                 <property name="foreground">red</property>
                               </object>
                               <attributes>
-                                <attribute name="text">6</attribute>
+                                <attribute name="text">5</attribute>
                               </attributes>
                             </child>
                           </object>

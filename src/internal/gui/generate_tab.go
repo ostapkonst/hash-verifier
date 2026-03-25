@@ -40,6 +40,7 @@ type GenerateTab struct {
 	cmbTxtAlgorithm      *gtk.ComboBoxText
 	chkBtnFollowSymlinks *gtk.CheckButton
 	chkBtnSortPaths      *gtk.CheckButton
+	contextMenuProvider  *ContextMenuProvider
 
 	labelProcessedV  *gtk.Label
 	labelWithErrorsV *gtk.Label
@@ -62,6 +63,8 @@ func NewGenerateTab(ctx context.Context, builder *gtk.Builder, window *gtk.Windo
 
 	tab.getWidgets()
 	tab.getLabels()
+
+	tab.contextMenuProvider = NewContextMenuProvider(tab.treeGenerate, tab.listStore)
 
 	tab.applySettingsToUI()
 	tab.setStartState()
@@ -174,6 +177,8 @@ func (t *GenerateTab) setupHandlers() {
 			log.Error().Err(err).Msg("Failed to save settings")
 		}
 	})
+
+	t.setupContextMenu()
 
 	columns := t.treeGenerate.GetColumns()
 	for l := columns; l != nil; l = l.Next() {
@@ -390,4 +395,13 @@ func (t *GenerateTab) saveSettings() error {
 	}
 
 	return t.settings.Save()
+}
+
+func (t *GenerateTab) setupContextMenu() {
+	columnLabels := []string{"Path", "Size", "Hash", "Note"}
+
+	t.contextMenuProvider.CreateMenu(columnLabels)
+	t.contextMenuProvider.ConnectRightClick(func() {
+		t.contextMenuProvider.ShowMenu()
+	})
 }
