@@ -172,6 +172,7 @@ func (t *VerifyTab) onStart() {
 	var hasError error
 
 	lastState := checksum.VerifierStats{}
+	currentIdx := int64(0)
 
 	go func() {
 		defer t.wg.Done()
@@ -203,19 +204,22 @@ func (t *VerifyTab) onStart() {
 			}
 
 			glib.IdleAdd(func() {
+				currentIdx += 1
+
 				iter := t.listStore.Append()
-				_ = t.listStore.SetValue(iter, 0, res.Result.Path)
-				_ = t.listStore.SetValue(iter, 1, bytesize.New(float64(res.Result.ReadBytes)).String())
-				_ = t.listStore.SetValue(iter, 2, res.Result.Status.String())
-				_ = t.listStore.SetValue(iter, 3, res.Result.ActualHash)
-				_ = t.listStore.SetValue(iter, 4, res.Result.ExpectedHash)
+				_ = t.listStore.SetValue(iter, 0, currentIdx)
+				_ = t.listStore.SetValue(iter, 1, res.Result.Path)
+				_ = t.listStore.SetValue(iter, 2, bytesize.New(float64(res.Result.ReadBytes)).String())
+				_ = t.listStore.SetValue(iter, 3, res.Result.Status.String())
+				_ = t.listStore.SetValue(iter, 4, res.Result.ActualHash)
+				_ = t.listStore.SetValue(iter, 5, res.Result.ExpectedHash)
 
 				if res.Result.Err != nil {
-					_ = t.listStore.SetValue(iter, 5, unwrap.UnwrapAndNormalize(res.Result.Err))
+					_ = t.listStore.SetValue(iter, 6, unwrap.UnwrapAndNormalize(res.Result.Err))
 				}
 
-				_ = t.listStore.SetValue(iter, 6, colorOfStatus)
-				_ = t.listStore.SetValue(iter, 7, res.Result.ReadBytes)
+				_ = t.listStore.SetValue(iter, 7, colorOfStatus)
+				_ = t.listStore.SetValue(iter, 8, res.Result.ReadBytes)
 
 				lastState = res.Stats
 				t.updateStats(lastState)
@@ -267,8 +271,8 @@ func (t *VerifyTab) onStop() {
 }
 
 func (t *VerifyTab) activateStopState() {
-	t.btnStart.SetSensitive(false)
-	t.btnStop.SetSensitive(true)
+	t.btnStart.SetVisible(false)
+	t.btnStop.SetVisible(true)
 
 	t.btnBrowseChk.SetSensitive(false)
 	t.entryChecksum.SetSensitive(false)
@@ -276,8 +280,8 @@ func (t *VerifyTab) activateStopState() {
 }
 
 func (t *VerifyTab) setStartState() {
-	t.btnStart.SetSensitive(true)
-	t.btnStop.SetSensitive(false)
+	t.btnStart.SetVisible(true)
+	t.btnStop.SetVisible(false)
 
 	t.btnBrowseChk.SetSensitive(true)
 	t.entryChecksum.SetSensitive(true)
@@ -340,7 +344,7 @@ func (t *VerifyTab) saveSettings() error {
 }
 
 func (t *VerifyTab) setupContextMenu() {
-	columnLabels := []string{"Path", "Size", "Status", "Hash", "Expected Hash", "Note"}
+	columnLabels := []string{"Idx", "Path", "Size", "Status", "Hash", "Expected Hash", "Note"}
 
 	t.contextMenuProvider.CreateMenu(columnLabels)
 	t.contextMenuProvider.ConnectRightClick(func() {

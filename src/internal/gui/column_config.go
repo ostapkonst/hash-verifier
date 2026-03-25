@@ -11,6 +11,7 @@ type ColumnConfig struct {
 func NewGenerateColumnConfig() *ColumnConfig {
 	return &ColumnConfig{
 		titleToName: map[string]string{
+			"Idx":  "idx",
 			"Path": "path",
 			"Size": "size",
 			"Hash": "hash",
@@ -22,6 +23,7 @@ func NewGenerateColumnConfig() *ColumnConfig {
 func NewVerifyColumnConfig() *ColumnConfig {
 	return &ColumnConfig{
 		titleToName: map[string]string{
+			"Idx":           "idx",
 			"Path":          "path",
 			"Size":          "size",
 			"Status":        "status",

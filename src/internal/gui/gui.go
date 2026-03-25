@@ -49,7 +49,7 @@ func Run(path string) error {
 
 	app.showFlatpakWarningIfNeeded()
 	app.fillTabAndSwitch(path)
-	app.window.ShowAll()
+	app.window.Show()
 
 	gracer.AddCallback(func() error {
 		cancel()

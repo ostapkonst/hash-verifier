@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 
 	"gopkg.in/yaml.v3"
 )
@@ -56,13 +57,13 @@ func DefaultSettings() *Settings {
 			FollowSymbolicLinks: true,
 			SortPaths:           true,
 			Algorithm:           ".md5",
-			ColumnOrder:         []string{"path", "size", "hash", "note"},
-			SortColumn:          "path",
+			ColumnOrder:         []string{"idx", "path", "size", "hash", "note"},
+			SortColumn:          "idx",
 			SortOrder:           SortOrderAsc,
 		},
 		Verify: VerifySettings{
 			VerifyOnOpen: true,
-			ColumnOrder:  []string{"status", "path", "size", "hash", "expected_hash", "note"},
+			ColumnOrder:  []string{"idx", "status", "path", "size", "hash", "expected_hash", "note"},
 			SortColumn:   "status",
 			SortOrder:    SortOrderDesc,
 		},
@@ -152,7 +153,27 @@ func Load() (*Settings, error) {
 		return DefaultSettings(), fmt.Errorf("failed to parse settings file: %w", err)
 	}
 
+	settings.fixColumnOrder()
+
 	return settings, nil
+}
+
+func (s *Settings) fixColumnOrder() {
+	defaultSettings := DefaultSettings()
+
+	for _, col := range defaultSettings.Generate.ColumnOrder {
+		if !slices.Contains(s.Generate.ColumnOrder, col) {
+			s.Generate.ColumnOrder = defaultSettings.Generate.ColumnOrder
+			break
+		}
+	}
+
+	for _, col := range defaultSettings.Verify.ColumnOrder {
+		if !slices.Contains(s.Verify.ColumnOrder, col) {
+			s.Verify.ColumnOrder = defaultSettings.Verify.ColumnOrder
+			break
+		}
+	}
 }
 
 func (s *Settings) Save() error {

@@ -232,6 +232,7 @@ func (t *GenerateTab) onStart() {
 	var hasError error
 
 	lastStats := checksum.GeneratorStats{}
+	currentIdx := int64(0)
 
 	go func() {
 		defer t.wg.Done()
@@ -252,16 +253,19 @@ func (t *GenerateTab) onStart() {
 			}
 
 			glib.IdleAdd(func() {
-				iter := t.listStore.Append()
-				_ = t.listStore.SetValue(iter, 0, res.Result.RelPath)
-				_ = t.listStore.SetValue(iter, 1, bytesize.New(float64(res.Result.ReadBytes)).String())
+				currentIdx += 1
 
-				_ = t.listStore.SetValue(iter, 2, res.Result.Hash)
+				iter := t.listStore.Append()
+				_ = t.listStore.SetValue(iter, 0, currentIdx)
+				_ = t.listStore.SetValue(iter, 1, res.Result.RelPath)
+				_ = t.listStore.SetValue(iter, 2, bytesize.New(float64(res.Result.ReadBytes)).String())
+
+				_ = t.listStore.SetValue(iter, 3, res.Result.Hash)
 				if res.Result.Err != nil {
-					_ = t.listStore.SetValue(iter, 3, unwrap.UnwrapAndNormalize(res.Result.Err))
+					_ = t.listStore.SetValue(iter, 4, unwrap.UnwrapAndNormalize(res.Result.Err))
 				}
 
-				_ = t.listStore.SetValue(iter, 4, res.Result.ReadBytes)
+				_ = t.listStore.SetValue(iter, 5, res.Result.ReadBytes)
 
 				lastStats = res.Stats
 				t.updateStats(lastStats)
@@ -314,8 +318,8 @@ func (t *GenerateTab) onStop() {
 }
 
 func (t *GenerateTab) activateStopState() {
-	t.btnStart.SetSensitive(false)
-	t.btnStop.SetSensitive(true)
+	t.btnStart.SetVisible(false)
+	t.btnStop.SetVisible(true)
 
 	t.btnBrowseDir.SetSensitive(false)
 	t.btnSaveChk.SetSensitive(false)
@@ -327,8 +331,8 @@ func (t *GenerateTab) activateStopState() {
 }
 
 func (t *GenerateTab) setStartState() {
-	t.btnStart.SetSensitive(true)
-	t.btnStop.SetSensitive(false)
+	t.btnStart.SetVisible(true)
+	t.btnStop.SetVisible(false)
 
 	t.btnBrowseDir.SetSensitive(true)
 	t.btnSaveChk.SetSensitive(true)
@@ -398,7 +402,7 @@ func (t *GenerateTab) saveSettings() error {
 }
 
 func (t *GenerateTab) setupContextMenu() {
-	columnLabels := []string{"Path", "Size", "Hash", "Note"}
+	columnLabels := []string{"Idx", "Path", "Size", "Hash", "Note"}
 
 	t.contextMenuProvider.CreateMenu(columnLabels)
 	t.contextMenuProvider.ConnectRightClick(func() {
