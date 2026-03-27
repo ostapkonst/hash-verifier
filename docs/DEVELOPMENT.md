@@ -88,32 +88,3 @@ HashVerifier/
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
-
-### Branch and Pull Request Naming Convention
-
-To maintain a clear project history, please follow these naming conventions:
-
-**Branch names:**
-
-- `feature/<description>` — for new features
-- `fix/<description>` — for bug fixes
-
-**Pull Request titles:**
-
-- `FEATURE: <description>` — for new features
-- `FIX: <description>` — for bug fixes
-
-**Examples:**
-
-| Type | Branch Name | PR Title |
-|------|-------------|----------|
-| Feature | `feature/linux-arm64-support` | `FEATURE: Add Linux ARM64 (aarch64) build support` |
-| Feature | `feature/dark-mode-theme` | `FEATURE: Implement dark mode theme for GUI` |
-| Fix | `fix/windows-gtk3-build-error` | `FIX: Resolve GTK3 build error on Windows with MinGW` |
-| Fix | `fix/sha256-verification-crash` | `FIX: Fix crash when verifying corrupted SHA256 files` |
-
-## License
-
-Distributed under the MIT License. See [LICENSE](../LICENSE) for more information.
-
-For third-party software notices, see [THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES).

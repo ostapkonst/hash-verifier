@@ -41,6 +41,20 @@ Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
 | `window.tab_order` | `generate, verify` | Order of tabs in main window |
 | `window.current_page` | `0` | Currently active tab |
 | `window.show_details` | `true` | Show/hide details tables (Generate and Verify tabs) |
+| `window.restore_mode` | `all` | Restore window size/position on startup (`default`, `size`, `position`, `all`) |
+| `window.width` | `0` | Window width (saved automatically) |
+| `window.height` | `0` | Window height when Details is shown (saved automatically) |
+| `window.x` | `0` | Window X position (saved automatically) |
+| `window.y` | `0` | Window Y position (saved automatically) |
+
+**Restore mode values:**
+
+| Value | Behavior |
+|-------|----------|
+| `default` | Use default window size from UI definition |
+| `size` | Restore only window size (width and height) |
+| `position` | Restore only window position (X and Y) |
+| `all` | Restore both window size and position |
 
 ### Generate Tab Settings
 

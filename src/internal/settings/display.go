@@ -31,6 +31,11 @@ var descriptionsMap = map[string]string{
 	"window.tab_order":                 "Order of tabs in main window",
 	"window.current_page":              "Currently active tab",
 	"window.show_details":              "Show/hide details tables (Generate and Verify tabs)",
+	"window.restore_mode":              "Restore window size and/or position on startup (default, size, position, all)",
+	"window.width":                     "Window width (saved automatically)",
+	"window.height":                    "Window height when Details is shown (saved automatically)",
+	"window.x":                         "Window X position (saved automatically)",
+	"window.y":                         "Window Y position (saved automatically)",
 	"flatpak.suppress_sandbox_warning": "Suppress the Flatpak sandbox warning dialog on startup (Flatpak only)",
 }
 
@@ -56,6 +61,36 @@ func GetAllSettingsInfo(cfg, defaults *Settings) []SettingsSection {
 					Value:       formatSettingValue(cfg.Window.ShowDetails),
 					Default:     formatSettingValue(defaults.Window.ShowDetails),
 					Description: descriptionsMap["window.show_details"],
+				},
+				{
+					Name:        "restore_mode",
+					Value:       formatSettingValue(cfg.Window.RestoreMode),
+					Default:     formatSettingValue(defaults.Window.RestoreMode),
+					Description: descriptionsMap["window.restore_mode"],
+				},
+				{
+					Name:        "width",
+					Value:       formatSettingValue(cfg.Window.Width),
+					Default:     formatSettingValue(defaults.Window.Width),
+					Description: descriptionsMap["window.width"],
+				},
+				{
+					Name:        "height",
+					Value:       formatSettingValue(cfg.Window.Height),
+					Default:     formatSettingValue(defaults.Window.Height),
+					Description: descriptionsMap["window.height"],
+				},
+				{
+					Name:        "x",
+					Value:       formatSettingValue(cfg.Window.X),
+					Default:     formatSettingValue(defaults.Window.X),
+					Description: descriptionsMap["window.x"],
+				},
+				{
+					Name:        "y",
+					Value:       formatSettingValue(cfg.Window.Y),
+					Default:     formatSettingValue(defaults.Window.Y),
+					Description: descriptionsMap["window.y"],
 				},
 			},
 		},

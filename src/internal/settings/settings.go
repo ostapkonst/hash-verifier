@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
+	"sync"
 
 	"gopkg.in/yaml.v3"
 )
@@ -13,6 +14,15 @@ import (
 const (
 	appName      = "hashverifier"
 	settingsFile = "settings.yaml"
+)
+
+type RestoreMode string
+
+const (
+	RestoreModeDefault  RestoreMode = "default"
+	RestoreModeSize     RestoreMode = "size"
+	RestoreModePosition RestoreMode = "position"
+	RestoreModeAll      RestoreMode = "all"
 )
 
 type GenerateSettings struct {
@@ -32,9 +42,14 @@ type VerifySettings struct {
 }
 
 type WindowSettings struct {
-	TabOrder    []string `yaml:"tab_order"`
-	CurrentPage int      `yaml:"current_page"`
-	ShowDetails bool     `yaml:"show_details"`
+	TabOrder    []string    `yaml:"tab_order"`
+	CurrentPage int         `yaml:"current_page"`
+	ShowDetails bool        `yaml:"show_details"`
+	RestoreMode RestoreMode `yaml:"restore_mode"`
+	Width       int         `yaml:"width"`
+	Height      int         `yaml:"height"`
+	X           int         `yaml:"x"`
+	Y           int         `yaml:"y"`
 }
 
 type FlatpakSettings struct {
@@ -46,6 +61,7 @@ type Settings struct {
 	Generate GenerateSettings `yaml:"generate"`
 	Verify   VerifySettings   `yaml:"verify"`
 	Flatpak  FlatpakSettings  `yaml:"flatpak"`
+	mu       sync.Mutex
 }
 
 func DefaultSettings() *Settings {
@@ -54,6 +70,11 @@ func DefaultSettings() *Settings {
 			TabOrder:    []string{"generate", "verify"},
 			CurrentPage: 0,
 			ShowDetails: true,
+			RestoreMode: RestoreModeAll,
+			Width:       0,
+			Height:      0,
+			X:           0,
+			Y:           0,
 		},
 		Generate: GenerateSettings{
 			FollowSymbolicLinks: true,
@@ -179,6 +200,9 @@ func (s *Settings) fixColumnOrder() {
 }
 
 func (s *Settings) Save() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	if err := ensureConfigDir(); err != nil {
 		return fmt.Errorf("failed to ensure config directory: %w", err)
 	}

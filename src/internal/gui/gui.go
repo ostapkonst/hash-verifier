@@ -143,11 +143,13 @@ func (a *App) initUI() error {
 
 	a.applyTabOrder()
 	a.applyCurrentPage()
+	a.restoreWindowGeometry()
 	a.applyShowDetails()
 
 	a.connectTabReorderHandler()
 	a.connectTabSwitchHandler()
 	a.connectShowDetailsHandler()
+	a.connectWindowEvents()
 
 	return nil
 }
@@ -617,18 +619,17 @@ func (a *App) showFlatpakWarningIfNeeded() {
 
 func (a *App) applyShowDetails() {
 	show := a.settings.Window.ShowDetails
+
 	a.showDetails.SetActive(show)
 	a.generateTab.SetDetailsVisible(show)
 	a.verifyTab.SetDetailsVisible(show)
 
-	_, currentHeight := a.window.GetSize()
-	a.previousHeight = currentHeight
-
 	geometry := gdk.Geometry{}
 
-	if show {
-		a.window.SetGeometryHints(nil, geometry, 0)
-	} else {
+	if !show {
+		_, currentHeight := a.window.GetSize()
+		a.previousHeight = currentHeight
+
 		geometry.SetMinHeight(1)
 		geometry.SetMaxHeight(1)
 		geometry.SetMinWidth(1)
@@ -640,6 +641,7 @@ func (a *App) applyShowDetails() {
 func (a *App) connectShowDetailsHandler() {
 	a.showDetails.Connect("toggled", func() {
 		show := a.showDetails.GetActive()
+
 		a.generateTab.SetDetailsVisible(show)
 		a.verifyTab.SetDetailsVisible(show)
 
@@ -664,5 +666,55 @@ func (a *App) connectShowDetailsHandler() {
 		if err := a.settings.Save(); err != nil {
 			log.Error().Err(err).Msg("Failed to save show details setting")
 		}
+	})
+}
+
+func (a *App) restoreWindowGeometry() {
+	if a.settings.Window.RestoreMode == settings.RestoreModeDefault {
+		return
+	}
+
+	if (a.settings.Window.RestoreMode == settings.RestoreModeSize ||
+		a.settings.Window.RestoreMode == settings.RestoreModeAll) &&
+		(a.settings.Window.Width > 0 && a.settings.Window.Height > 0) {
+		a.window.Resize(a.settings.Window.Width, a.settings.Window.Height)
+	}
+
+	if a.settings.Window.RestoreMode == settings.RestoreModePosition ||
+		a.settings.Window.RestoreMode == settings.RestoreModeAll &&
+			(a.settings.Window.X > 0 || a.settings.Window.Y > 0) {
+		a.window.Move(a.settings.Window.X, a.settings.Window.Y)
+	}
+}
+
+func (a *App) saveWindowGeometry() {
+	if a.settings.Window.RestoreMode == settings.RestoreModeSize ||
+		a.settings.Window.RestoreMode == settings.RestoreModeAll {
+		width, height := a.window.GetSize()
+
+		a.settings.Window.Width = width
+
+		if a.settings.Window.ShowDetails {
+			a.settings.Window.Height = height
+		} else {
+			a.settings.Window.Height = a.previousHeight
+		}
+	}
+
+	if a.settings.Window.RestoreMode == settings.RestoreModePosition ||
+		a.settings.Window.RestoreMode == settings.RestoreModeAll {
+		x, y := a.window.GetPosition()
+		a.settings.Window.X = x
+		a.settings.Window.Y = y
+	}
+
+	if err := a.settings.Save(); err != nil {
+		log.Error().Err(err).Msg("Failed to save window geometry")
+	}
+}
+
+func (a *App) connectWindowEvents() {
+	a.window.Connect("delete-event", func() {
+		a.saveWindowGeometry()
 	})
 }
