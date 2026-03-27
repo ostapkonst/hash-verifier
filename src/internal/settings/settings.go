@@ -34,6 +34,7 @@ type VerifySettings struct {
 type WindowSettings struct {
 	TabOrder    []string `yaml:"tab_order"`
 	CurrentPage int      `yaml:"current_page"`
+	ShowDetails bool     `yaml:"show_details"`
 }
 
 type FlatpakSettings struct {
@@ -52,6 +53,7 @@ func DefaultSettings() *Settings {
 		Window: WindowSettings{
 			TabOrder:    []string{"generate", "verify"},
 			CurrentPage: 0,
+			ShowDetails: true,
 		},
 		Generate: GenerateSettings{
 			FollowSymbolicLinks: true,

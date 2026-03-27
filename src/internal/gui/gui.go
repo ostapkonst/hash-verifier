@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 
@@ -25,14 +26,16 @@ const (
 )
 
 type App struct {
-	window      *gtk.Window
-	builder     *gtk.Builder
-	generateTab *GenerateTab
-	verifyTab   *VerifyTab
-	icon        *gdk.Pixbuf
-	ctx         context.Context
-	settings    *settings.Settings
-	notebook    *gtk.Notebook
+	window         *gtk.Window
+	builder        *gtk.Builder
+	generateTab    *GenerateTab
+	verifyTab      *VerifyTab
+	icon           *gdk.Pixbuf
+	ctx            context.Context
+	settings       *settings.Settings
+	notebook       *gtk.Notebook
+	showDetails    *gtk.ToggleButton
+	previousHeight int
 }
 
 func Run(path string) error {
@@ -136,12 +139,15 @@ func (a *App) initUI() error {
 	a.verifyTab = NewVerifyTab(a.ctx, a.builder, a.window, a.settings)
 
 	a.notebook = getNotebook(a.builder, "notebook")
+	a.showDetails = getToggleButton(a.builder, "show_details")
 
 	a.applyTabOrder()
 	a.applyCurrentPage()
+	a.applyShowDetails()
 
 	a.connectTabReorderHandler()
 	a.connectTabSwitchHandler()
+	a.connectShowDetailsHandler()
 
 	return nil
 }
@@ -399,6 +405,69 @@ func getTreeView(builder *gtk.Builder, id string) *gtk.TreeView {
 	return tree
 }
 
+func getGrid(builder *gtk.Builder, id string) *gtk.Grid {
+	grid, err := func() (*gtk.Grid, error) {
+		obj, err := builder.GetObject(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get grid %s: %w", id, err)
+		}
+
+		grid, ok := obj.(*gtk.Grid)
+		if !ok {
+			return nil, fmt.Errorf("object %s is not a Grid", id)
+		}
+
+		return grid, nil
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	return grid
+}
+
+func getScrolledWindow(builder *gtk.Builder, id string) *gtk.ScrolledWindow {
+	scrolled, err := func() (*gtk.ScrolledWindow, error) {
+		obj, err := builder.GetObject(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get scrolled window %s: %w", id, err)
+		}
+
+		sw, ok := obj.(*gtk.ScrolledWindow)
+		if !ok {
+			return nil, fmt.Errorf("object %s is not a ScrolledWindow", id)
+		}
+
+		return sw, nil
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	return scrolled
+}
+
+func getToggleButton(builder *gtk.Builder, id string) *gtk.ToggleButton {
+	button, err := func() (*gtk.ToggleButton, error) {
+		obj, err := builder.GetObject(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get toggle button %s: %w", id, err)
+		}
+
+		btn, ok := obj.(*gtk.ToggleButton)
+		if !ok {
+			return nil, fmt.Errorf("object %s is not a ToggleButton", id)
+		}
+
+		return btn, nil
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	return button
+}
+
 func (a *App) getTabOrder() []string {
 	var order []string
 
@@ -544,4 +613,56 @@ func (a *App) showFlatpakWarningIfNeeded() {
 	if err := a.settings.Save(); err != nil {
 		log.Error().Err(err).Msg("Failed to save Flatpak warning suppression setting")
 	}
+}
+
+func (a *App) applyShowDetails() {
+	show := a.settings.Window.ShowDetails
+	a.showDetails.SetActive(show)
+	a.generateTab.SetDetailsVisible(show)
+	a.verifyTab.SetDetailsVisible(show)
+
+	_, currentHeight := a.window.GetSize()
+	a.previousHeight = currentHeight
+
+	geometry := gdk.Geometry{}
+
+	if show {
+		a.window.SetGeometryHints(nil, geometry, 0)
+	} else {
+		geometry.SetMinHeight(1)
+		geometry.SetMaxHeight(1)
+		geometry.SetMinWidth(1)
+		geometry.SetMaxWidth(math.MaxInt32)
+		a.window.SetGeometryHints(nil, geometry, gdk.HINT_MIN_SIZE|gdk.HINT_MAX_SIZE)
+	}
+}
+
+func (a *App) connectShowDetailsHandler() {
+	a.showDetails.Connect("toggled", func() {
+		show := a.showDetails.GetActive()
+		a.generateTab.SetDetailsVisible(show)
+		a.verifyTab.SetDetailsVisible(show)
+
+		geometry := gdk.Geometry{}
+
+		if show {
+			a.window.SetGeometryHints(nil, geometry, 0)
+			currentWidth, _ := a.window.GetSize()
+			a.window.Resize(currentWidth, a.previousHeight)
+		} else {
+			_, currentHeight := a.window.GetSize()
+			a.previousHeight = currentHeight
+
+			geometry.SetMinHeight(1)
+			geometry.SetMaxHeight(1)
+			geometry.SetMinWidth(1)
+			geometry.SetMaxWidth(math.MaxInt32)
+			a.window.SetGeometryHints(nil, geometry, gdk.HINT_MIN_SIZE|gdk.HINT_MAX_SIZE)
+		}
+
+		a.settings.Window.ShowDetails = show
+		if err := a.settings.Save(); err != nil {
+			log.Error().Err(err).Msg("Failed to save show details setting")
+		}
+	})
 }

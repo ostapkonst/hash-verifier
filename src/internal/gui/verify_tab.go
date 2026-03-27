@@ -34,9 +34,11 @@ type VerifyTab struct {
 	btnStop             *gtk.Button
 	btnBrowseChk        *gtk.Button
 	treeValidate        *gtk.TreeView
+	scrolledValidate    *gtk.ScrolledWindow
 	listStore           *gtk.ListStore
 	chkBoxVerifyOnOpen  *gtk.CheckButton
 	contextMenuProvider *ContextMenuProvider
+	gridProgress        *gtk.Grid
 
 	labelMatchV      *gtk.Label
 	labelMismatchV   *gtk.Label
@@ -85,9 +87,11 @@ func (t *VerifyTab) getWidgets() {
 	t.btnStop = getButton(t.builder, "btn_stop_validate")
 	t.btnBrowseChk = getButton(t.builder, "btn_browse_val_checksum")
 	t.treeValidate = getTreeView(t.builder, "tree_validate")
+	t.scrolledValidate = getScrolledWindow(t.builder, "scrolled_validate")
 	t.listStore = getListStore(t.builder, "liststore_validate")
 	t.chkBoxVerifyOnOpen = getCheckButton(t.builder, "chk_val_verify_on_open")
 
+	t.gridProgress = getGrid(t.builder, "grid_val_progress")
 	t.totalProgress = getProgressBar(t.builder, "progress_val_total")
 	t.currFileProgress = getProgressBar(t.builder, "progress_val_curr_file")
 }
@@ -273,6 +277,7 @@ func (t *VerifyTab) onStop() {
 func (t *VerifyTab) activateStopState() {
 	t.btnStart.SetVisible(false)
 	t.btnStop.SetVisible(true)
+	t.gridProgress.SetVisible(true)
 
 	t.btnBrowseChk.SetSensitive(false)
 	t.entryChecksum.SetSensitive(false)
@@ -282,6 +287,7 @@ func (t *VerifyTab) activateStopState() {
 func (t *VerifyTab) setStartState() {
 	t.btnStart.SetVisible(true)
 	t.btnStop.SetVisible(false)
+	t.gridProgress.SetVisible(false)
 
 	t.btnBrowseChk.SetSensitive(true)
 	t.entryChecksum.SetSensitive(true)
@@ -350,4 +356,8 @@ func (t *VerifyTab) setupContextMenu() {
 	t.contextMenuProvider.ConnectRightClick(func() {
 		t.contextMenuProvider.ShowMenu()
 	})
+}
+
+func (t *VerifyTab) SetDetailsVisible(visible bool) {
+	t.scrolledValidate.SetVisible(visible)
 }

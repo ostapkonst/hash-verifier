@@ -34,6 +34,7 @@ type GenerateTab struct {
 	btnStop              *gtk.Button
 	btnBrowseDir         *gtk.Button
 	treeGenerate         *gtk.TreeView
+	scrolledGenerate     *gtk.ScrolledWindow
 	listStore            *gtk.ListStore
 	entryChecksum        *gtk.Entry
 	btnSaveChk           *gtk.Button
@@ -41,6 +42,7 @@ type GenerateTab struct {
 	chkBtnFollowSymlinks *gtk.CheckButton
 	chkBtnSortPaths      *gtk.CheckButton
 	contextMenuProvider  *ContextMenuProvider
+	gridProgress         *gtk.Grid
 
 	labelProcessedV  *gtk.Label
 	labelWithErrorsV *gtk.Label
@@ -86,6 +88,7 @@ func (t *GenerateTab) getWidgets() {
 	t.btnStop = getButton(t.builder, "btn_stop_generate")
 	t.btnBrowseDir = getButton(t.builder, "btn_browse_gen_dir")
 	t.treeGenerate = getTreeView(t.builder, "tree_generate")
+	t.scrolledGenerate = getScrolledWindow(t.builder, "scrolled_generate")
 	t.listStore = getListStore(t.builder, "liststore_generate")
 	t.entryChecksum = getEntry(t.builder, "entry_gen_checksum")
 	t.btnSaveChk = getButton(t.builder, "btn_save_gen_checksum")
@@ -93,6 +96,7 @@ func (t *GenerateTab) getWidgets() {
 	t.chkBtnFollowSymlinks = getCheckButton(t.builder, "chk_gen_follow_symlinks")
 	t.chkBtnSortPaths = getCheckButton(t.builder, "chk_gen_sort_paths")
 
+	t.gridProgress = getGrid(t.builder, "grid_gen_progress")
 	t.totalProgress = getProgressBar(t.builder, "progress_gen_total")
 	t.currFileProgress = getProgressBar(t.builder, "progress_gen_curr_file")
 }
@@ -320,6 +324,7 @@ func (t *GenerateTab) onStop() {
 func (t *GenerateTab) activateStopState() {
 	t.btnStart.SetVisible(false)
 	t.btnStop.SetVisible(true)
+	t.gridProgress.SetVisible(true)
 
 	t.btnBrowseDir.SetSensitive(false)
 	t.btnSaveChk.SetSensitive(false)
@@ -333,6 +338,7 @@ func (t *GenerateTab) activateStopState() {
 func (t *GenerateTab) setStartState() {
 	t.btnStart.SetVisible(true)
 	t.btnStop.SetVisible(false)
+	t.gridProgress.SetVisible(false)
 
 	t.btnBrowseDir.SetSensitive(true)
 	t.btnSaveChk.SetSensitive(true)
@@ -408,4 +414,8 @@ func (t *GenerateTab) setupContextMenu() {
 	t.contextMenuProvider.ConnectRightClick(func() {
 		t.contextMenuProvider.ShowMenu()
 	})
+}
+
+func (t *GenerateTab) SetDetailsVisible(visible bool) {
+	t.scrolledGenerate.SetVisible(visible)
 }

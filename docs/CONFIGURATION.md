@@ -40,6 +40,7 @@ Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
 |---------|---------|-------------|
 | `window.tab_order` | `generate, verify` | Order of tabs in main window |
 | `window.current_page` | `0` | Currently active tab |
+| `window.show_details` | `true` | Show/hide details tables (Generate and Verify tabs) |
 
 ### Generate Tab Settings
 
