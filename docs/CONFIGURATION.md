@@ -40,12 +40,11 @@ Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
 |---------|---------|-------------|
 | `window.tab_order` | `generate, verify` | Order of tabs in main window |
 | `window.current_page` | `0` | Currently active tab |
-| `window.show_details` | `true` | Show/hide details tables (Generate and Verify tabs) |
 | `window.restore_mode` | `all` | Restore window size/position on startup (`default`, `size`, `position`, `all`) |
 | `window.width` | `0` | Window width (saved automatically) |
 | `window.height` | `0` | Window height (saved automatically) |
-| `window.x_pos` | `0` | Window X position (saved automatically) |
-| `window.y_pos` | `0` | Window Y position (saved automatically) |
+| `window.x_pos` | `-1` | Window X position (saved automatically) |
+| `window.y_pos` | `-1` | Window Y position (saved automatically) |
 | `window.window_state` | `normal` | Window state on exit (`normal`, `maximized`, `fullscreen`) (saved automatically) |
 
 **Restore mode values:**

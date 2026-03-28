@@ -418,6 +418,9 @@ Author: ostapkonst
                             <property name="model">liststore_generate</property>
                             <property name="search-column">3</property>
                             <property name="enable-grid-lines">both</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection"/>
+                            </child>
                             <child>
                               <object class="GtkTreeViewColumn">
                                 <property name="resizable">True</property>
@@ -572,8 +575,7 @@ Author: ostapkonst
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="margin-bottom">6</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Progress&lt;/b&gt;</property>
-                                <property name="use-markup">True</property>
+                                <property name="label" translatable="yes">Total progress</property>
                               </object>
                             </child>
                           </object>
@@ -599,6 +601,7 @@ Author: ostapkonst
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="margin-bottom">6</property>
+                                <property name="label" translatable="yes">Current file progress</property>
                               </object>
                             </child>
                           </object>
@@ -928,6 +931,9 @@ Author: ostapkonst
                             <property name="model">liststore_validate</property>
                             <property name="search-column">4</property>
                             <property name="enable-grid-lines">both</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection"/>
+                            </child>
                             <child>
                               <object class="GtkTreeViewColumn">
                                 <property name="resizable">True</property>
@@ -1109,8 +1115,7 @@ Author: ostapkonst
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="margin-bottom">6</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Progress&lt;/b&gt;</property>
-                                <property name="use-markup">True</property>
+                                <property name="label" translatable="yes">Total progress</property>
                               </object>
                             </child>
                           </object>
@@ -1136,6 +1141,7 @@ Author: ostapkonst
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="margin-bottom">6</property>
+                                <property name="label" translatable="yes">Current file progress</property>
                               </object>
                             </child>
                           </object>
@@ -1203,19 +1209,7 @@ Author: ostapkonst
         <property name="title" translatable="yes">HashVerifier</property>
         <property name="subtitle" translatable="yes">Checksum generation and verification</property>
         <property name="show-close-button">True</property>
-        <child>
-          <object class="GtkToggleButton" id="show_details">
-            <property name="label" translatable="yes">Details</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <property name="active">True</property>
-          </object>
-        </child>
       </object>
     </child>
-    <style>
-      <class name="window {&#10;    min-height: 500px;&#10;    max-height: 500px;&#10;}"/>
-    </style>
   </object>
 </interface>

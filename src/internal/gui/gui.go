@@ -36,7 +36,6 @@ type App struct {
 	ctx          context.Context
 	settings     *settings.Settings
 	notebook     *gtk.Notebook
-	showDetails  *gtk.ToggleButton
 	windowState  settings.WindowState
 	normalWidth  int // размер окна в нормальном состоянии
 	normalHeight int
@@ -147,16 +146,13 @@ func (a *App) initUI() error {
 	a.verifyTab = NewVerifyTab(a.ctx, a.builder, a.window, a.settings)
 
 	a.notebook = getNotebook(a.builder, "notebook")
-	a.showDetails = getToggleButton(a.builder, "show_details")
 
 	a.applyTabOrder()
 	a.applyCurrentPage()
 	a.restoreWindowGeometry()
-	a.applyShowDetails()
 
 	a.connectTabReorderHandler()
 	a.connectTabSwitchHandler()
-	a.connectShowDetailsHandler()
 	a.connectWindowEvents()
 	a.connectDragAndDropHandler()
 
@@ -437,48 +433,6 @@ func getGrid(builder *gtk.Builder, id string) *gtk.Grid {
 	return grid
 }
 
-func getScrolledWindow(builder *gtk.Builder, id string) *gtk.ScrolledWindow {
-	scrolled, err := func() (*gtk.ScrolledWindow, error) {
-		obj, err := builder.GetObject(id)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get scrolled window %s: %w", id, err)
-		}
-
-		sw, ok := obj.(*gtk.ScrolledWindow)
-		if !ok {
-			return nil, fmt.Errorf("object %s is not a ScrolledWindow", id)
-		}
-
-		return sw, nil
-	}()
-	if err != nil {
-		panic(err)
-	}
-
-	return scrolled
-}
-
-func getToggleButton(builder *gtk.Builder, id string) *gtk.ToggleButton {
-	button, err := func() (*gtk.ToggleButton, error) {
-		obj, err := builder.GetObject(id)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get toggle button %s: %w", id, err)
-		}
-
-		btn, ok := obj.(*gtk.ToggleButton)
-		if !ok {
-			return nil, fmt.Errorf("object %s is not a ToggleButton", id)
-		}
-
-		return btn, nil
-	}()
-	if err != nil {
-		panic(err)
-	}
-
-	return button
-}
-
 func (a *App) getTabOrder() []string {
 	var order []string
 
@@ -626,29 +580,6 @@ func (a *App) showFlatpakWarningIfNeeded() {
 	}
 }
 
-func (a *App) applyShowDetails() {
-	show := a.settings.Window.ShowDetails
-
-	a.showDetails.SetActive(show)
-	a.generateTab.SetDetailsVisible(show)
-	a.verifyTab.SetDetailsVisible(show)
-}
-
-func (a *App) connectShowDetailsHandler() {
-	a.showDetails.Connect("toggled", func() {
-		show := a.showDetails.GetActive()
-
-		a.generateTab.SetDetailsVisible(show)
-		a.verifyTab.SetDetailsVisible(show)
-
-		a.settings.Window.ShowDetails = show
-
-		if err := a.settings.Save(); err != nil {
-			log.Error().Err(err).Msg("Failed to save show details setting")
-		}
-	})
-}
-
 func (a *App) restoreWindowGeometry() {
 	if a.settings.Window.RestoreMode == settings.RestoreModeDefault {
 		return
@@ -664,7 +595,7 @@ func (a *App) restoreWindowGeometry() {
 
 	if (a.settings.Window.RestoreMode == settings.RestoreModePosition ||
 		a.settings.Window.RestoreMode == settings.RestoreModeAll) &&
-		(a.settings.Window.X > 0 || a.settings.Window.Y > 0) { // редиска
+		(a.settings.Window.X >= 0 || a.settings.Window.Y >= 0) {
 		a.window.Move(a.settings.Window.X, a.settings.Window.Y)
 		a.normalX = a.settings.Window.X
 		a.normalY = a.settings.Window.Y
@@ -736,7 +667,7 @@ func (a *App) connectWindowEvents() {
 		}
 	})
 
-	a.window.Connect("configure-event", func(_ *gtk.Window, event *gdk.Event) {
+	a.window.Connect("configure-event", func() {
 		if a.windowState == settings.WindowStateNormal {
 			width, height := a.window.GetSize()
 			x, y := a.window.GetPosition()

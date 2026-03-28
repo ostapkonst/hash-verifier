@@ -30,7 +30,6 @@ var descriptionsMap = map[string]string{
 	"verify.sort_order":                "Sort order in Verify tab (asc/desc)",
 	"window.tab_order":                 "Order of tabs in main window",
 	"window.current_page":              "Currently active tab",
-	"window.show_details":              "Show/hide details tables (Generate and Verify tabs)",
 	"window.restore_mode":              "Restore window size and/or position on startup (default, size, position, all)",
 	"window.width":                     "Window width (saved automatically)",
 	"window.height":                    "Window height (saved automatically)",
@@ -56,12 +55,6 @@ func GetAllSettingsInfo(cfg, defaults *Settings) []SettingsSection {
 					Value:       formatSettingValue(cfg.Window.CurrentPage),
 					Default:     formatSettingValue(defaults.Window.CurrentPage),
 					Description: descriptionsMap["window.current_page"],
-				},
-				{
-					Name:        "show_details",
-					Value:       formatSettingValue(cfg.Window.ShowDetails),
-					Default:     formatSettingValue(defaults.Window.ShowDetails),
-					Description: descriptionsMap["window.show_details"],
 				},
 				{
 					Name:        "restore_mode",

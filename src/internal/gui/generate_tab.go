@@ -34,7 +34,6 @@ type GenerateTab struct {
 	btnStop              *gtk.Button
 	btnBrowseDir         *gtk.Button
 	treeGenerate         *gtk.TreeView
-	scrolledGenerate     *gtk.ScrolledWindow
 	listStore            *gtk.ListStore
 	entryChecksum        *gtk.Entry
 	btnSaveChk           *gtk.Button
@@ -88,7 +87,6 @@ func (t *GenerateTab) getWidgets() {
 	t.btnStop = getButton(t.builder, "btn_stop_generate")
 	t.btnBrowseDir = getButton(t.builder, "btn_browse_gen_dir")
 	t.treeGenerate = getTreeView(t.builder, "tree_generate")
-	t.scrolledGenerate = getScrolledWindow(t.builder, "scrolled_generate")
 	t.listStore = getListStore(t.builder, "liststore_generate")
 	t.entryChecksum = getEntry(t.builder, "entry_gen_checksum")
 	t.btnSaveChk = getButton(t.builder, "btn_save_gen_checksum")
@@ -414,8 +412,4 @@ func (t *GenerateTab) setupContextMenu() {
 	t.contextMenuProvider.ConnectRightClick(func() {
 		t.contextMenuProvider.ShowMenu()
 	})
-}
-
-func (t *GenerateTab) SetDetailsVisible(visible bool) {
-	t.scrolledGenerate.SetVisible(visible)
 }

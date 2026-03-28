@@ -52,7 +52,6 @@ type VerifySettings struct {
 type WindowSettings struct {
 	TabOrder    []string    `yaml:"tab_order"`
 	CurrentPage int         `yaml:"current_page"`
-	ShowDetails bool        `yaml:"show_details"`
 	RestoreMode RestoreMode `yaml:"restore_mode"`
 	Width       int         `yaml:"width"`
 	Height      int         `yaml:"height"`
@@ -78,12 +77,11 @@ func DefaultSettings() *Settings {
 		Window: WindowSettings{
 			TabOrder:    []string{"generate", "verify"},
 			CurrentPage: 0,
-			ShowDetails: true,
 			RestoreMode: RestoreModeAll,
 			Width:       0,
 			Height:      0,
-			X:           0,
-			Y:           0,
+			X:           -1,
+			Y:           -1,
 			WindowState: WindowStateNormal,
 		},
 		Generate: GenerateSettings{
