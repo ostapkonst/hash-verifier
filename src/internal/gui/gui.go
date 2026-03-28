@@ -5,8 +5,11 @@ import (
 	"embed"
 	"fmt"
 	"math"
+	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
@@ -150,6 +153,7 @@ func (a *App) initUI() error {
 	a.connectTabSwitchHandler()
 	a.connectShowDetailsHandler()
 	a.connectWindowEvents()
+	a.connectDragAndDropHandler()
 
 	return nil
 }
@@ -715,5 +719,75 @@ func (a *App) saveWindowGeometry() {
 func (a *App) connectWindowEvents() {
 	a.window.Connect("delete-event", func() {
 		a.saveWindowGeometry()
+	})
+}
+
+func uriToFilePath(uri string) (string, error) {
+	uri = strings.TrimRight(strings.TrimSpace(uri), "\r\n")
+
+	if uri == "" {
+		return "", fmt.Errorf("empty URI")
+	}
+
+	parsedURL, err := url.Parse(uri)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse URI: %w", err)
+	}
+
+	if parsedURL.Scheme != "file" {
+		return "", fmt.Errorf("unsupported URI scheme: %s", parsedURL.Scheme)
+	}
+
+	path := parsedURL.Path
+
+	if runtime.GOOS == "windows" {
+		if len(path) > 2 && path[0] == '/' && path[2] == ':' {
+			path = path[1:]
+		}
+
+		path = filepath.FromSlash(path)
+	}
+
+	decodedPath, err := url.PathUnescape(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to unescape path: %w", err)
+	}
+
+	return decodedPath, nil
+}
+
+func (a *App) connectDragAndDropHandler() {
+	targetEntry, err := gtk.TargetEntryNew("text/uri-list", gtk.TARGET_OTHER_APP, 0)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create drag and drop target entry")
+		return
+	}
+
+	a.window.DragDestSet(gtk.DEST_DEFAULT_ALL, []gtk.TargetEntry{*targetEntry}, gdk.ACTION_COPY)
+
+	a.window.Connect("drag-data-received", func(
+		window *gtk.Window,
+		ctx *gdk.DragContext,
+		x, y int,
+		data *gtk.SelectionData,
+		info uint,
+		time uint,
+	) {
+		bytes := data.GetData()
+		content := string(bytes)
+
+		lines := strings.Split(strings.TrimSpace(content), "\n")
+		if len(lines) == 0 || lines[0] == "" {
+			log.Warn().Msg("No valid URIs in drag and drop data")
+			return
+		}
+
+		filePath, err := uriToFilePath(lines[0])
+		if err != nil {
+			log.Warn().Msg("Failed to convert URI to file path")
+			return
+		}
+
+		a.fillTabAndSwitch(filePath)
 	})
 }
