@@ -33,9 +33,10 @@ var descriptionsMap = map[string]string{
 	"window.show_details":              "Show/hide details tables (Generate and Verify tabs)",
 	"window.restore_mode":              "Restore window size and/or position on startup (default, size, position, all)",
 	"window.width":                     "Window width (saved automatically)",
-	"window.height":                    "Window height when Details is shown (saved automatically)",
+	"window.height":                    "Window height (saved automatically)",
 	"window.x_pos":                     "Window X position (saved automatically)",
 	"window.y_pos":                     "Window Y position (saved automatically)",
+	"window.window_state":              "Window state on exit (normal, maximized, fullscreen) (saved automatically)",
 	"flatpak.suppress_sandbox_warning": "Suppress the Flatpak sandbox warning dialog on startup (Flatpak only)",
 }
 
@@ -91,6 +92,12 @@ func GetAllSettingsInfo(cfg, defaults *Settings) []SettingsSection {
 					Value:       formatSettingValue(cfg.Window.Y),
 					Default:     formatSettingValue(defaults.Window.Y),
 					Description: descriptionsMap["window.y_pos"],
+				},
+				{
+					Name:        "window_state",
+					Value:       formatSettingValue(cfg.Window.WindowState),
+					Default:     formatSettingValue(defaults.Window.WindowState),
+					Description: descriptionsMap["window.window_state"],
 				},
 			},
 		},

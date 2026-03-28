@@ -25,6 +25,14 @@ const (
 	RestoreModeAll      RestoreMode = "all"
 )
 
+type WindowState string
+
+const (
+	WindowStateNormal     WindowState = "normal"
+	WindowStateMaximized  WindowState = "maximized"
+	WindowStateFullscreen WindowState = "fullscreen"
+)
+
 type GenerateSettings struct {
 	FollowSymbolicLinks bool     `yaml:"follow_symbolic_links"`
 	SortPaths           bool     `yaml:"sort_paths"`
@@ -50,6 +58,7 @@ type WindowSettings struct {
 	Height      int         `yaml:"height"`
 	X           int         `yaml:"x_pos"`
 	Y           int         `yaml:"y_pos"`
+	WindowState WindowState `yaml:"window_state"`
 }
 
 type FlatpakSettings struct {
@@ -75,6 +84,7 @@ func DefaultSettings() *Settings {
 			Height:      0,
 			X:           0,
 			Y:           0,
+			WindowState: WindowStateNormal,
 		},
 		Generate: GenerateSettings{
 			FollowSymbolicLinks: true,

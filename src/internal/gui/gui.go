@@ -28,16 +28,20 @@ const (
 )
 
 type App struct {
-	window         *gtk.Window
-	builder        *gtk.Builder
-	generateTab    *GenerateTab
-	verifyTab      *VerifyTab
-	icon           *gdk.Pixbuf
-	ctx            context.Context
-	settings       *settings.Settings
-	notebook       *gtk.Notebook
-	showDetails    *gtk.ToggleButton
-	previousHeight int
+	window       *gtk.Window
+	builder      *gtk.Builder
+	generateTab  *GenerateTab
+	verifyTab    *VerifyTab
+	icon         *gdk.Pixbuf
+	ctx          context.Context
+	settings     *settings.Settings
+	notebook     *gtk.Notebook
+	showDetails  *gtk.ToggleButton
+	windowState  settings.WindowState
+	normalWidth  int // размер окна в нормальном состоянии
+	normalHeight int
+	normalX      int // позиция окна в нормальном состоянии
+	normalY      int
 }
 
 func Run(path string) error {
@@ -136,6 +140,8 @@ func (a *App) initUI() error {
 
 		a.settings = settings.DefaultSettings()
 	}
+
+	a.windowState = a.settings.Window.WindowState
 
 	a.generateTab = NewGenerateTab(a.ctx, a.builder, a.window, a.settings)
 	a.verifyTab = NewVerifyTab(a.ctx, a.builder, a.window, a.settings)
@@ -626,13 +632,6 @@ func (a *App) applyShowDetails() {
 	a.showDetails.SetActive(show)
 	a.generateTab.SetDetailsVisible(show)
 	a.verifyTab.SetDetailsVisible(show)
-
-	currentWidth, currentHeight := a.window.GetSize()
-
-	if !show {
-		a.previousHeight = currentHeight
-		a.window.Resize(currentWidth, 1)
-	}
 }
 
 func (a *App) connectShowDetailsHandler() {
@@ -642,16 +641,8 @@ func (a *App) connectShowDetailsHandler() {
 		a.generateTab.SetDetailsVisible(show)
 		a.verifyTab.SetDetailsVisible(show)
 
-		currentWidth, currentHeight := a.window.GetSize()
-
-		if show {
-			a.window.Resize(currentWidth, a.previousHeight)
-		} else {
-			a.previousHeight = currentHeight
-			a.window.Resize(currentWidth, 1)
-		}
-
 		a.settings.Window.ShowDetails = show
+
 		if err := a.settings.Save(); err != nil {
 			log.Error().Err(err).Msg("Failed to save show details setting")
 		}
@@ -667,33 +658,54 @@ func (a *App) restoreWindowGeometry() {
 		a.settings.Window.RestoreMode == settings.RestoreModeAll) &&
 		(a.settings.Window.Width > 0 && a.settings.Window.Height > 0) {
 		a.window.Resize(a.settings.Window.Width, a.settings.Window.Height)
+		a.normalWidth = a.settings.Window.Width
+		a.normalHeight = a.settings.Window.Height
 	}
 
-	if a.settings.Window.RestoreMode == settings.RestoreModePosition ||
-		a.settings.Window.RestoreMode == settings.RestoreModeAll {
+	if (a.settings.Window.RestoreMode == settings.RestoreModePosition ||
+		a.settings.Window.RestoreMode == settings.RestoreModeAll) &&
+		(a.settings.Window.X > 0 || a.settings.Window.Y > 0) { // редиска
 		a.window.Move(a.settings.Window.X, a.settings.Window.Y)
+		a.normalX = a.settings.Window.X
+		a.normalY = a.settings.Window.Y
+	}
+
+	if a.settings.Window.RestoreMode == settings.RestoreModeSize ||
+		a.settings.Window.RestoreMode == settings.RestoreModeAll {
+		switch a.settings.Window.WindowState {
+		case settings.WindowStateMaximized:
+			a.window.Maximize()
+		case settings.WindowStateFullscreen:
+			a.window.Fullscreen()
+		}
 	}
 }
 
 func (a *App) saveWindowGeometry() {
+	if a.windowState == settings.WindowStateNormal {
+		width, height := a.window.GetSize()
+		x, y := a.window.GetPosition()
+
+		a.normalWidth = width
+		a.normalHeight = height
+
+		a.normalX = x
+		a.normalY = y
+	}
+
 	if a.settings.Window.RestoreMode == settings.RestoreModeSize ||
 		a.settings.Window.RestoreMode == settings.RestoreModeAll {
-		width, height := a.window.GetSize()
+		a.settings.Window.Width = a.normalWidth
+		a.settings.Window.Height = a.normalHeight
 
-		a.settings.Window.Width = width
-
-		if a.settings.Window.ShowDetails {
-			a.settings.Window.Height = height
-		} else {
-			a.settings.Window.Height = a.previousHeight
-		}
+		state := a.windowState
+		a.settings.Window.WindowState = state
 	}
 
 	if a.settings.Window.RestoreMode == settings.RestoreModePosition ||
 		a.settings.Window.RestoreMode == settings.RestoreModeAll {
-		x, y := a.window.GetPosition()
-		a.settings.Window.X = x
-		a.settings.Window.Y = y
+		a.settings.Window.X = a.normalX
+		a.settings.Window.Y = a.normalY
 	}
 
 	if err := a.settings.Save(); err != nil {
@@ -704,6 +716,37 @@ func (a *App) saveWindowGeometry() {
 func (a *App) connectWindowEvents() {
 	a.window.Connect("delete-event", func() {
 		a.saveWindowGeometry()
+	})
+
+	a.window.Connect("window-state-event", func(_ *gtk.Window, event *gdk.Event) {
+		wsEvent := gdk.EventWindowStateNewFromEvent(event)
+		if wsEvent == nil {
+			return
+		}
+
+		newState := wsEvent.NewWindowState()
+
+		switch {
+		case newState&gdk.WINDOW_STATE_FULLSCREEN != 0:
+			a.windowState = settings.WindowStateFullscreen
+		case newState&gdk.WINDOW_STATE_MAXIMIZED != 0:
+			a.windowState = settings.WindowStateMaximized
+		default:
+			a.windowState = settings.WindowStateNormal
+		}
+	})
+
+	a.window.Connect("configure-event", func(_ *gtk.Window, event *gdk.Event) {
+		if a.windowState == settings.WindowStateNormal {
+			width, height := a.window.GetSize()
+			x, y := a.window.GetPosition()
+
+			a.normalWidth = width
+			a.normalHeight = height
+
+			a.normalX = x
+			a.normalY = y
+		}
 	})
 }
 
