@@ -20,15 +20,15 @@
   <screenshots>
     <screenshot type="default">
       <caption>Generate tab</caption>
-      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/master/docs/screenshots/generate-tab.png</image>
+      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/refs/tags/v2026.3.28/docs/screenshots/generate-tab.png</image>
     </screenshot>
     <screenshot>
       <caption>Verify tab</caption>
-      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/master/docs/screenshots/verify-tab.png</image>
+      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/refs/tags/v2026.3.28/docs/screenshots/verify-tab.png</image>
     </screenshot>
     <screenshot>
       <caption>Checksum result</caption>
-      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/master/docs/screenshots/checksum-result.png</image>
+      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/refs/tags/v2026.3.28/docs/screenshots/checksum-result.png</image>
     </screenshot>
   </screenshots>
   <branding>
@@ -42,13 +42,10 @@
   <developer id="io.github.ostapkonst">
     <name translate="no">Ostap Konstantinov</name>
   </developer>
-  <recommends>
+  <requires>
     <control>keyboard</control>
     <control>pointing</control>
-    <control>touch</control>
-  </recommends>
-  <requires>
-    <display_length compare="ge">550</display_length>
+    <display_length compare="ge">768</display_length>
   </requires>
   <categories>
     <category>Utility</category>
@@ -78,6 +75,16 @@
     <mediatype>application/x-blake3</mediatype>
   </provides>
   <releases>
+    <release version="v2026.3.28" date="2026-03-28">
+      <url type="details">https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.28</url>
+      <description>
+        <ul>
+          <li>Redesigned the interface</li>
+          <li>Implemented options for saving window size and position</li>
+          <li>Added drag and drop functionality</li>
+        </ul>
+      </description>
+    </release>
     <release version="v2026.3.25" date="2026-03-25">
       <url type="details">https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.25</url>
       <description>
