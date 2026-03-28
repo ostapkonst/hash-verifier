@@ -44,8 +44,8 @@ Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
 | `window.restore_mode` | `all` | Restore window size/position on startup (`default`, `size`, `position`, `all`) |
 | `window.width` | `0` | Window width (saved automatically) |
 | `window.height` | `0` | Window height when Details is shown (saved automatically) |
-| `window.x` | `0` | Window X position (saved automatically) |
-| `window.y` | `0` | Window Y position (saved automatically) |
+| `window.x_pos` | `0` | Window X position (saved automatically) |
+| `window.y_pos` | `0` | Window Y position (saved automatically) |
 
 **Restore mode values:**
 

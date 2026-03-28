@@ -48,8 +48,8 @@ type WindowSettings struct {
 	RestoreMode RestoreMode `yaml:"restore_mode"`
 	Width       int         `yaml:"width"`
 	Height      int         `yaml:"height"`
-	X           int         `yaml:"x"`
-	Y           int         `yaml:"y"`
+	X           int         `yaml:"x_pos"`
+	Y           int         `yaml:"y_pos"`
 }
 
 type FlatpakSettings struct {

@@ -681,8 +681,7 @@ func (a *App) restoreWindowGeometry() {
 	}
 
 	if a.settings.Window.RestoreMode == settings.RestoreModePosition ||
-		a.settings.Window.RestoreMode == settings.RestoreModeAll &&
-			(a.settings.Window.X > 0 || a.settings.Window.Y > 0) {
+		a.settings.Window.RestoreMode == settings.RestoreModeAll {
 		a.window.Move(a.settings.Window.X, a.settings.Window.Y)
 	}
 }

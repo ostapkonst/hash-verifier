@@ -34,8 +34,8 @@ var descriptionsMap = map[string]string{
 	"window.restore_mode":              "Restore window size and/or position on startup (default, size, position, all)",
 	"window.width":                     "Window width (saved automatically)",
 	"window.height":                    "Window height when Details is shown (saved automatically)",
-	"window.x":                         "Window X position (saved automatically)",
-	"window.y":                         "Window Y position (saved automatically)",
+	"window.x_pos":                     "Window X position (saved automatically)",
+	"window.y_pos":                     "Window Y position (saved automatically)",
 	"flatpak.suppress_sandbox_warning": "Suppress the Flatpak sandbox warning dialog on startup (Flatpak only)",
 }
 
@@ -81,16 +81,16 @@ func GetAllSettingsInfo(cfg, defaults *Settings) []SettingsSection {
 					Description: descriptionsMap["window.height"],
 				},
 				{
-					Name:        "x",
+					Name:        "x_pos",
 					Value:       formatSettingValue(cfg.Window.X),
 					Default:     formatSettingValue(defaults.Window.X),
-					Description: descriptionsMap["window.x"],
+					Description: descriptionsMap["window.x_pos"],
 				},
 				{
-					Name:        "y",
+					Name:        "y_pos",
 					Value:       formatSettingValue(cfg.Window.Y),
 					Default:     formatSettingValue(defaults.Window.Y),
-					Description: descriptionsMap["window.y"],
+					Description: descriptionsMap["window.y_pos"],
 				},
 			},
 		},
