@@ -157,7 +157,7 @@ func (t *VerifyTab) onStart() {
 
 	results, err := action.VerifyChecksumsStreaming(ctx, checksumFile)
 	if err != nil {
-		ShowError(t.window, "Error", fmt.Sprintf("Failed to start verification: %v", err))
+		ShowError(t.window, "Verification Error", fmt.Sprintf("Failed to start verification: %v", err))
 		cancel()
 		t.cancel = nil
 		t.setStartState()
@@ -241,7 +241,7 @@ func (t *VerifyTab) onStart() {
 
 				log.Error().Err(hasError).Msg("Failed to verify checksums")
 				glib.IdleAdd(func() {
-					ShowError(t.window, "Error", fmt.Sprintf("Failed to verify checksums: %v", hasError))
+					ShowError(t.window, "Verification Error", fmt.Sprintf("Failed to verify checksums: %v", hasError))
 				})
 
 				return

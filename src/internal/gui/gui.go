@@ -55,9 +55,10 @@ func Run(path string) error {
 		return fmt.Errorf("failed to initialize UI: %w", err)
 	}
 
-	app.showFlatpakWarningIfNeeded()
-	app.fillTabAndSwitch(path)
 	app.window.Show()
+	app.showFlatpakWarningIfNeeded()
+
+	app.fillTabAndSwitch(path)
 
 	gracer.AddCallback(func() error {
 		cancel()

@@ -216,7 +216,7 @@ func (t *GenerateTab) onStart() {
 
 	results, err := action.GenerateChecksumsStreamingToFile(ctx, cfg)
 	if err != nil {
-		ShowError(t.window, "Error", fmt.Sprintf("Failed to start generation: %v", err))
+		ShowError(t.window, "Generation Error", fmt.Sprintf("Failed to start generation: %v", err))
 		cancel()
 		t.cancel = nil
 		t.setStartState()
@@ -287,7 +287,7 @@ func (t *GenerateTab) onStart() {
 
 				log.Error().Err(hasError).Msg("Failed to generate checksums")
 				glib.IdleAdd(func() {
-					ShowError(t.window, "Error", fmt.Sprintf("Failed to generate checksums: %v", hasError))
+					ShowError(t.window, "Generation Error", fmt.Sprintf("Failed to generate checksums: %v", hasError))
 				})
 
 				return

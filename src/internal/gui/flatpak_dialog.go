@@ -96,11 +96,11 @@ func ShowFlatpakSandboxWarningDialog(parent *gtk.Window) bool {
 
 	messageLabel.SetMarkup(
 		"<span size='large' weight='bold'>Running in Flatpak Sandbox</span>\n\n" +
-			"This application is running in a sandboxed environment with limited file system access.\n\n" +
+			"This application is running in a sandboxed environment with limited access.\n\n" +
 			"<b>Current file system access:</b>\n" +
 			accessibleList.String() +
 			"\n<b>To access other locations:</b>\n" +
-			"Use a tool like <b>Flatseal</b> to grant additional file system permissions manually.",
+			"Use a tool like <b>Flatseal</b> to grant additional permissions manually.",
 	)
 	messageLabel.SetXAlign(0)
 	messageLabel.SetYAlign(0)
