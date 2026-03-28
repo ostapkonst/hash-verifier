@@ -1,5 +1,5 @@
 .PHONY: all build run clean help
-.PHONY: linux-amd64 linux-arm64 windows-amd64 windows-i686 deb-amd64 deb-arm64 rpm-amd64 rpm-arm64 appimage
+.PHONY: linux-amd64 linux-arm64 windows-amd64 windows-i686 deb-amd64 deb-arm64 rpm-amd64 rpm-arm64 appimage-amd64 appimage-arm64
 .PHONY: flatpak flatpak-run flatpak-validate
 .PHONY: lint lint-install lint-fix format
 .PHONY: third-party-notices
@@ -40,11 +40,17 @@ windows-i686:
 	VERSION=$(VERSION) docker compose -f build/docker-compose.dist.yml run --rm --build windows-i686
 	@echo "✓ Windows/i686 binary: dist/windows-i686/hashverifier.exe"
 
-appimage:
-	@echo "Building AppImage package..."
+appimage-amd64:
+	@echo "Building AppImage package for AMD64..."
 	@mkdir -p .pkg-build dist/linux-amd64
 	VERSION=$(VERSION) docker compose -f build/docker-compose.appimage.yml run --rm appimage-builder /app/build/create-appimage.sh
-	@echo "✓ AppImage package: .pkg-build/package/*.AppImage"
+	@echo "✓ AppImage package (amd64): .pkg-build/package/*.AppImage"
+
+appimage-arm64:
+	@echo "Building AppImage package for ARM64..."
+	@mkdir -p .pkg-build dist/linux-arm64
+	VERSION=$(VERSION) docker compose -f build/docker-compose.appimage.yml run --rm appimage-builder-arm64 /app/build/create-appimage.sh
+	@echo "✓ AppImage package (arm64): .pkg-build/package/*.AppImage"
 
 flatpak: flatpak-validate
 	@echo "Building Flatpak package..."
@@ -170,7 +176,8 @@ help:
 	@echo "  deb-arm64            Build DEB package (Debian/Ubuntu) for arm64"
 	@echo "  rpm-amd64            Build RPM package (Fedora/RHEL) for x86_64"
 	@echo "  rpm-arm64            Build RPM package (Fedora/RHEL) for aarch64"
-	@echo "  appimage             Build AppImage package (universal Linux)"
+	@echo "  appimage-amd64       Build AppImage package (universal Linux) for amd64"
+	@echo "  appimage-arm64       Build AppImage package (universal Linux) for aarch64"
 	@echo "  flatpak              Build Flatpak package (requires flatpak-builder)"
 	@echo "  flatpak-run          Build and run Flatpak package"
 	@echo "  flatpak-validate     Validate Flatpak manifest and metainfo files"

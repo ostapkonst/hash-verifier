@@ -6,11 +6,18 @@
 set -euo pipefail
 
 readonly PACKAGE_NAME="hashverifier"
-readonly PACKAGE_DESCRIPTION="Cross-platform checksum generation and verification tool"
+readonly PACKAGE_ARCH="${PACKAGE_ARCH:-x86_64}"
 
 readonly BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly BUILD_DIR="${BASE_DIR}/build"
-readonly DIST_DIR="${BASE_DIR}/dist/linux-amd64"
+
+case "${PACKAGE_ARCH}" in
+    x86_64)  BUILD_ARCH="amd64" ;;
+    aarch64) BUILD_ARCH="arm64" ;;
+    *)       BUILD_ARCH="${PACKAGE_ARCH}" ;;
+esac
+
+readonly DIST_DIR="${BASE_DIR}/dist/linux-${BUILD_ARCH}"
 readonly WORK_DIR="${BASE_DIR}/.pkg-build"
 readonly OUT_DIR="${WORK_DIR}/package"
 readonly ICONS_DIR="${WORK_DIR}/icons"
@@ -24,13 +31,14 @@ readonly SOURCE_LICENSE="${BASE_DIR}/LICENSE"
 readonly SOURCE_THIRD_PARTY="${BASE_DIR}/THIRD_PARTY_NOTICES"
 
 readonly APPDIR_NAME="${PACKAGE_NAME}.AppDir"
-readonly APPDIR_ROOT="${WORK_DIR}/dist/appimage/${APPDIR_NAME}"
+readonly APPDIR_ROOT="${WORK_DIR}/dist/appimage/${PACKAGE_NAME}-${APPIMAGE_VERSION}-${PACKAGE_ARCH}/${APPDIR_NAME}"
 readonly APPDIR_BIN="${APPDIR_ROOT}/usr/bin"
 readonly APPDIR_DESKTOP="${APPDIR_ROOT}/usr/share/applications"
 readonly APPDIR_DOC="${APPDIR_ROOT}/usr/share/doc/${PACKAGE_NAME}"
 
 readonly DESKTOP_NAME="HashVerifier"
-readonly ACTUAL_APPIMAGE_NAME="${DESKTOP_NAME}-${APPIMAGE_VERSION}-x86_64.AppImage"
+
+readonly ACTUAL_APPIMAGE_NAME="${DESKTOP_NAME}-${APPIMAGE_VERSION}-${PACKAGE_ARCH}.AppImage"
 readonly APPIMAGE_OUTPUT="${OUT_DIR}/${ACTUAL_APPIMAGE_NAME}"
 
 log_info() {

@@ -141,26 +141,34 @@ jobs:
           if-no-files-found: error
 
   build-appimage:
-    runs-on: ubuntu-24.04
     needs: [validate-version, build-linux]
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runs-on: ubuntu-24.04
+          - arch: arm64
+            runs-on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Download Linux amd64 artifact
+      - name: Download Linux (${{ matrix.arch }}) artifact
         uses: actions/download-artifact@v8
         with:
-          name: hashverifier-linux-amd64
-          path: dist/linux-amd64
+          name: hashverifier-linux-${{ matrix.arch }}
+          path: dist/linux-${{ matrix.arch }}
 
-      - name: Build AppImage
+      - name: Build AppImage (${{ matrix.arch }})
         run: |
-          make appimage VERSION="${{ needs.validate-version.outputs.version }}"
+          make appimage-${{ matrix.arch }} VERSION="${{ needs.validate-version.outputs.version }}"
 
-      - name: Upload AppImage artifact
+      - name: Upload AppImage (${{ matrix.arch }}) artifact
         uses: actions/upload-artifact@v7
         with:
-          name: hashverifier-linux-appimage
+          name: hashverifier-linux-appimage-${{ matrix.arch }}
           path: .pkg-build/package/*.AppImage
           retention-days: 7
           if-no-files-found: error
@@ -199,10 +207,16 @@ jobs:
           name: hashverifier-linux-packages-arm64
           path: release/linux/arm64
 
-      - name: Download AppImage artifact
+      - name: Download AppImage (amd64) artifact
         uses: actions/download-artifact@v8
         with:
-          name: hashverifier-linux-appimage
+          name: hashverifier-linux-appimage-amd64
+          path: release/linux
+
+      - name: Download AppImage (arm64) artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: hashverifier-linux-appimage-arm64
           path: release/linux
 
       - name: Prepare Windows amd64 archive

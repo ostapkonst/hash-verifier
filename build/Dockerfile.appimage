@@ -1,4 +1,9 @@
-FROM fedora:35 AS appimage-builder
+ARG FEDORA_VERSION=35
+
+# =============================================================================
+# AppImage Builder for AMD64 (x86_64)
+# =============================================================================
+FROM fedora:${FEDORA_VERSION} AS appimage-builder
 
 RUN dnf install -y \
     wget librsvg2-devel file findutils pkgconfig gtk3 gtk3-devel \
@@ -10,6 +15,36 @@ RUN dnf install -y \
 RUN gtk-query-immodules-3.0-64 --update-cache
 
 ARG MACHINE=x86_64
+
+RUN wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${MACHINE}.AppImage \
+    -O /usr/local/bin/linuxdeploy && \
+    chmod +x /usr/local/bin/linuxdeploy
+
+RUN wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${MACHINE}.AppImage \
+    -O /usr/local/bin/appimagetool && \
+    chmod +x /usr/local/bin/appimagetool
+
+WORKDIR /app
+
+ENV APPIMAGE_EXTRACT_AND_RUN=1
+
+ENTRYPOINT [ "/bin/bash", "-c" ]
+
+# =============================================================================
+# AppImage Builder for ARM64 (aarch64)
+# =============================================================================
+FROM fedora:${FEDORA_VERSION} AS appimage-builder-arm64
+
+RUN dnf install -y \
+    wget librsvg2-devel file findutils pkgconfig gtk3 gtk3-devel \
+    gobject-introspection-devel \
+    ImageMagick \
+    appstream \
+    && dnf clean all
+
+RUN gtk-query-immodules-3.0-64 --update-cache
+
+ARG MACHINE=aarch64
 
 RUN wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${MACHINE}.AppImage \
     -O /usr/local/bin/linuxdeploy && \

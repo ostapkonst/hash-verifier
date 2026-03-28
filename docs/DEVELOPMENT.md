@@ -53,7 +53,10 @@ make deb-amd64        # DEB package for amd64
 make deb-arm64        # DEB package for ARM64
 make rpm-amd64        # RPM package for amd64
 make rpm-arm64        # RPM package for ARM64
-make appimage         # AppImage (amd64 only)
+
+# Build Linux (Universal) packages
+make appimage-amd64   # AppImage for amd64
+make appimage-arm64   # AppImage for ARM64
 ```
 
 ## Project Structure

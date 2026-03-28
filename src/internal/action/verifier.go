@@ -154,8 +154,6 @@ func (v *Verifier) run() {
 	v.updateStatsPending(len(checkSum))
 
 	for _, line := range checkSum {
-		v.updateCurrentFileOrStatus(line.RelPath)
-
 		var path string
 
 		if filepath.IsAbs(line.RelPath) {
@@ -163,6 +161,8 @@ func (v *Verifier) run() {
 		} else {
 			path = filepath.Join(baseDir, line.RelPath)
 		}
+
+		v.updateCurrentFileOrStatus(path)
 
 		hashCalc := checksum.NewHashCalculator(path, v.algo, v.speedTracker)
 		v.currFileHashingProgress.Store(hashCalc.Progress)

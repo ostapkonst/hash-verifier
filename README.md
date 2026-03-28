@@ -22,7 +22,7 @@ A cross-platform checksum generation and verification tool with both CLI and GTK
 | Operating System | Architecture | Binary | Package |
 |------------------|--------------|--------|---------|
 | Linux | x86_64 (amd64) | ✅ | DEB, RPM, AppImage, Flatpak |
-| Linux | ARM64 (aarch64) | ✅ | DEB, RPM, Flatpak |
+| Linux | ARM64 (aarch64) | ✅ | DEB, RPM, AppImage, Flatpak |
 | Windows | x86_64 (amd64) | ✅ | ZIP |
 | Windows | x86 (i686) | ✅ | ZIP |
 
