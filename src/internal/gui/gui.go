@@ -4,7 +4,6 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"math"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -628,17 +627,11 @@ func (a *App) applyShowDetails() {
 	a.generateTab.SetDetailsVisible(show)
 	a.verifyTab.SetDetailsVisible(show)
 
-	geometry := gdk.Geometry{}
+	currentWidth, currentHeight := a.window.GetSize()
 
 	if !show {
-		_, currentHeight := a.window.GetSize()
 		a.previousHeight = currentHeight
-
-		geometry.SetMinHeight(1)
-		geometry.SetMaxHeight(1)
-		geometry.SetMinWidth(1)
-		geometry.SetMaxWidth(math.MaxInt32)
-		a.window.SetGeometryHints(nil, geometry, gdk.HINT_MIN_SIZE|gdk.HINT_MAX_SIZE)
+		a.window.Resize(currentWidth, 1)
 	}
 }
 
@@ -649,21 +642,13 @@ func (a *App) connectShowDetailsHandler() {
 		a.generateTab.SetDetailsVisible(show)
 		a.verifyTab.SetDetailsVisible(show)
 
-		geometry := gdk.Geometry{}
+		currentWidth, currentHeight := a.window.GetSize()
 
 		if show {
-			a.window.SetGeometryHints(nil, geometry, 0)
-			currentWidth, _ := a.window.GetSize()
 			a.window.Resize(currentWidth, a.previousHeight)
 		} else {
-			_, currentHeight := a.window.GetSize()
 			a.previousHeight = currentHeight
-
-			geometry.SetMinHeight(1)
-			geometry.SetMaxHeight(1)
-			geometry.SetMinWidth(1)
-			geometry.SetMaxWidth(math.MaxInt32)
-			a.window.SetGeometryHints(nil, geometry, gdk.HINT_MIN_SIZE|gdk.HINT_MAX_SIZE)
+			a.window.Resize(currentWidth, 1)
 		}
 
 		a.settings.Window.ShowDetails = show
