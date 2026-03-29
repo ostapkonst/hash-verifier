@@ -201,7 +201,13 @@ func (t *GenerateTab) onStart() {
 	inputDir = filepath.Clean(inputDir)
 	outputFile = filepath.Clean(outputFile)
 
+	lastStats := checksum.GeneratorStats{
+		CurrentFileOrStatus: "ready to go...",
+	}
+	currentIdx := int64(0)
+
 	t.listStore.Clear()
+	t.updateStats(lastStats)
 	t.activateStopState()
 
 	ctx, cancel := context.WithCancel(t.ctx)
@@ -232,9 +238,6 @@ func (t *GenerateTab) onStart() {
 	t.wg.Add(1)
 
 	var hasError error
-
-	lastStats := checksum.GeneratorStats{}
-	currentIdx := int64(0)
 
 	go func() {
 		defer t.wg.Done()
@@ -307,8 +310,8 @@ func (t *GenerateTab) onStart() {
 
 		glib.IdleAdd(func() {
 			t.cancel()
-			t.setStartState()
 			t.cancel = nil
+			t.setStartState()
 		})
 	}()
 }

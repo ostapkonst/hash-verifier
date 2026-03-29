@@ -149,7 +149,13 @@ func (t *VerifyTab) onStart() {
 
 	checksumFile = filepath.Clean(checksumFile)
 
+	lastStats := checksum.VerifierStats{
+		CurrentFileOrStatus: "ready to go...",
+	}
+	currentIdx := int64(0)
+
 	t.listStore.Clear()
+	t.updateStats(lastStats)
 	t.activateStopState()
 
 	ctx, cancel := context.WithCancel(t.ctx)
@@ -173,17 +179,14 @@ func (t *VerifyTab) onStart() {
 
 	var hasError error
 
-	lastState := checksum.VerifierStats{}
-	currentIdx := int64(0)
-
 	go func() {
 		defer t.wg.Done()
 
 		for res := range results {
 			if res.IsProgressUpdate {
 				glib.IdleAdd(func() {
-					lastState = res.Stats
-					t.updateStats(lastState)
+					lastStats = res.Stats
+					t.updateStats(lastStats)
 				})
 
 				if res.Err != nil {
@@ -223,8 +226,8 @@ func (t *VerifyTab) onStart() {
 				_ = t.listStore.SetValue(iter, 7, colorOfStatus)
 				_ = t.listStore.SetValue(iter, 8, res.Result.ReadBytes)
 
-				lastState = res.Stats
-				t.updateStats(lastState)
+				lastStats = res.Stats
+				t.updateStats(lastStats)
 			})
 		}
 	}()
@@ -248,11 +251,11 @@ func (t *VerifyTab) onStart() {
 			}
 
 			log.Info().
-				Int("matched", lastState.Matched).
-				Int("mismatch", lastState.Mismatch).
-				Int("unreadable", lastState.Unreadable).
-				Int("pending", lastState.Pending()).
-				Int("total_files", lastState.TotalFiles).
+				Int("matched", lastStats.Matched).
+				Int("mismatch", lastStats.Mismatch).
+				Int("unreadable", lastStats.Unreadable).
+				Int("pending", lastStats.Pending()).
+				Int("total_files", lastStats.TotalFiles).
 				Msg("Verification stats")
 
 			log.Info().Msg("Verification completed")
