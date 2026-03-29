@@ -65,7 +65,7 @@ func NewGenerator(
 		speedTracker:        checksum.NewSpeedTracker(),
 	}
 
-	g.stats = checksum.GeneratorStats{CurrentFileOrStatus: "ready to go..."}
+	g.stats = checksum.NewGeneratorStats()
 	g.currFileHashingProgress.Store(func() float64 { return 0 })
 
 	return g
@@ -81,7 +81,7 @@ func (g *Generator) Start() {
 
 	g.status = GeneratorStatusStated
 
-	g.stats = checksum.GeneratorStats{CurrentFileOrStatus: "ready to go..."}
+	g.stats = checksum.NewGeneratorStats()
 	g.currFileHashingProgress.Store(func() float64 { return 0 })
 	g.speedTracker.Reset()
 
@@ -192,6 +192,7 @@ func (g *Generator) run() {
 		g.updateStats(fileErr != nil)
 
 		g.resultCh <- checksum.GenerateResult{
+			FullPath:  file,
 			RelPath:   finalPath,
 			Hash:      strings.ToLower(hastResult.Hash),
 			ReadBytes: hastResult.ReadBytes,

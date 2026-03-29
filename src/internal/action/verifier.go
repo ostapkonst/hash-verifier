@@ -51,7 +51,7 @@ func NewVerifier(ctx context.Context, filename string, algo checksum.Algorithm) 
 		speedTracker: checksum.NewSpeedTracker(),
 	}
 
-	v.stats = checksum.VerifierStats{CurrentFileOrStatus: "ready to go..."}
+	v.stats = checksum.NewVerifierStats()
 	v.currFileHashingProgress.Store(func() float64 { return 0 })
 
 	return v
@@ -67,7 +67,7 @@ func (v *Verifier) Start() {
 
 	v.status = VerifierStatusStated
 
-	v.stats = checksum.VerifierStats{CurrentFileOrStatus: "ready to go..."}
+	v.stats = checksum.NewVerifierStats()
 	v.currFileHashingProgress.Store(func() float64 { return 0 })
 	v.speedTracker.Reset()
 
@@ -194,6 +194,7 @@ func (v *Verifier) run() {
 
 		v.resultCh <- checksum.VerifyResult{
 			Path:         line.RelPath,
+			FullPath:     path,
 			ExpectedHash: strings.ToLower(line.Hash),
 			ActualHash:   strings.ToLower(hastResult.Hash),
 			ReadBytes:    hastResult.ReadBytes,

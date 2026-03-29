@@ -201,9 +201,7 @@ func (t *GenerateTab) onStart() {
 	inputDir = filepath.Clean(inputDir)
 	outputFile = filepath.Clean(outputFile)
 
-	lastStats := checksum.GeneratorStats{
-		CurrentFileOrStatus: "ready to go...",
-	}
+	lastStats := checksum.NewGeneratorStats()
 	currentIdx := int64(0)
 
 	t.listStore.Clear()
@@ -271,6 +269,7 @@ func (t *GenerateTab) onStart() {
 				}
 
 				_ = t.listStore.SetValue(iter, 5, res.Result.ReadBytes)
+				_ = t.listStore.SetValue(iter, 6, res.Result.FullPath)
 
 				lastStats = res.Stats
 				t.updateStats(lastStats)
@@ -411,7 +410,7 @@ func (t *GenerateTab) saveSettings() error {
 func (t *GenerateTab) setupContextMenu() {
 	columnLabels := []string{"Idx", "Path", "Size", "Hash", "Note"}
 
-	t.contextMenuProvider.CreateMenu(columnLabels)
+	t.contextMenuProvider.CreateMenu(6, columnLabels)
 	t.contextMenuProvider.ConnectRightClick(func() {
 		t.contextMenuProvider.ShowMenu()
 	})

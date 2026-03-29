@@ -2,6 +2,8 @@ package gui
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
@@ -47,13 +49,32 @@ func (p *ContextMenuProvider) ConnectRightClick(onShowMenu func()) {
 	})
 }
 
-func (p *ContextMenuProvider) CreateMenu(columnLabels []string) {
+func (p *ContextMenuProvider) CreateMenu(fullPathIdx int, columnLabels []string) {
 	menu, _ := gtk.MenuNew()
 
+	copyItem, _ := gtk.MenuItemNewWithLabel("Copy full path")
+	copyItem.Connect("activate", func() {
+		p.copyColumnValue(fullPathIdx, nil)
+	})
+	menu.Append(copyItem)
+
+	copyItem, _ = gtk.MenuItemNewWithLabel("Copy dir path")
+	copyItem.Connect("activate", func() {
+		p.copyColumnValue(fullPathIdx, func(path string) string {
+			return filepath.Dir(path)
+		})
+	})
+	menu.Append(copyItem)
+
+	if len(columnLabels) > 0 {
+		separator, _ := gtk.SeparatorMenuItemNew()
+		menu.Append(separator)
+	}
+
 	for i, label := range columnLabels {
-		copyItem, _ := gtk.MenuItemNewWithLabel(fmt.Sprintf("Copy %s", label))
+		copyItem, _ := gtk.MenuItemNewWithLabel(fmt.Sprintf("Copy %s", strings.ToLower(label)))
 		copyItem.Connect("activate", func() {
-			p.copyColumnValue(i)
+			p.copyColumnValue(i, nil)
 		})
 		menu.Append(copyItem)
 	}
@@ -71,13 +92,17 @@ func (p *ContextMenuProvider) ShowMenu() {
 	p.menu.PopupAtPointer(nil)
 }
 
-func (p *ContextMenuProvider) copyColumnValue(colIndex int) {
+func (p *ContextMenuProvider) copyColumnValue(colIndex int, processingFn func(string) string) {
 	rowData, ok := getSelectedRowData(p.treeView, p.listStore)
 	if !ok {
 		return
 	}
 
 	if value, exists := rowData[colIndex]; exists {
+		if processingFn != nil {
+			value = processingFn(value)
+		}
+
 		_ = copyToClipboard(value)
 	}
 }

@@ -47,6 +47,8 @@ Author: ostapkonst
       <column type="gchararray"/>
       <!-- column-name gint1 -->
       <column type="gint64"/>
+      <!-- column-name gchararray4 -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkListStore" id="liststore_validate">
@@ -69,6 +71,8 @@ Author: ostapkonst
       <column type="gchararray"/>
       <!-- column-name gint1 -->
       <column type="gint64"/>
+      <!-- column-name gchararray7 -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkWindow" id="main_window">

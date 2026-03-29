@@ -149,9 +149,7 @@ func (t *VerifyTab) onStart() {
 
 	checksumFile = filepath.Clean(checksumFile)
 
-	lastStats := checksum.VerifierStats{
-		CurrentFileOrStatus: "ready to go...",
-	}
+	lastStats := checksum.NewVerifierStats()
 	currentIdx := int64(0)
 
 	t.listStore.Clear()
@@ -225,6 +223,7 @@ func (t *VerifyTab) onStart() {
 
 				_ = t.listStore.SetValue(iter, 7, colorOfStatus)
 				_ = t.listStore.SetValue(iter, 8, res.Result.ReadBytes)
+				_ = t.listStore.SetValue(iter, 9, res.Result.FullPath)
 
 				lastStats = res.Stats
 				t.updateStats(lastStats)
@@ -353,7 +352,7 @@ func (t *VerifyTab) saveSettings() error {
 func (t *VerifyTab) setupContextMenu() {
 	columnLabels := []string{"Idx", "Path", "Size", "Status", "Hash", "Expected Hash", "Note"}
 
-	t.contextMenuProvider.CreateMenu(columnLabels)
+	t.contextMenuProvider.CreateMenu(9, columnLabels)
 	t.contextMenuProvider.ConnectRightClick(func() {
 		t.contextMenuProvider.ShowMenu()
 	})

@@ -24,6 +24,7 @@ func (v VerifyStatusType) String() string {
 // VerifyResult — результат проверки одного файла.
 type VerifyResult struct {
 	Path         string           // относительный путь
+	FullPath     string           // полный путь
 	ActualHash   string           // вычисленный хеш
 	ExpectedHash string           // ожидаемый хеш
 	Status       VerifyStatusType // статус сравнения хешей
@@ -34,6 +35,7 @@ type VerifyResult struct {
 // GenerateResult — результат генерации хеша для одного файла.
 type GenerateResult struct {
 	RelPath   string // относительный путь с префиксом или без него
+	FullPath  string // полный путь
 	Hash      string // вычисленный хеш
 	ReadBytes int64  // количество прочитанных байт файла при вычислении хеша
 	Err       error  // ошибка при вычислении хеша
@@ -47,6 +49,12 @@ type GeneratorStats struct {
 	CurrentFileOrStatus string  // текущий файл или статус
 	FileHashingProgress float64 // прогресс вычисления хеша текущего файла
 	Speed               float64 // скорость хеширования в байтах/сек
+}
+
+func NewGeneratorStats() GeneratorStats {
+	return GeneratorStats{
+		CurrentFileOrStatus: "ready to go...",
+	}
 }
 
 func (g GeneratorStats) Pending() int { return g.TotalFiles - g.Processed - g.WithErrors }
@@ -68,6 +76,12 @@ type VerifierStats struct {
 	CurrentFileOrStatus string  // текущий файл или статус
 	FileHashingProgress float64 // прогресс вычисления хеша текущего файла
 	Speed               float64 // скорость хеширования в байтах/сек
+}
+
+func NewVerifierStats() VerifierStats {
+	return VerifierStats{
+		CurrentFileOrStatus: "ready to go...",
+	}
 }
 
 func (v VerifierStats) Pending() int { return v.TotalFiles - v.Matched - v.Mismatch - v.Unreadable }
