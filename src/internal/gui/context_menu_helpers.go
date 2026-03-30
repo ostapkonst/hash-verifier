@@ -3,7 +3,6 @@ package gui
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
@@ -60,9 +59,7 @@ func (p *ContextMenuProvider) CreateMenu(fullPathIdx int, columnLabels []string)
 
 	copyItem, _ = gtk.MenuItemNewWithLabel("Copy dir path")
 	copyItem.Connect("activate", func() {
-		p.copyColumnValue(fullPathIdx, func(path string) string {
-			return filepath.Dir(path)
-		})
+		p.copyColumnValue(fullPathIdx, filepath.Dir)
 	})
 	menu.Append(copyItem)
 
@@ -72,7 +69,7 @@ func (p *ContextMenuProvider) CreateMenu(fullPathIdx int, columnLabels []string)
 	}
 
 	for i, label := range columnLabels {
-		copyItem, _ := gtk.MenuItemNewWithLabel(fmt.Sprintf("Copy %s", strings.ToLower(label)))
+		copyItem, _ := gtk.MenuItemNewWithLabel(fmt.Sprintf("Copy %s", label))
 		copyItem.Connect("activate", func() {
 			p.copyColumnValue(i, nil)
 		})

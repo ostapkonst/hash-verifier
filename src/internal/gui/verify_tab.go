@@ -350,7 +350,7 @@ func (t *VerifyTab) saveSettings() error {
 }
 
 func (t *VerifyTab) setupContextMenu() {
-	columnLabels := []string{"Idx", "Path", "Size", "Status", "Hash", "Expected Hash", "Note"}
+	columnLabels := []string{"index", "path", "size", "status", "hash", "expected hash", "note"}
 
 	t.contextMenuProvider.CreateMenu(9, columnLabels)
 	t.contextMenuProvider.ConnectRightClick(func() {

@@ -408,7 +408,7 @@ func (t *GenerateTab) saveSettings() error {
 }
 
 func (t *GenerateTab) setupContextMenu() {
-	columnLabels := []string{"Idx", "Path", "Size", "Hash", "Note"}
+	columnLabels := []string{"index", "path", "size", "hash", "note"}
 
 	t.contextMenuProvider.CreateMenu(6, columnLabels)
 	t.contextMenuProvider.ConnectRightClick(func() {
