@@ -1,11 +1,10 @@
-package gui
+package tabs
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
-	"sync"
 
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
@@ -14,21 +13,13 @@ import (
 
 	"github.com/ostapkonst/HashVerifier/internal/action"
 	"github.com/ostapkonst/HashVerifier/internal/checksum"
+	"github.com/ostapkonst/HashVerifier/internal/gui/widgets"
 	"github.com/ostapkonst/HashVerifier/internal/settings"
 	"github.com/ostapkonst/HashVerifier/utils/unwrap"
 )
 
 type GenerateTab struct {
-	builder *gtk.Builder
-	window  *gtk.Window
-
-	ctx    context.Context
-	cancel context.CancelFunc
-	wg     sync.WaitGroup
-
-	settings     *settings.Settings
-	columnConfig *ColumnConfig
-
+	*TabBase
 	entryDir             *gtk.Entry
 	btnStart             *gtk.Button
 	btnStop              *gtk.Button
@@ -40,36 +31,30 @@ type GenerateTab struct {
 	cmbTxtAlgorithm      *gtk.ComboBoxText
 	chkBtnFollowSymlinks *gtk.CheckButton
 	chkBtnSortPaths      *gtk.CheckButton
-	contextMenuProvider  *ContextMenuProvider
-	gridProgress         *gtk.Grid
-
-	labelProcessedV  *gtk.Label
-	labelWithErrorsV *gtk.Label
-	labelPendingV    *gtk.Label
-	labelSpeedV      *gtk.Label
-
-	labelCurrFileV   *gtk.Label
-	totalProgress    *gtk.ProgressBar
-	currFileProgress *gtk.ProgressBar
+	contextMenuProvider  *widgets.ContextMenuProvider
+	progressTracker      *ProgressTracker
+	labelProcessedV      *gtk.Label
+	labelWithErrorsV     *gtk.Label
+	labelPendingV        *gtk.Label
+	labelSpeedV          *gtk.Label
 }
 
 func NewGenerateTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window, settings *settings.Settings) *GenerateTab {
 	tab := &GenerateTab{
-		builder:      builder,
-		window:       window,
-		ctx:          ctx,
-		settings:     settings,
-		columnConfig: NewGenerateColumnConfig(),
+		TabBase: NewTabBase(ctx, builder, window, settings, NewGenerateColumnConfig()),
 	}
-
 	tab.getWidgets()
 	tab.getLabels()
-
-	tab.contextMenuProvider = NewContextMenuProvider(tab.treeGenerate, tab.listStore)
-
+	tab.progressTracker = NewProgressTracker(
+		tab.Builder,
+		"grid_gen_progress",
+		"progress_gen_total",
+		"progress_gen_curr_file",
+		"label_gen_curr_file_value",
+	)
+	tab.contextMenuProvider = widgets.NewContextMenuProvider(tab.treeGenerate, tab.listStore)
 	tab.applySettingsToUI()
 	tab.setStartState()
-
 	tab.setupHandlers()
 
 	return tab
@@ -78,45 +63,39 @@ func NewGenerateTab(ctx context.Context, builder *gtk.Builder, window *gtk.Windo
 func (t *GenerateTab) Fill(path string) {
 	t.entryDir.SetText(path)
 	extension := t.cmbTxtAlgorithm.GetActiveID()
-	t.entryChecksum.SetText(genChecksumFilename(path, extension))
+	t.entryChecksum.SetText(widgets.GenChecksumFilename(path, extension))
 }
 
 func (t *GenerateTab) getWidgets() {
-	t.entryDir = getEntry(t.builder, "entry_gen_dir")
-	t.btnStart = getButton(t.builder, "btn_start_generate")
-	t.btnStop = getButton(t.builder, "btn_stop_generate")
-	t.btnBrowseDir = getButton(t.builder, "btn_browse_gen_dir")
-	t.treeGenerate = getTreeView(t.builder, "tree_generate")
-	t.listStore = getListStore(t.builder, "liststore_generate")
-	t.entryChecksum = getEntry(t.builder, "entry_gen_checksum")
-	t.btnSaveChk = getButton(t.builder, "btn_save_gen_checksum")
-	t.cmbTxtAlgorithm = getComboBoxText(t.builder, "cmb_gen_algorithm")
-	t.chkBtnFollowSymlinks = getCheckButton(t.builder, "chk_gen_follow_symlinks")
-	t.chkBtnSortPaths = getCheckButton(t.builder, "chk_gen_sort_paths")
-
-	t.gridProgress = getGrid(t.builder, "grid_gen_progress")
-	t.totalProgress = getProgressBar(t.builder, "progress_gen_total")
-	t.currFileProgress = getProgressBar(t.builder, "progress_gen_curr_file")
+	t.entryDir = widgets.GetEntry(t.Builder, "entry_gen_dir")
+	t.btnStart = widgets.GetButton(t.Builder, "btn_start_generate")
+	t.btnStop = widgets.GetButton(t.Builder, "btn_stop_generate")
+	t.btnBrowseDir = widgets.GetButton(t.Builder, "btn_browse_gen_dir")
+	t.treeGenerate = widgets.GetTreeView(t.Builder, "tree_generate")
+	t.listStore = widgets.GetListStore(t.Builder, "liststore_generate")
+	t.entryChecksum = widgets.GetEntry(t.Builder, "entry_gen_checksum")
+	t.btnSaveChk = widgets.GetButton(t.Builder, "btn_save_gen_checksum")
+	t.cmbTxtAlgorithm = widgets.GetComboBoxText(t.Builder, "cmb_gen_algorithm")
+	t.chkBtnFollowSymlinks = widgets.GetCheckButton(t.Builder, "chk_gen_follow_symlinks")
+	t.chkBtnSortPaths = widgets.GetCheckButton(t.Builder, "chk_gen_sort_paths")
 }
 
 func (t *GenerateTab) getLabels() {
-	t.labelProcessedV = getLabel(t.builder, "label_gen_processed_value")
-	t.labelWithErrorsV = getLabel(t.builder, "label_gen_with_errors_value")
-	t.labelPendingV = getLabel(t.builder, "label_gen_pending_value")
-	t.labelSpeedV = getLabel(t.builder, "label_gen_speed_value")
-
-	t.labelCurrFileV = getLabel(t.builder, "label_gen_curr_file_value")
+	t.labelProcessedV = widgets.GetLabel(t.Builder, "label_gen_processed_value")
+	t.labelWithErrorsV = widgets.GetLabel(t.Builder, "label_gen_with_errors_value")
+	t.labelPendingV = widgets.GetLabel(t.Builder, "label_gen_pending_value")
+	t.labelSpeedV = widgets.GetLabel(t.Builder, "label_gen_speed_value")
 }
 
 func (t *GenerateTab) setupHandlers() {
 	t.btnBrowseDir.Connect("clicked", func() {
 		path, _ := t.entryDir.GetText()
-		if dir, ok := SelectDirectoryDialog(t.window, "Select Source Directory", path); ok {
+		if dir, ok := widgets.SelectDirectoryDialog(t.Window, "Select Source Directory", path); ok {
 			t.entryDir.SetText(dir)
 
 			extension := t.cmbTxtAlgorithm.GetActiveID()
 			if checksumPath, _ := t.entryChecksum.GetText(); checksumPath == "" {
-				t.entryChecksum.SetText(genChecksumFilename(dir, extension))
+				t.entryChecksum.SetText(widgets.GenChecksumFilename(dir, extension))
 			}
 		}
 	})
@@ -124,15 +103,15 @@ func (t *GenerateTab) setupHandlers() {
 	onAlgorithmChanged := func() {
 		extension := t.cmbTxtAlgorithm.GetActiveID()
 		path, _ := t.entryChecksum.GetText()
-		file := changeFileExtension(path, extension)
+		file := widgets.ChangeFileExtension(path, extension)
 		t.entryChecksum.SetText(file)
 	}
 
 	t.btnSaveChk.Connect("clicked", func() {
 		extension := t.cmbTxtAlgorithm.GetActiveID()
-		checksumPath, _ := t.entryChecksum.GetText()
 
-		if file, ok := SaveFileDialog(t.window, "Save Checksum File", checksumPath, extension); ok {
+		checksumPath, _ := t.entryChecksum.GetText()
+		if file, ok := widgets.SaveFileDialog(t.Window, "Save Checksum File", checksumPath, extension); ok {
 			t.entryChecksum.SetText(file)
 
 			if _, err := checksum.AlgorithmFromExtension(file); err != nil {
@@ -140,77 +119,62 @@ func (t *GenerateTab) setupHandlers() {
 			}
 		}
 	})
-
 	t.entryChecksum.Connect("changed", func() {
 		checksumPath, _ := t.entryChecksum.GetText()
 		if algo, err := checksum.AlgorithmFromExtension(checksumPath); err == nil {
 			t.cmbTxtAlgorithm.SetActiveID(algo.Extension())
 		}
 	})
-
 	t.entryChecksum.Connect("focus_out_event", func() {
 		checksumPath, _ := t.entryChecksum.GetText()
 		if _, err := checksum.AlgorithmFromExtension(checksumPath); err != nil {
 			onAlgorithmChanged()
 		}
 	})
-
 	t.btnStart.Connect("clicked", t.onStart)
 	t.btnStop.Connect("clicked", t.onStop)
 	t.cmbTxtAlgorithm.Connect("changed", onAlgorithmChanged)
-
 	t.chkBtnFollowSymlinks.Connect("toggled", func() {
 		if err := t.saveSettings(); err != nil {
-			log.Error().Err(err).Msg("Failed to save settings")
+			t.LogError("save generate settings", err)
 		}
 	})
 	t.chkBtnSortPaths.Connect("toggled", func() {
 		if err := t.saveSettings(); err != nil {
-			log.Error().Err(err).Msg("Failed to save settings")
+			t.LogError("save generate settings", err)
 		}
 	})
 	t.cmbTxtAlgorithm.Connect("changed", func() {
 		if err := t.saveSettings(); err != nil {
-			log.Error().Err(err).Msg("Failed to save settings")
+			t.LogError("save generate settings", err)
 		}
 	})
 	t.treeGenerate.Connect("columns-changed", func() {
 		if err := t.saveSettings(); err != nil {
-			log.Error().Err(err).Msg("Failed to save settings")
+			t.LogError("save generate settings", err)
 		}
 	})
-
 	t.setupContextMenu()
-
-	columns := t.treeGenerate.GetColumns()
-	for l := columns; l != nil; l = l.Next() {
-		if col, ok := l.Data().(*gtk.TreeViewColumn); ok {
-			col.Connect("clicked", func() {
-				if err := t.saveSettings(); err != nil {
-					log.Error().Err(err).Msg("Failed to save settings")
-				}
-			})
+	t.SetupColumnHandlers(t.treeGenerate, func() {
+		if err := t.saveSettings(); err != nil {
+			t.LogError("save generate settings", err)
 		}
-	}
+	})
 }
 
 func (t *GenerateTab) onStart() {
 	inputDir, _ := t.entryDir.GetText()
 	outputFile, _ := t.entryChecksum.GetText()
-
 	inputDir = filepath.Clean(inputDir)
 	outputFile = filepath.Clean(outputFile)
-
 	lastStats := checksum.NewGeneratorStats()
 	currentIdx := int64(0)
 
 	t.listStore.Clear()
 	t.updateStats(lastStats)
 	t.activateStopState()
-
-	ctx, cancel := context.WithCancel(t.ctx)
-	t.cancel = cancel
-
+	ctx, cancel := context.WithCancel(t.Ctx)
+	t.Cancel = cancel
 	cfg := action.GenerateStreamingConfig{
 		InputDir:            inputDir,
 		OutputFile:          outputFile,
@@ -220,9 +184,10 @@ func (t *GenerateTab) onStart() {
 
 	results, err := action.GenerateChecksumsStreamingToFile(ctx, cfg)
 	if err != nil {
-		ShowError(t.window, "Generation Error", fmt.Sprintf("Failed to start generation: %v", err))
+		widgets.ShowError(t.Window, "Generation Error", fmt.Sprintf("Failed to start generation: %v", err))
 		cancel()
-		t.cancel = nil
+
+		t.Cancel = nil
 		t.setStartState()
 
 		return
@@ -232,13 +197,12 @@ func (t *GenerateTab) onStart() {
 		Str("input_dir", inputDir).
 		Str("output_file", outputFile).
 		Msg("Starting checksum generation")
-
-	t.wg.Add(1)
+	t.Wg.Add(1)
 
 	var hasError error
 
 	go func() {
-		defer t.wg.Done()
+		defer t.Wg.Done()
 
 		for res := range results {
 			if res.IsProgressUpdate {
@@ -257,7 +221,6 @@ func (t *GenerateTab) onStart() {
 
 			glib.IdleAdd(func() {
 				currentIdx += 1
-
 				iter := t.listStore.Append()
 				_ = t.listStore.SetValue(iter, 0, currentIdx)
 				_ = t.listStore.SetValue(iter, 1, res.Result.RelPath)
@@ -270,16 +233,13 @@ func (t *GenerateTab) onStart() {
 
 				_ = t.listStore.SetValue(iter, 5, res.Result.ReadBytes)
 				_ = t.listStore.SetValue(iter, 6, res.Result.FullPath)
-
 				lastStats = res.Stats
 				t.updateStats(lastStats)
 			})
 		}
 	}()
-
 	go func() {
-		t.wg.Wait()
-
+		t.Wg.Wait()
 		func() {
 			if hasError != nil {
 				if errors.Is(hasError, context.Canceled) {
@@ -289,7 +249,7 @@ func (t *GenerateTab) onStart() {
 
 				log.Error().Err(hasError).Msg("Failed to generate checksums")
 				glib.IdleAdd(func() {
-					ShowError(t.window, "Generation Error", fmt.Sprintf("Failed to generate checksums: %v", hasError))
+					widgets.ShowError(t.Window, "Generation Error", fmt.Sprintf("Failed to generate checksums: %v", hasError))
 				})
 
 				return
@@ -301,31 +261,26 @@ func (t *GenerateTab) onStart() {
 				Int("with_errors", lastStats.WithErrors).
 				Int("total_files", lastStats.TotalFiles).
 				Msg("Checksum generation stats")
-
 			log.Info().
 				Str("file", outputFile).
 				Msg("Checksum generation completed")
 		}()
-
 		glib.IdleAdd(func() {
-			t.cancel()
-			t.cancel = nil
+			t.CancelOperation()
+			t.Cancel = nil
 			t.setStartState()
 		})
 	}()
 }
 
 func (t *GenerateTab) onStop() {
-	if t.cancel != nil {
-		t.cancel()
-	}
+	t.CancelOperation()
 }
 
 func (t *GenerateTab) activateStopState() {
 	t.btnStart.SetVisible(false)
 	t.btnStop.SetVisible(true)
-	t.gridProgress.SetVisible(true)
-
+	t.progressTracker.ActivateStopState()
 	t.btnBrowseDir.SetSensitive(false)
 	t.btnSaveChk.SetSensitive(false)
 	t.entryDir.SetSensitive(false)
@@ -338,8 +293,7 @@ func (t *GenerateTab) activateStopState() {
 func (t *GenerateTab) setStartState() {
 	t.btnStart.SetVisible(true)
 	t.btnStop.SetVisible(false)
-	t.gridProgress.SetVisible(false)
-
+	t.progressTracker.SetStartState()
 	t.btnBrowseDir.SetSensitive(true)
 	t.btnSaveChk.SetSensitive(true)
 	t.entryDir.SetSensitive(true)
@@ -354,62 +308,51 @@ func (t *GenerateTab) updateStats(stats checksum.GeneratorStats) {
 	t.labelWithErrorsV.SetText(fmt.Sprintf("%d of %d files", stats.WithErrors, stats.TotalFiles))
 	t.labelPendingV.SetText(fmt.Sprintf("%d of %d files", stats.Pending(), stats.TotalFiles))
 	t.labelSpeedV.SetText(bytesize.New(stats.Speed).String() + "/s")
-
-	t.labelCurrFileV.SetText(stats.CurrentFileOrStatus)
-	t.totalProgress.SetFraction(stats.TotalProgress())
-	t.currFileProgress.SetFraction(stats.FileHashingProgress)
+	t.progressTracker.UpdateCurrentFile(stats.CurrentFileOrStatus)
+	t.progressTracker.UpdateTotalProgress(stats.TotalProgress())
+	t.progressTracker.UpdateFileProgress(stats.FileHashingProgress)
 }
 
 func (t *GenerateTab) Wait() {
-	t.wg.Wait()
+	t.Wg.Wait()
 }
 
 func (t *GenerateTab) applySettingsToUI() {
-	if t.settings == nil {
+	if t.Settings == nil {
 		return
 	}
 
-	t.chkBtnFollowSymlinks.SetActive(t.settings.Generate.FollowSymbolicLinks)
-	t.chkBtnSortPaths.SetActive(t.settings.Generate.SortPaths)
-	t.cmbTxtAlgorithm.SetActiveID(t.settings.Generate.Algorithm)
-	t.columnConfig.ApplyColumnOrder(t.treeGenerate, t.settings.Generate.ColumnOrder)
-
-	var sortOrder gtk.SortType
-	if t.settings.Generate.SortOrder == settings.SortOrderDesc {
-		sortOrder = gtk.SORT_DESCENDING
-	} else {
-		sortOrder = gtk.SORT_ASCENDING
-	}
-
-	t.columnConfig.ApplySortState(t.treeGenerate, t.settings.Generate.SortColumn, sortOrder)
+	t.chkBtnFollowSymlinks.SetActive(t.Settings.Generate.FollowSymbolicLinks)
+	t.chkBtnSortPaths.SetActive(t.Settings.Generate.SortPaths)
+	t.cmbTxtAlgorithm.SetActiveID(t.Settings.Generate.Algorithm)
+	t.ColumnConfig.ApplyColumnOrder(t.treeGenerate, t.Settings.Generate.ColumnOrder)
+	t.ApplySortOrder(t.treeGenerate, t.Settings.Generate.SortColumn, t.Settings.Generate.SortOrder)
 }
 
 func (t *GenerateTab) saveSettings() error {
-	if t.settings == nil ||
-		t.window.InDestruction() {
+	if t.Settings == nil ||
+		t.Window.InDestruction() {
 		return nil
 	}
 
-	t.settings.Generate.FollowSymbolicLinks = t.chkBtnFollowSymlinks.GetActive()
-	t.settings.Generate.SortPaths = t.chkBtnSortPaths.GetActive()
-	t.settings.Generate.Algorithm = t.cmbTxtAlgorithm.GetActiveID()
-	t.settings.Generate.ColumnOrder = t.columnConfig.GetColumnOrder(t.treeGenerate)
+	t.Settings.Generate.FollowSymbolicLinks = t.chkBtnFollowSymlinks.GetActive()
+	t.Settings.Generate.SortPaths = t.chkBtnSortPaths.GetActive()
+	t.Settings.Generate.Algorithm = t.cmbTxtAlgorithm.GetActiveID()
+	t.Settings.Generate.ColumnOrder = t.ColumnConfig.GetColumnOrder(t.treeGenerate)
+	sortColumn, sortOrder := t.ColumnConfig.GetSortState(t.treeGenerate)
 
-	sortColumn, sortOrder := t.columnConfig.GetSortState(t.treeGenerate)
-
-	t.settings.Generate.SortColumn = sortColumn
+	t.Settings.Generate.SortColumn = sortColumn
 	if sortOrder == gtk.SORT_DESCENDING {
-		t.settings.Generate.SortOrder = settings.SortOrderDesc
+		t.Settings.Generate.SortOrder = settings.SortOrderDesc
 	} else {
-		t.settings.Generate.SortOrder = settings.SortOrderAsc
+		t.Settings.Generate.SortOrder = settings.SortOrderAsc
 	}
 
-	return t.settings.Save()
+	return t.Settings.Save()
 }
 
 func (t *GenerateTab) setupContextMenu() {
 	columnLabels := []string{"index", "path", "size", "hash", "note"}
-
 	t.contextMenuProvider.CreateMenu(6, columnLabels)
 	t.contextMenuProvider.ConnectRightClick(func() {
 		t.contextMenuProvider.ShowMenu()

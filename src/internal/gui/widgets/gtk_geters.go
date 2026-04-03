@@ -1,13 +1,22 @@
-package gui
+package widgets
 
 import (
+	"embed"
 	"fmt"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 )
 
-func getMainIcon() (*gdk.Pixbuf, error) {
+//go:embed glade/*
+var assets embed.FS
+
+const (
+	uiMain    = "glade/main.glade"
+	uiFavIcon = "glade/favicon.ico"
+)
+
+func GetMainIcon() (*gdk.Pixbuf, error) {
 	uiContent, err := assets.ReadFile(uiFavIcon)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read UI file: %w", err)
@@ -21,7 +30,7 @@ func getMainIcon() (*gdk.Pixbuf, error) {
 	return pixbuf, nil
 }
 
-func getMainForm() (*gtk.Builder, error) {
+func GetMainForm() (*gtk.Builder, error) {
 	builder, err := gtk.BuilderNew()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create builder: %w", err)
@@ -39,7 +48,7 @@ func getMainForm() (*gtk.Builder, error) {
 	return builder, nil
 }
 
-func getMainWindow(builder *gtk.Builder) (*gtk.Window, error) {
+func GetMainWindow(builder *gtk.Builder) (*gtk.Window, error) {
 	obj, err := builder.GetObject("main_window")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get main window: %w", err)
@@ -53,7 +62,7 @@ func getMainWindow(builder *gtk.Builder) (*gtk.Window, error) {
 	return window, nil
 }
 
-func getButton(builder *gtk.Builder, id string) *gtk.Button {
+func GetButton(builder *gtk.Builder, id string) *gtk.Button {
 	button, err := func() (*gtk.Button, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {
@@ -74,7 +83,7 @@ func getButton(builder *gtk.Builder, id string) *gtk.Button {
 	return button
 }
 
-func getEntry(builder *gtk.Builder, id string) *gtk.Entry {
+func GetEntry(builder *gtk.Builder, id string) *gtk.Entry {
 	entry, err := func() (*gtk.Entry, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {
@@ -95,7 +104,7 @@ func getEntry(builder *gtk.Builder, id string) *gtk.Entry {
 	return entry
 }
 
-func getListStore(builder *gtk.Builder, id string) *gtk.ListStore {
+func GetListStore(builder *gtk.Builder, id string) *gtk.ListStore {
 	listStore, err := func() (*gtk.ListStore, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {
@@ -116,7 +125,7 @@ func getListStore(builder *gtk.Builder, id string) *gtk.ListStore {
 	return listStore
 }
 
-func getComboBoxText(builder *gtk.Builder, id string) *gtk.ComboBoxText {
+func GetComboBoxText(builder *gtk.Builder, id string) *gtk.ComboBoxText {
 	comboBox, err := func() (*gtk.ComboBoxText, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {
@@ -137,7 +146,7 @@ func getComboBoxText(builder *gtk.Builder, id string) *gtk.ComboBoxText {
 	return comboBox
 }
 
-func getLabel(builder *gtk.Builder, id string) *gtk.Label {
+func GetLabel(builder *gtk.Builder, id string) *gtk.Label {
 	label, err := func() (*gtk.Label, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {
@@ -158,7 +167,7 @@ func getLabel(builder *gtk.Builder, id string) *gtk.Label {
 	return label
 }
 
-func getNotebook(builder *gtk.Builder, id string) *gtk.Notebook {
+func GetNotebook(builder *gtk.Builder, id string) *gtk.Notebook {
 	notebook, err := func() (*gtk.Notebook, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {
@@ -179,7 +188,7 @@ func getNotebook(builder *gtk.Builder, id string) *gtk.Notebook {
 	return notebook
 }
 
-func getProgressBar(builder *gtk.Builder, id string) *gtk.ProgressBar {
+func GetProgressBar(builder *gtk.Builder, id string) *gtk.ProgressBar {
 	bar, err := func() (*gtk.ProgressBar, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {
@@ -200,7 +209,7 @@ func getProgressBar(builder *gtk.Builder, id string) *gtk.ProgressBar {
 	return bar
 }
 
-func getCheckButton(builder *gtk.Builder, id string) *gtk.CheckButton {
+func GetCheckButton(builder *gtk.Builder, id string) *gtk.CheckButton {
 	button, err := func() (*gtk.CheckButton, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {
@@ -221,7 +230,7 @@ func getCheckButton(builder *gtk.Builder, id string) *gtk.CheckButton {
 	return button
 }
 
-func getTreeView(builder *gtk.Builder, id string) *gtk.TreeView {
+func GetTreeView(builder *gtk.Builder, id string) *gtk.TreeView {
 	tree, err := func() (*gtk.TreeView, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {
@@ -242,7 +251,7 @@ func getTreeView(builder *gtk.Builder, id string) *gtk.TreeView {
 	return tree
 }
 
-func getGrid(builder *gtk.Builder, id string) *gtk.Grid {
+func GetGrid(builder *gtk.Builder, id string) *gtk.Grid {
 	grid, err := func() (*gtk.Grid, error) {
 		obj, err := builder.GetObject(id)
 		if err != nil {

@@ -1,4 +1,4 @@
-package checksum
+package stats
 
 import (
 	"sync"

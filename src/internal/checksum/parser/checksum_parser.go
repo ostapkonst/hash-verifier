@@ -1,4 +1,4 @@
-package checksum
+package parser
 
 import (
 	"bufio"
@@ -8,6 +8,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/ostapkonst/HashVerifier/internal/checksum/algo"
 )
 
 var (
@@ -20,7 +22,7 @@ type CheckSumLine struct {
 	Hash    string
 }
 
-func ParseCheckSum(ctx context.Context, filename string, algo Algorithm) ([]CheckSumLine, error) {
+func ParseCheckSum(ctx context.Context, filename string, algoType algo.Algorithm) ([]CheckSumLine, error) {
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
@@ -49,7 +51,7 @@ func ParseCheckSum(ctx context.Context, filename string, algo Algorithm) ([]Chec
 			continue
 		}
 
-		relPath, hash, err := parseLine(line, algo)
+		relPath, hash, err := parseLine(line, algoType)
 		if err != nil {
 			return nil, err
 		}
@@ -63,11 +65,11 @@ func ParseCheckSum(ctx context.Context, filename string, algo Algorithm) ([]Chec
 	return lines, scanner.Err()
 }
 
-func parseLine(line string, algo Algorithm) (relPath, expectedHash string, err error) {
-	format := FormatFromAlgorithm(algo)
+func parseLine(line string, algoType algo.Algorithm) (relPath, expectedHash string, err error) {
+	format := algo.FormatFromAlgorithm(algoType)
 
 	switch format {
-	case FormatHashFirst:
+	case algo.FormatHashFirst:
 		matches := hashFirstRe.FindStringSubmatch(line)
 		if len(matches) != 3 {
 			return "", "", fmt.Errorf("invalid hash-first line: %q", line)
@@ -75,7 +77,7 @@ func parseLine(line string, algo Algorithm) (relPath, expectedHash string, err e
 
 		expectedHash = matches[1]
 		relPath = matches[2]
-	case FormatPathFirst:
+	case algo.FormatPathFirst:
 		matches := sfvRe.FindStringSubmatch(line)
 		if len(matches) != 3 {
 			return "", "", fmt.Errorf("invalid SFV line: %q", line)
@@ -87,8 +89,8 @@ func parseLine(line string, algo Algorithm) (relPath, expectedHash string, err e
 		return "", "", errors.New("unknown format")
 	}
 
-	if !IsValidHashLength(expectedHash, algo) {
-		return "", "", fmt.Errorf("invalid hash length %d for %s", len(expectedHash), algo.String())
+	if !algo.IsValidHashLength(expectedHash, algoType) {
+		return "", "", fmt.Errorf("invalid hash length %d for %s", len(expectedHash), algoType.String())
 	}
 
 	return fixPathSeparator(relPath), expectedHash, nil

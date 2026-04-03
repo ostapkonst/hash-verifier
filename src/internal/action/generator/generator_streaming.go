@@ -1,4 +1,4 @@
-package action
+package generator
 
 import (
 	"bufio"

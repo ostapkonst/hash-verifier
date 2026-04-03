@@ -107,7 +107,7 @@ RUN go mod download
 
 COPY src .
 
-RUN go run github.com/akavel/rsrc@v0.10.2 -arch amd64 -ico ./internal/gui/glade/favicon.ico -o rsrc.syso
+RUN go run github.com/akavel/rsrc@v0.10.2 -arch amd64 -ico ./internal/gui/widgets/glade/favicon.ico -o rsrc.syso
 
 ENV CGO_ENABLED=1 \
     CC=x86_64-w64-mingw32-gcc \
@@ -149,7 +149,7 @@ RUN go mod download
 
 COPY src .
 
-RUN go run github.com/akavel/rsrc@v0.10.2 -arch 386 -ico ./internal/gui/glade/favicon.ico -o rsrc.syso
+RUN go run github.com/akavel/rsrc@v0.10.2 -arch 386 -ico ./internal/gui/widgets/glade/favicon.ico -o rsrc.syso
 
 ENV CGO_ENABLED=1 \
     CC=i686-w64-mingw32-gcc \

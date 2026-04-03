@@ -1,4 +1,4 @@
-package checksum
+package algo
 
 import (
 	"crypto/md5"
@@ -15,8 +15,6 @@ import (
 	"golang.org/x/crypto/md4" //nolint:staticcheck
 	"lukechampine.com/blake3"
 )
-
-const HashBufferSize = 128 * 1024 // 128KB
 
 type Algorithm int
 
@@ -74,11 +72,6 @@ func (a Algorithm) Extension() string {
 	}
 
 	return "." + a.String()
-}
-
-type HashResult struct {
-	ReadBytes int64
-	Hash      string
 }
 
 func AlgorithmFromExtension(filename string) (Algorithm, error) {

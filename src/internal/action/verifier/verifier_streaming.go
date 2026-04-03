@@ -1,4 +1,4 @@
-package action
+package verifier
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 
 	"github.com/ostapkonst/HashVerifier/internal/checksum"
 )
+
+const statsUpdateInterval = 50 * time.Millisecond
 
 type VerifyStreamingResult struct {
 	Result           checksum.VerifyResult

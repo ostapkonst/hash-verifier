@@ -1,4 +1,4 @@
-package checksum
+package calculator
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/karrick/godirwalk"
+
+	"github.com/ostapkonst/HashVerifier/internal/checksum/algo"
 )
 
 func WalkDir(ctx context.Context, path string, followSymbolicLinks, sortPaths bool) ([]string, error) {
@@ -79,9 +81,9 @@ func GetPrefixForFilesInChecksum(folder, file string) (string, error) {
 	return absFolder, nil
 }
 
-func FormatLine(relPath, hashStr string, algo Algorithm) string {
-	switch algo {
-	case CRC32:
+func FormatLine(relPath, hashStr string, algoType algo.Algorithm) string {
+	switch algoType {
+	case algo.CRC32:
 		return fmt.Sprintf("%s %s", relPath, hashStr)
 	default:
 		return fmt.Sprintf("%s *%s", hashStr, relPath)

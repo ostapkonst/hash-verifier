@@ -1,4 +1,4 @@
-package gui
+package widgets
 
 import (
 	"fmt"
@@ -50,13 +50,11 @@ func (p *ContextMenuProvider) ConnectRightClick(onShowMenu func()) {
 
 func (p *ContextMenuProvider) CreateMenu(fullPathIdx int, columnLabels []string) {
 	menu, _ := gtk.MenuNew()
-
 	copyItem, _ := gtk.MenuItemNewWithLabel("Copy full path")
 	copyItem.Connect("activate", func() {
 		p.copyColumnValue(fullPathIdx, nil)
 	})
 	menu.Append(copyItem)
-
 	copyItem, _ = gtk.MenuItemNewWithLabel("Copy dir path")
 	copyItem.Connect("activate", func() {
 		p.copyColumnValue(fullPathIdx, filepath.Dir)
@@ -77,7 +75,6 @@ func (p *ContextMenuProvider) CreateMenu(fullPathIdx int, columnLabels []string)
 	}
 
 	menu.ShowAll()
-
 	p.menu = menu
 }
 
@@ -107,7 +104,7 @@ func (p *ContextMenuProvider) copyColumnValue(colIndex int, processingFn func(st
 func copyToClipboard(text string) error {
 	clipboard, err := gtk.ClipboardGet(gdk.SELECTION_CLIPBOARD)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get clipboard: %w", err)
 	}
 
 	clipboard.SetText(text)
@@ -128,8 +125,8 @@ func getSelectedRowData(treeView *gtk.TreeView, listStore *gtk.ListStore) (map[i
 	}
 
 	columns := listStore.GetNColumns()
-	rowData := make(map[int]string, columns)
 
+	rowData := make(map[int]string, columns)
 	for i := range columns {
 		value, err := listStore.GetValue(iter, i)
 		if err != nil {

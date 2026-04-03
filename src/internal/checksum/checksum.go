@@ -1,0 +1,67 @@
+package checksum
+
+import (
+	"context"
+
+	"github.com/ostapkonst/HashVerifier/internal/checksum/algo"
+	"github.com/ostapkonst/HashVerifier/internal/checksum/calculator"
+	"github.com/ostapkonst/HashVerifier/internal/checksum/parser"
+	"github.com/ostapkonst/HashVerifier/internal/checksum/stats"
+)
+
+type Algorithm = algo.Algorithm
+
+type VerifyStatusType = stats.VerifyStatusType
+
+const (
+	HashMatched  = stats.HashMatched
+	HashMismatch = stats.HashMismatch
+	Unreadable   = stats.Unreadable
+)
+
+type (
+	GenerateResult = stats.GenerateResult
+	VerifyResult   = stats.VerifyResult
+)
+
+type (
+	GeneratorStats = stats.GeneratorStats
+	VerifierStats  = stats.VerifierStats
+	SpeedTracker   = stats.SpeedTracker
+)
+
+func AlgorithmFromExtension(filename string) (Algorithm, error) {
+	return algo.AlgorithmFromExtension(filename)
+}
+
+func ParseCheckSum(ctx context.Context, filename string, a Algorithm) ([]parser.CheckSumLine, error) {
+	return parser.ParseCheckSum(ctx, filename, a)
+}
+
+func NewHashCalculator(path string, a Algorithm, st *SpeedTracker) *calculator.HashCalculator {
+	return calculator.NewHashCalculator(path, a, st)
+}
+
+func WalkDir(ctx context.Context, path string, followSymbolicLinks, sortPaths bool) ([]string, error) {
+	return calculator.WalkDir(ctx, path, followSymbolicLinks, sortPaths)
+}
+
+func GetPrefixForFilesInChecksum(folder, file string) (string, error) {
+	return calculator.GetPrefixForFilesInChecksum(folder, file)
+}
+
+func FormatLine(relPath, hashStr string, a Algorithm) string {
+	return calculator.FormatLine(relPath, hashStr, a)
+}
+
+func NewSpeedTracker() *SpeedTracker {
+	return stats.NewSpeedTracker()
+}
+
+func NewGeneratorStats() GeneratorStats {
+	return stats.NewGeneratorStats()
+}
+
+func NewVerifierStats() VerifierStats {
+	return stats.NewVerifierStats()
+}

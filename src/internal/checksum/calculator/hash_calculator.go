@@ -1,4 +1,4 @@
-package checksum
+package calculator
 
 import (
 	"context"
@@ -8,7 +8,17 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"github.com/ostapkonst/HashVerifier/internal/checksum/algo"
+	"github.com/ostapkonst/HashVerifier/internal/checksum/stats"
 )
+
+const HashBufferSize = 128 * 1024 // 128KB
+
+type HashResult struct {
+	ReadBytes int64
+	Hash      string
+}
 
 var (
 	ErrPathContainsInvalidSeparator = fmt.Errorf("backslash in path (not supported)")
@@ -17,18 +27,18 @@ var (
 )
 
 type HashCalculator struct {
-	algo           Algorithm
+	algoType       algo.Algorithm
 	path           string
 	rwm            sync.RWMutex
 	fileSize       int64
 	readBytes      atomic.Int64
 	readAllContent atomic.Bool
-	speedTracker   *SpeedTracker
+	speedTracker   *stats.SpeedTracker
 }
 
-func NewHashCalculator(path string, algo Algorithm, speedTracker *SpeedTracker) *HashCalculator {
+func NewHashCalculator(path string, algoType algo.Algorithm, speedTracker *stats.SpeedTracker) *HashCalculator {
 	return &HashCalculator{
-		algo:           algo,
+		algoType:       algoType,
 		path:           path,
 		rwm:            sync.RWMutex{},
 		fileSize:       calculateFileSize(path),
@@ -55,10 +65,6 @@ func (c *HashCalculator) Progress() float64 {
 	return float64(readBytes) / float64(c.fileSize)
 }
 
-func (c *HashCalculator) Speed() float64 {
-	return c.speedTracker.Speed()
-}
-
 func (c *HashCalculator) Calculate(ctx context.Context) (HashResult, error) {
 	c.readAllContent.Store(false)
 	c.readBytes.Store(0)
@@ -72,7 +78,7 @@ func (c *HashCalculator) Calculate(ctx context.Context) (HashResult, error) {
 	}()
 
 	result := HashResult{
-		Hash: strings.Repeat("0", GetHashLength(c.algo)), // заглушка, чтобы не было пустого хеша при ошибке
+		Hash: strings.Repeat("0", algo.GetHashLength(c.algoType)), // заглушка, чтобы не было пустого хеша при ошибке
 	}
 
 	select {
@@ -85,9 +91,9 @@ func (c *HashCalculator) Calculate(ctx context.Context) (HashResult, error) {
 	switch {
 	case os.PathSeparator == '/' && strings.Contains(c.path, "\\"):
 		return result, ErrPathContainsInvalidSeparator // пришлось добавить ограничение на виндовые пути
-	case c.algo == CRC32 && strings.HasPrefix(c.path, ";"):
+	case c.algoType == algo.CRC32 && strings.HasPrefix(c.path, ";"):
 		return result, ErrCRC32PathStartsWithSemicolon
-	case c.algo == CRC32 && strings.HasSuffix(c.path, " "):
+	case c.algoType == algo.CRC32 && strings.HasSuffix(c.path, " "):
 		return result, ErrCRC32PathEndWithSpace
 	}
 
@@ -98,7 +104,7 @@ func (c *HashCalculator) Calculate(ctx context.Context) (HashResult, error) {
 
 	defer f.Close() //nolint:errcheck
 
-	h := NewHasher(c.algo)
+	h := algo.NewHasher(c.algoType)
 	buf := make([]byte, HashBufferSize)
 
 	for {

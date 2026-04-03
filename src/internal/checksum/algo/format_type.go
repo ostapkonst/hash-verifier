@@ -1,4 +1,4 @@
-package checksum
+package algo
 
 type FormatType int
 

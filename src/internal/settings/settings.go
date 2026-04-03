@@ -16,6 +16,13 @@ const (
 	settingsFile = "settings.yaml"
 )
 
+type SortOrder string
+
+const (
+	SortOrderAsc  SortOrder = "asc"
+	SortOrderDesc SortOrder = "desc"
+)
+
 type RestoreMode string
 
 const (
@@ -34,19 +41,19 @@ const (
 )
 
 type GenerateSettings struct {
-	FollowSymbolicLinks bool     `yaml:"follow_symbolic_links"`
-	SortPaths           bool     `yaml:"sort_paths"`
-	Algorithm           string   `yaml:"algorithm"`
-	ColumnOrder         []string `yaml:"column_order"`
-	SortColumn          string   `yaml:"sort_column"`
-	SortOrder           string   `yaml:"sort_order"`
+	FollowSymbolicLinks bool      `yaml:"follow_symbolic_links"`
+	SortPaths           bool      `yaml:"sort_paths"`
+	Algorithm           string    `yaml:"algorithm"`
+	ColumnOrder         []string  `yaml:"column_order"`
+	SortColumn          string    `yaml:"sort_column"`
+	SortOrder           SortOrder `yaml:"sort_order"`
 }
 
 type VerifySettings struct {
-	VerifyOnOpen bool     `yaml:"verify_on_open"`
-	ColumnOrder  []string `yaml:"column_order"`
-	SortColumn   string   `yaml:"sort_column"`
-	SortOrder    string   `yaml:"sort_order"`
+	VerifyOnOpen bool      `yaml:"verify_on_open"`
+	ColumnOrder  []string  `yaml:"column_order"`
+	SortColumn   string    `yaml:"sort_column"`
+	SortOrder    SortOrder `yaml:"sort_order"`
 }
 
 type WindowSettings struct {

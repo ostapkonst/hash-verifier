@@ -1,4 +1,4 @@
-package gui
+package widgets
 
 import (
 	"os"
@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func isRunningInFlatpak() bool {
+func IsRunningInFlatpak() bool {
 	info, err := os.Stat("/.flatpak-info")
 	if err != nil {
 		return false
@@ -29,7 +29,6 @@ func getFlatpakFilesystems() []string {
 
 	for _, line := range strings.Split(string(data), "\n") {
 		line = strings.TrimSpace(line)
-
 		if strings.HasPrefix(line, "[") {
 			inContextSection = line == "[Context]"
 			continue
@@ -63,7 +62,6 @@ func ShowFlatpakSandboxWarningDialog(parent *gtk.Window) bool {
 	dialog.SetTransientFor(parent)
 	dialog.SetModal(true)
 	dialog.SetResizable(false)
-
 	dialog.AddButton("_Continue", gtk.RESPONSE_ACCEPT) //nolint:errcheck
 
 	contentArea, err := dialog.GetContentArea()
@@ -79,7 +77,6 @@ func ShowFlatpakSandboxWarningDialog(parent *gtk.Window) bool {
 	vbox.SetMarginBottom(10)
 
 	messageLabel, _ := gtk.LabelNew("")
-
 	filesystems := getFlatpakFilesystems()
 
 	var accessibleList strings.Builder
@@ -109,11 +106,8 @@ func ShowFlatpakSandboxWarningDialog(parent *gtk.Window) bool {
 
 	vbox.PackStart(messageLabel, true, true, 0)
 	vbox.PackEnd(suppressCheckbox, false, false, 0)
-
 	contentArea.PackStart(vbox, true, true, 0)
-
 	dialog.ShowAll()
-
 	response := dialog.Run()
 
 	return response == gtk.RESPONSE_ACCEPT && suppressCheckbox.GetActive()

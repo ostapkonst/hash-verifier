@@ -1,4 +1,4 @@
-package gui
+package tabs
 
 import (
 	"github.com/gotk3/gotk3/gtk"
@@ -35,6 +35,26 @@ func NewVerifyColumnConfig() *ColumnConfig {
 }
 
 func (c *ColumnConfig) GetColumnOrder(treeView *gtk.TreeView) []string {
+	return getColumnOrder(treeView, c.titleToName)
+}
+
+func (c *ColumnConfig) ApplyColumnOrder(treeView *gtk.TreeView, order []string) {
+	if len(order) == 0 {
+		return
+	}
+
+	applyColumnOrder(treeView, order, c.titleToName)
+}
+
+func (c *ColumnConfig) GetSortState(treeView *gtk.TreeView) (string, gtk.SortType) {
+	return getSortState(treeView, c.titleToName)
+}
+
+func (c *ColumnConfig) ApplySortState(treeView *gtk.TreeView, columnName string, order gtk.SortType) {
+	applySortState(treeView, columnName, order, c.titleToName)
+}
+
+func getColumnOrder(treeView *gtk.TreeView, titleToName map[string]string) []string {
 	columns := treeView.GetColumns()
 	result := make([]string, 0)
 
@@ -44,7 +64,7 @@ func (c *ColumnConfig) GetColumnOrder(treeView *gtk.TreeView) []string {
 			continue
 		}
 
-		name := c.getColumnTitle(col)
+		name := getColumnTitle(col, titleToName)
 		if name != "" {
 			result = append(result, name)
 		}
@@ -53,7 +73,7 @@ func (c *ColumnConfig) GetColumnOrder(treeView *gtk.TreeView) []string {
 	return result
 }
 
-func (c *ColumnConfig) ApplyColumnOrder(treeView *gtk.TreeView, order []string) {
+func applyColumnOrder(treeView *gtk.TreeView, order []string, titleToName map[string]string) {
 	if len(order) == 0 {
 		return
 	}
@@ -67,7 +87,7 @@ func (c *ColumnConfig) ApplyColumnOrder(treeView *gtk.TreeView, order []string) 
 			continue
 		}
 
-		name := c.getColumnTitle(col)
+		name := getColumnTitle(col, titleToName)
 		if name != "" {
 			columnMap[name] = col
 		}
@@ -81,17 +101,16 @@ func (c *ColumnConfig) ApplyColumnOrder(treeView *gtk.TreeView, order []string) 
 	}
 }
 
-func (c *ColumnConfig) getColumnTitle(col *gtk.TreeViewColumn) string {
+func getColumnTitle(col *gtk.TreeViewColumn, titleToName map[string]string) string {
 	title := col.GetTitle()
-
-	if name, ok := c.titleToName[title]; ok {
+	if name, ok := titleToName[title]; ok {
 		return name
 	}
 
 	return ""
 }
 
-func (c *ColumnConfig) GetSortState(treeView *gtk.TreeView) (columnName string, order gtk.SortType) {
+func getSortState(treeView *gtk.TreeView, titleToName map[string]string) (string, gtk.SortType) {
 	columns := treeView.GetColumns()
 	for l := columns; l != nil; l = l.Next() {
 		col, ok := l.Data().(*gtk.TreeViewColumn)
@@ -100,7 +119,7 @@ func (c *ColumnConfig) GetSortState(treeView *gtk.TreeView) (columnName string, 
 		}
 
 		if col.GetSortIndicator() {
-			name := c.getColumnTitle(col)
+			name := getColumnTitle(col, titleToName)
 			if name != "" {
 				sortOrder := col.GetSortOrder()
 				return name, sortOrder
@@ -111,7 +130,7 @@ func (c *ColumnConfig) GetSortState(treeView *gtk.TreeView) (columnName string, 
 	return "", gtk.SORT_ASCENDING
 }
 
-func (c *ColumnConfig) ApplySortState(treeView *gtk.TreeView, columnName string, order gtk.SortType) {
+func applySortState(treeView *gtk.TreeView, columnName string, order gtk.SortType, titleToName map[string]string) {
 	if columnName == "" {
 		return
 	}
@@ -130,7 +149,7 @@ func (c *ColumnConfig) ApplySortState(treeView *gtk.TreeView, columnName string,
 			continue
 		}
 
-		name := c.getColumnTitle(col)
+		name := getColumnTitle(col, titleToName)
 		if name == columnName {
 			listStore.SetSortColumnId(col.GetSortColumnID(), order)
 			col.SetSortIndicator(true)

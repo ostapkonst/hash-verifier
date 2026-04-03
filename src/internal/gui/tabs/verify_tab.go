@@ -1,11 +1,10 @@
-package gui
+package tabs
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
-	"sync"
 
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
@@ -14,21 +13,13 @@ import (
 
 	"github.com/ostapkonst/HashVerifier/internal/action"
 	"github.com/ostapkonst/HashVerifier/internal/checksum"
+	"github.com/ostapkonst/HashVerifier/internal/gui/widgets"
 	"github.com/ostapkonst/HashVerifier/internal/settings"
 	"github.com/ostapkonst/HashVerifier/utils/unwrap"
 )
 
 type VerifyTab struct {
-	builder *gtk.Builder
-	window  *gtk.Window
-
-	ctx    context.Context
-	cancel context.CancelFunc
-	wg     sync.WaitGroup
-
-	settings     *settings.Settings
-	columnConfig *ColumnConfig
-
+	*TabBase
 	entryChecksum       *gtk.Entry
 	btnStart            *gtk.Button
 	btnStop             *gtk.Button
@@ -36,38 +27,32 @@ type VerifyTab struct {
 	treeValidate        *gtk.TreeView
 	listStore           *gtk.ListStore
 	chkBoxVerifyOnOpen  *gtk.CheckButton
-	contextMenuProvider *ContextMenuProvider
-	gridProgress        *gtk.Grid
+	contextMenuProvider *widgets.ContextMenuProvider
+	progressTracker     *ProgressTracker
 	cmbTxtAlgorithm     *gtk.ComboBoxText
-
-	labelMatchV      *gtk.Label
-	labelMismatchV   *gtk.Label
-	labelUnreadableV *gtk.Label
-	labelPendingV    *gtk.Label
-	labelSpeedV      *gtk.Label
-
-	labelCurrFileV   *gtk.Label
-	totalProgress    *gtk.ProgressBar
-	currFileProgress *gtk.ProgressBar
+	labelMatchV         *gtk.Label
+	labelMismatchV      *gtk.Label
+	labelUnreadableV    *gtk.Label
+	labelPendingV       *gtk.Label
+	labelSpeedV         *gtk.Label
 }
 
 func NewVerifyTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window, settings *settings.Settings) *VerifyTab {
 	tab := &VerifyTab{
-		builder:      builder,
-		window:       window,
-		ctx:          ctx,
-		settings:     settings,
-		columnConfig: NewVerifyColumnConfig(),
+		TabBase: NewTabBase(ctx, builder, window, settings, NewVerifyColumnConfig()),
 	}
-
 	tab.getWidgets()
 	tab.getLabels()
-
-	tab.contextMenuProvider = NewContextMenuProvider(tab.treeValidate, tab.listStore)
-
+	tab.progressTracker = NewProgressTracker(
+		tab.Builder,
+		"grid_val_progress",
+		"progress_val_total",
+		"progress_val_curr_file",
+		"label_val_curr_file_value",
+	)
+	tab.contextMenuProvider = widgets.NewContextMenuProvider(tab.treeValidate, tab.listStore)
 	tab.applySettingsToUI()
 	tab.setStartState()
-
 	tab.setupHandlers()
 
 	return tab
@@ -82,34 +67,28 @@ func (t *VerifyTab) Fill(path string) {
 }
 
 func (t *VerifyTab) getWidgets() {
-	t.entryChecksum = getEntry(t.builder, "entry_val_checksum")
-	t.btnStart = getButton(t.builder, "btn_start_validate")
-	t.btnStop = getButton(t.builder, "btn_stop_validate")
-	t.btnBrowseChk = getButton(t.builder, "btn_browse_val_checksum")
-	t.treeValidate = getTreeView(t.builder, "tree_validate")
-	t.listStore = getListStore(t.builder, "liststore_validate")
-	t.chkBoxVerifyOnOpen = getCheckButton(t.builder, "chk_val_verify_on_open")
-	t.cmbTxtAlgorithm = getComboBoxText(t.builder, "cmb_val_algorithm")
-
-	t.gridProgress = getGrid(t.builder, "grid_val_progress")
-	t.totalProgress = getProgressBar(t.builder, "progress_val_total")
-	t.currFileProgress = getProgressBar(t.builder, "progress_val_curr_file")
+	t.entryChecksum = widgets.GetEntry(t.Builder, "entry_val_checksum")
+	t.btnStart = widgets.GetButton(t.Builder, "btn_start_validate")
+	t.btnStop = widgets.GetButton(t.Builder, "btn_stop_validate")
+	t.btnBrowseChk = widgets.GetButton(t.Builder, "btn_browse_val_checksum")
+	t.treeValidate = widgets.GetTreeView(t.Builder, "tree_validate")
+	t.listStore = widgets.GetListStore(t.Builder, "liststore_validate")
+	t.chkBoxVerifyOnOpen = widgets.GetCheckButton(t.Builder, "chk_val_verify_on_open")
+	t.cmbTxtAlgorithm = widgets.GetComboBoxText(t.Builder, "cmb_val_algorithm")
 }
 
 func (t *VerifyTab) getLabels() {
-	t.labelMatchV = getLabel(t.builder, "label_val_match_value")
-	t.labelMismatchV = getLabel(t.builder, "label_val_mismatch_value")
-	t.labelUnreadableV = getLabel(t.builder, "label_val_unreadable_value")
-	t.labelPendingV = getLabel(t.builder, "label_val_pending_value")
-	t.labelSpeedV = getLabel(t.builder, "label_val_speed_value")
-
-	t.labelCurrFileV = getLabel(t.builder, "label_val_curr_file_value")
+	t.labelMatchV = widgets.GetLabel(t.Builder, "label_val_match_value")
+	t.labelMismatchV = widgets.GetLabel(t.Builder, "label_val_mismatch_value")
+	t.labelUnreadableV = widgets.GetLabel(t.Builder, "label_val_unreadable_value")
+	t.labelPendingV = widgets.GetLabel(t.Builder, "label_val_pending_value")
+	t.labelSpeedV = widgets.GetLabel(t.Builder, "label_val_speed_value")
 }
 
 func (t *VerifyTab) setupHandlers() {
 	t.btnBrowseChk.Connect("clicked", func() {
 		path, _ := t.entryChecksum.GetText()
-		if file, ok := OpenFileDialog(t.window, "Select Checksum File", path); ok {
+		if file, ok := widgets.OpenFileDialog(t.Window, "Select Checksum File", path); ok {
 			t.entryChecksum.SetText(file)
 
 			if t.chkBoxVerifyOnOpen.GetActive() {
@@ -117,53 +96,40 @@ func (t *VerifyTab) setupHandlers() {
 			}
 		}
 	})
-
 	t.entryChecksum.Connect("changed", func() {
 		t.onEntryChecksumChanged(true)
 	})
 	t.btnStart.Connect("clicked", t.onStart)
 	t.btnStop.Connect("clicked", t.onStop)
-
 	t.chkBoxVerifyOnOpen.Connect("toggled", func() {
 		if err := t.saveSettings(); err != nil {
-			log.Error().Err(err).Msg("Failed to save settings")
+			t.LogError("save verify settings", err)
 		}
 	})
 	t.treeValidate.Connect("columns-changed", func() {
 		if err := t.saveSettings(); err != nil {
-			log.Error().Err(err).Msg("Failed to save settings")
+			t.LogError("save verify settings", err)
 		}
 	})
-
 	t.setupContextMenu()
-
-	columns := t.treeValidate.GetColumns()
-	for l := columns; l != nil; l = l.Next() {
-		if col, ok := l.Data().(*gtk.TreeViewColumn); ok {
-			col.Connect("clicked", func() {
-				if err := t.saveSettings(); err != nil {
-					log.Error().Err(err).Msg("Failed to save settings")
-				}
-			})
+	t.SetupColumnHandlers(t.treeValidate, func() {
+		if err := t.saveSettings(); err != nil {
+			t.LogError("save verify settings", err)
 		}
-	}
+	})
 }
 
 func (t *VerifyTab) onStart() {
 	checksumFile, _ := t.entryChecksum.GetText()
-
 	checksumFile = filepath.Clean(checksumFile)
-
 	lastStats := checksum.NewVerifierStats()
 	currentIdx := int64(0)
 
 	t.listStore.Clear()
 	t.updateStats(lastStats)
 	t.activateStopState()
-
-	ctx, cancel := context.WithCancel(t.ctx)
-	t.cancel = cancel
-
+	ctx, cancel := context.WithCancel(t.Ctx)
+	t.Cancel = cancel
 	cfg := action.VerifyStreamingConfig{
 		CheckSumFile: checksumFile,
 		Extension:    t.cmbTxtAlgorithm.GetActiveID(),
@@ -171,9 +137,10 @@ func (t *VerifyTab) onStart() {
 
 	results, err := action.VerifyChecksumsStreaming(ctx, cfg)
 	if err != nil {
-		ShowError(t.window, "Verification Error", fmt.Sprintf("Failed to start verification: %v", err))
+		widgets.ShowError(t.Window, "Verification Error", fmt.Sprintf("Failed to start verification: %v", err))
 		cancel()
-		t.cancel = nil
+
+		t.Cancel = nil
 		t.setStartState()
 
 		return
@@ -182,13 +149,12 @@ func (t *VerifyTab) onStart() {
 	log.Info().
 		Str("checksum_file", checksumFile).
 		Msg("Starting verification")
-
-	t.wg.Add(1)
+	t.Wg.Add(1)
 
 	var hasError error
 
 	go func() {
-		defer t.wg.Done()
+		defer t.Wg.Done()
 
 		for res := range results {
 			if res.IsProgressUpdate {
@@ -218,15 +184,14 @@ func (t *VerifyTab) onStart() {
 
 			glib.IdleAdd(func() {
 				currentIdx += 1
-
 				iter := t.listStore.Append()
 				_ = t.listStore.SetValue(iter, 0, currentIdx)
 				_ = t.listStore.SetValue(iter, 1, res.Result.Path)
 				_ = t.listStore.SetValue(iter, 2, bytesize.New(float64(res.Result.ReadBytes)).String())
 				_ = t.listStore.SetValue(iter, 3, res.Result.Status.String())
 				_ = t.listStore.SetValue(iter, 4, res.Result.ActualHash)
-				_ = t.listStore.SetValue(iter, 5, res.Result.ExpectedHash)
 
+				_ = t.listStore.SetValue(iter, 5, res.Result.ExpectedHash)
 				if res.Result.Err != nil {
 					_ = t.listStore.SetValue(iter, 6, unwrap.UnwrapAndNormalize(res.Result.Err))
 				}
@@ -234,16 +199,13 @@ func (t *VerifyTab) onStart() {
 				_ = t.listStore.SetValue(iter, 7, colorOfStatus)
 				_ = t.listStore.SetValue(iter, 8, res.Result.ReadBytes)
 				_ = t.listStore.SetValue(iter, 9, res.Result.FullPath)
-
 				lastStats = res.Stats
 				t.updateStats(lastStats)
 			})
 		}
 	}()
-
 	go func() {
-		t.wg.Wait()
-
+		t.Wg.Wait()
 		func() {
 			if hasError != nil {
 				if errors.Is(hasError, context.Canceled) {
@@ -253,7 +215,7 @@ func (t *VerifyTab) onStart() {
 
 				log.Error().Err(hasError).Msg("Failed to verify checksums")
 				glib.IdleAdd(func() {
-					ShowError(t.window, "Verification Error", fmt.Sprintf("Failed to verify checksums: %v", hasError))
+					widgets.ShowError(t.Window, "Verification Error", fmt.Sprintf("Failed to verify checksums: %v", hasError))
 				})
 
 				return
@@ -266,45 +228,37 @@ func (t *VerifyTab) onStart() {
 				Int("pending", lastStats.Pending()).
 				Int("total_files", lastStats.TotalFiles).
 				Msg("Verification stats")
-
 			log.Info().Msg("Verification completed")
 		}()
-
 		glib.IdleAdd(func() {
-			cancel()
-			t.cancel = nil
+			t.CancelOperation()
+			t.Cancel = nil
 			t.setStartState()
 		})
 	}()
 }
 
 func (t *VerifyTab) onStop() {
-	if t.cancel != nil {
-		t.cancel()
-	}
+	t.CancelOperation()
 }
 
 func (t *VerifyTab) activateStopState() {
 	t.btnStart.SetVisible(false)
 	t.btnStop.SetVisible(true)
-	t.gridProgress.SetVisible(true)
-
+	t.progressTracker.ActivateStopState()
 	t.btnBrowseChk.SetSensitive(false)
 	t.entryChecksum.SetSensitive(false)
 	t.chkBoxVerifyOnOpen.SetSensitive(false)
-
 	t.cmbTxtAlgorithm.SetSensitive(false)
 }
 
 func (t *VerifyTab) setStartState() {
 	t.btnStart.SetVisible(true)
 	t.btnStop.SetVisible(false)
-	t.gridProgress.SetVisible(false)
-
+	t.progressTracker.SetStartState()
 	t.btnBrowseChk.SetSensitive(true)
 	t.entryChecksum.SetSensitive(true)
 	t.chkBoxVerifyOnOpen.SetSensitive(true)
-
 	t.onEntryChecksumChanged(false)
 }
 
@@ -314,58 +268,47 @@ func (t *VerifyTab) updateStats(stats checksum.VerifierStats) {
 	t.labelUnreadableV.SetText(fmt.Sprintf("%d of %d files", stats.Unreadable, stats.TotalFiles))
 	t.labelPendingV.SetText(fmt.Sprintf("%d of %d files", stats.Pending(), stats.TotalFiles))
 	t.labelSpeedV.SetText(bytesize.New(stats.Speed).String() + "/s")
-
-	t.labelCurrFileV.SetText(stats.CurrentFileOrStatus)
-	t.totalProgress.SetFraction(stats.TotalProgress())
-	t.currFileProgress.SetFraction(stats.FileHashingProgress)
+	t.progressTracker.UpdateCurrentFile(stats.CurrentFileOrStatus)
+	t.progressTracker.UpdateTotalProgress(stats.TotalProgress())
+	t.progressTracker.UpdateFileProgress(stats.FileHashingProgress)
 }
 
 func (t *VerifyTab) Wait() {
-	t.wg.Wait()
+	t.Wg.Wait()
 }
 
 func (t *VerifyTab) applySettingsToUI() {
-	if t.settings == nil {
+	if t.Settings == nil {
 		return
 	}
 
-	t.chkBoxVerifyOnOpen.SetActive(t.settings.Verify.VerifyOnOpen)
-	t.columnConfig.ApplyColumnOrder(t.treeValidate, t.settings.Verify.ColumnOrder)
-
-	var sortOrder gtk.SortType
-	if t.settings.Verify.SortOrder == settings.SortOrderDesc {
-		sortOrder = gtk.SORT_DESCENDING
-	} else {
-		sortOrder = gtk.SORT_ASCENDING
-	}
-
-	t.columnConfig.ApplySortState(t.treeValidate, t.settings.Verify.SortColumn, sortOrder)
+	t.chkBoxVerifyOnOpen.SetActive(t.Settings.Verify.VerifyOnOpen)
+	t.ColumnConfig.ApplyColumnOrder(t.treeValidate, t.Settings.Verify.ColumnOrder)
+	t.ApplySortOrder(t.treeValidate, t.Settings.Verify.SortColumn, t.Settings.Verify.SortOrder)
 }
 
 func (t *VerifyTab) saveSettings() error {
-	if t.settings == nil ||
-		t.window.InDestruction() {
+	if t.Settings == nil ||
+		t.Window.InDestruction() {
 		return nil
 	}
 
-	t.settings.Verify.VerifyOnOpen = t.chkBoxVerifyOnOpen.GetActive()
-	t.settings.Verify.ColumnOrder = t.columnConfig.GetColumnOrder(t.treeValidate)
+	t.Settings.Verify.VerifyOnOpen = t.chkBoxVerifyOnOpen.GetActive()
+	t.Settings.Verify.ColumnOrder = t.ColumnConfig.GetColumnOrder(t.treeValidate)
+	sortColumn, sortOrder := t.ColumnConfig.GetSortState(t.treeValidate)
 
-	sortColumn, sortOrder := t.columnConfig.GetSortState(t.treeValidate)
-
-	t.settings.Verify.SortColumn = sortColumn
+	t.Settings.Verify.SortColumn = sortColumn
 	if sortOrder == gtk.SORT_DESCENDING {
-		t.settings.Verify.SortOrder = settings.SortOrderDesc
+		t.Settings.Verify.SortOrder = settings.SortOrderDesc
 	} else {
-		t.settings.Verify.SortOrder = settings.SortOrderAsc
+		t.Settings.Verify.SortOrder = settings.SortOrderAsc
 	}
 
-	return t.settings.Save()
+	return t.Settings.Save()
 }
 
 func (t *VerifyTab) setupContextMenu() {
 	columnLabels := []string{"index", "path", "size", "status", "hash", "expected hash", "note"}
-
 	t.contextMenuProvider.CreateMenu(9, columnLabels)
 	t.contextMenuProvider.ConnectRightClick(func() {
 		t.contextMenuProvider.ShowMenu()
