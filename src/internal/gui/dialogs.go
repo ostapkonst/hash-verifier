@@ -169,7 +169,9 @@ func changeFileExtension(filename, ext string) string {
 		return ""
 	}
 
-	return strings.TrimSuffix(filename, filepath.Ext(filename)) + ext
+	filenameWithoutExtension := strings.TrimSuffix(filename, filepath.Ext(filename))
+
+	return filenameWithoutExtension + ext
 }
 
 func splitPath(fullPath string) (directory, filename string) {
@@ -184,7 +186,16 @@ func splitPath(fullPath string) (directory, filename string) {
 }
 
 func genChecksumFilename(directory, ext string) string {
+	if isRootPath(directory) {
+		return ""
+	}
+
 	return directory + ext
+}
+
+func isRootPath(path string) bool {
+	clean := filepath.Clean(path)
+	return filepath.Dir(clean) == clean
 }
 
 func ShowAboutDialog(parent *gtk.Window, icon *gdk.Pixbuf) {
