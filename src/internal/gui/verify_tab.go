@@ -38,6 +38,7 @@ type VerifyTab struct {
 	chkBoxVerifyOnOpen  *gtk.CheckButton
 	contextMenuProvider *ContextMenuProvider
 	gridProgress        *gtk.Grid
+	cmbTxtAlgorithm     *gtk.ComboBoxText
 
 	labelMatchV      *gtk.Label
 	labelMismatchV   *gtk.Label
@@ -88,6 +89,7 @@ func (t *VerifyTab) getWidgets() {
 	t.treeValidate = getTreeView(t.builder, "tree_validate")
 	t.listStore = getListStore(t.builder, "liststore_validate")
 	t.chkBoxVerifyOnOpen = getCheckButton(t.builder, "chk_val_verify_on_open")
+	t.cmbTxtAlgorithm = getComboBoxText(t.builder, "cmb_val_algorithm")
 
 	t.gridProgress = getGrid(t.builder, "grid_val_progress")
 	t.totalProgress = getProgressBar(t.builder, "progress_val_total")
@@ -116,6 +118,9 @@ func (t *VerifyTab) setupHandlers() {
 		}
 	})
 
+	t.entryChecksum.Connect("changed", func() {
+		t.onEntryChecksumChanged(true)
+	})
 	t.btnStart.Connect("clicked", t.onStart)
 	t.btnStop.Connect("clicked", t.onStop)
 
@@ -159,7 +164,12 @@ func (t *VerifyTab) onStart() {
 	ctx, cancel := context.WithCancel(t.ctx)
 	t.cancel = cancel
 
-	results, err := action.VerifyChecksumsStreaming(ctx, checksumFile)
+	cfg := action.VerifyStreamingConfig{
+		CheckSumFile: checksumFile,
+		Extension:    t.cmbTxtAlgorithm.GetActiveID(),
+	}
+
+	results, err := action.VerifyChecksumsStreaming(ctx, cfg)
 	if err != nil {
 		ShowError(t.window, "Verification Error", fmt.Sprintf("Failed to start verification: %v", err))
 		cancel()
@@ -282,6 +292,8 @@ func (t *VerifyTab) activateStopState() {
 	t.btnBrowseChk.SetSensitive(false)
 	t.entryChecksum.SetSensitive(false)
 	t.chkBoxVerifyOnOpen.SetSensitive(false)
+
+	t.cmbTxtAlgorithm.SetSensitive(false)
 }
 
 func (t *VerifyTab) setStartState() {
@@ -292,6 +304,8 @@ func (t *VerifyTab) setStartState() {
 	t.btnBrowseChk.SetSensitive(true)
 	t.entryChecksum.SetSensitive(true)
 	t.chkBoxVerifyOnOpen.SetSensitive(true)
+
+	t.onEntryChecksumChanged(false)
 }
 
 func (t *VerifyTab) updateStats(stats checksum.VerifierStats) {
@@ -356,4 +370,25 @@ func (t *VerifyTab) setupContextMenu() {
 	t.contextMenuProvider.ConnectRightClick(func() {
 		t.contextMenuProvider.ShowMenu()
 	})
+}
+
+func (t *VerifyTab) onEntryChecksumChanged(updateActiveID bool) {
+	checksumPath, _ := t.entryChecksum.GetText()
+
+	algo, err := checksum.AlgorithmFromExtension(checksumPath)
+	if err != nil {
+		t.cmbTxtAlgorithm.SetSensitive(true)
+
+		if updateActiveID {
+			t.cmbTxtAlgorithm.SetActiveID(".unknown")
+		}
+
+		return
+	}
+
+	t.cmbTxtAlgorithm.SetSensitive(false)
+
+	if updateActiveID {
+		t.cmbTxtAlgorithm.SetActiveID(algo.Extension())
+	}
 }

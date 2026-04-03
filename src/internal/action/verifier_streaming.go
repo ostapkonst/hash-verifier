@@ -16,12 +16,17 @@ type VerifyStreamingResult struct {
 	IsProgressUpdate bool
 }
 
-func VerifyChecksumsStreaming(ctx context.Context, checksumFile string) (<-chan VerifyStreamingResult, error) {
-	if err := ValidateChecksumFile(checksumFile); err != nil {
+type VerifyStreamingConfig struct {
+	CheckSumFile string
+	Extension    string // даем пользователю самому указать алгоритм
+}
+
+func VerifyChecksumsStreaming(ctx context.Context, cfg VerifyStreamingConfig) (<-chan VerifyStreamingResult, error) {
+	if err := ValidateChecksumFile(cfg.CheckSumFile); err != nil {
 		return nil, fmt.Errorf("invalid checksum file: %w", err)
 	}
 
-	algo, err := checksum.AlgorithmFromExtension(checksumFile)
+	algo, err := checksum.AlgorithmFromExtension(cfg.Extension)
 	if err != nil {
 		return nil, fmt.Errorf("unsupported algorithm: %w", err)
 	}
@@ -36,7 +41,7 @@ func VerifyChecksumsStreaming(ctx context.Context, checksumFile string) (<-chan 
 		defer wg.Wait()
 		defer cancel()
 
-		verifier := NewVerifier(ctx, checksumFile, algo)
+		verifier := NewVerifier(ctx, cfg.CheckSumFile, algo)
 		verifier.Start()
 
 		var hasError error

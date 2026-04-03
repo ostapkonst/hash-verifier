@@ -650,7 +650,7 @@ Author: ostapkonst
                 <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <!-- n-columns=2 n-rows=3 -->
+                  <!-- n-columns=2 n-rows=4 -->
                   <object class="GtkGrid">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -669,33 +669,6 @@ Author: ostapkonst
                       <packing>
                         <property name="left-attach">0</property>
                         <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="spacing">6</property>
-                        <child>
-                          <object class="GtkCheckButton" id="chk_val_verify_on_open">
-                            <property name="label" translatable="yes">Verify on open</property>
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="receives-default">False</property>
-                            <property name="active">True</property>
-                            <property name="draw-indicator">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">1</property>
-                        <property name="width">2</property>
                       </packing>
                     </child>
                     <child>
@@ -750,7 +723,60 @@ Author: ostapkonst
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
+                        <property name="top-attach">3</property>
+                        <property name="width">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkCheckButton" id="chk_val_verify_on_open">
+                            <property name="label" translatable="yes">Verify on open</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw-indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
                         <property name="top-attach">2</property>
+                        <property name="width">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="cmb_val_algorithm">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="active">0</property>
+                        <items>
+                          <item id=".unknown" translatable="yes">Unknown</item>
+                          <item id=".sfv" translatable="yes">CRC-32</item>
+                          <item id=".md4" translatable="yes">MD4</item>
+                          <item id=".md5" translatable="yes">MD5</item>
+                          <item id=".sha1" translatable="yes">SHA-1</item>
+                          <item id=".sha256" translatable="yes">SHA-256</item>
+                          <item id=".sha384" translatable="yes">SHA-384</item>
+                          <item id=".sha512" translatable="yes">SHA-512</item>
+                          <item id=".sha3-256" translatable="yes">SHA3-256</item>
+                          <item id=".sha3-384" translatable="yes">SHA3-384</item>
+                          <item id=".sha3-512" translatable="yes">SHA3-512</item>
+                          <item id=".blake3" translatable="yes">BLAKE3</item>
+                        </items>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">1</property>
                         <property name="width">2</property>
                       </packing>
                     </child>
