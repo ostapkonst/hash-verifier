@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gotk3/gotk3/gdk"
+	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/rs/zerolog/log"
 
@@ -41,8 +42,12 @@ func Run(path string) error {
 	}
 
 	app.window.Show()
-	app.showFlatpakWarningIfNeeded()
-	app.fillTabAndSwitch(path)
+
+	glib.IdleAdd(func() {
+		app.showFlatpakWarningIfNeeded()
+		app.fillTabAndSwitch(path)
+	})
+
 	gracer.AddCallback(func() error {
 		cancel()
 		app.generateTab.Wait()
