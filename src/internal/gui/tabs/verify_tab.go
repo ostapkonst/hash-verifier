@@ -65,6 +65,10 @@ func (t *VerifyTab) Fill(path string) error {
 
 	t.entryChecksum.SetText(path)
 
+	if _, err := checksum.AlgorithmFromExtension(path); err != nil {
+		return nil
+	}
+
 	if t.chkBoxVerifyOnOpen.GetActive() {
 		t.onStart()
 	}
@@ -96,6 +100,10 @@ func (t *VerifyTab) setupHandlers() {
 		path, _ := t.entryChecksum.GetText()
 		if file, ok := widgets.OpenFileDialog(t.Window, "Select Checksum File", path); ok {
 			t.entryChecksum.SetText(file)
+
+			if _, err := checksum.AlgorithmFromExtension(file); err != nil {
+				return
+			}
 
 			if t.chkBoxVerifyOnOpen.GetActive() {
 				t.onStart()
