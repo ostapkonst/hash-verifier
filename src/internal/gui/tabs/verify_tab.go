@@ -58,12 +58,18 @@ func NewVerifyTab(ctx context.Context, builder *gtk.Builder, window *gtk.Window,
 	return tab
 }
 
-func (t *VerifyTab) Fill(path string) {
+func (t *VerifyTab) Fill(path string) error {
+	if t.IsBusy() {
+		return ErrTabBusy
+	}
+
 	t.entryChecksum.SetText(path)
 
 	if t.chkBoxVerifyOnOpen.GetActive() {
 		t.onStart()
 	}
+
+	return nil
 }
 
 func (t *VerifyTab) getWidgets() {

@@ -61,10 +61,16 @@ func (a *App) fillTabAndSwitch(path string) {
 	pathType, resolvedPath := a.pathResolver.Resolve(path)
 	switch pathType {
 	case PathTypeDirectory:
-		a.generateTab.Fill(resolvedPath)
+		if err := a.generateTab.Fill(resolvedPath); err != nil {
+			return
+		}
+
 		a.tabManager.ApplySelectedPage(a.tabManager.GetTabNumberByName("generate"))
 	case PathTypeChecksumFile:
-		a.verifyTab.Fill(resolvedPath)
+		if err := a.verifyTab.Fill(resolvedPath); err != nil {
+			return
+		}
+
 		a.tabManager.ApplySelectedPage(a.tabManager.GetTabNumberByName("verify"))
 	}
 }

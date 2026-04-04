@@ -60,10 +60,16 @@ func NewGenerateTab(ctx context.Context, builder *gtk.Builder, window *gtk.Windo
 	return tab
 }
 
-func (t *GenerateTab) Fill(path string) {
+func (t *GenerateTab) Fill(path string) error {
+	if t.IsBusy() {
+		return ErrTabBusy
+	}
+
 	t.entryDir.SetText(path)
 	extension := t.cmbTxtAlgorithm.GetActiveID()
 	t.entryChecksum.SetText(widgets.GenChecksumFilename(path, extension))
+
+	return nil
 }
 
 func (t *GenerateTab) getWidgets() {

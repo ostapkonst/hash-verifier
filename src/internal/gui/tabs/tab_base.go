@@ -65,3 +65,7 @@ func (tb *TabBase) ApplySortOrder(treeView *gtk.TreeView, sortColumn string, sor
 func (tb *TabBase) LogError(operation string, err error) {
 	log.Error().Err(err).Str("operation", operation).Msg("Failed to save settings")
 }
+
+func (tb *TabBase) IsBusy() bool {
+	return tb.Cancel != nil
+}
