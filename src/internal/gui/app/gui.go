@@ -58,7 +58,12 @@ func Run(path string) error {
 }
 
 func (a *App) fillTabAndSwitch(path string) {
-	pathType, resolvedPath := a.pathResolver.Resolve(path)
+	pathType, resolvedPath, err := a.pathResolver.Resolve(path)
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to fill tab because of invalid path")
+		return
+	}
+
 	switch pathType {
 	case PathTypeDirectory:
 		if err := a.generateTab.Fill(resolvedPath); err != nil {
@@ -66,7 +71,7 @@ func (a *App) fillTabAndSwitch(path string) {
 		}
 
 		a.tabManager.ApplySelectedPage(a.tabManager.GetTabNumberByName("generate"))
-	case PathTypeChecksumFile:
+	case PathTypeFile:
 		if err := a.verifyTab.Fill(resolvedPath); err != nil {
 			return
 		}

@@ -66,7 +66,7 @@ func (t *VerifyTab) Fill(path string) error {
 	t.entryChecksum.SetText(path)
 
 	if _, err := checksum.AlgorithmFromExtension(path); err != nil {
-		return nil
+		return nil //nolint:nilerr
 	}
 
 	if t.chkBoxVerifyOnOpen.GetActive() {

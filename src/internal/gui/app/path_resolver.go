@@ -7,16 +7,14 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-
-	"github.com/ostapkonst/HashVerifier/internal/checksum"
 )
 
 type PathType int
 
 const (
-	PathTypeDirectory PathType = iota
-	PathTypeChecksumFile
-	PathTypeInvalid
+	PathTypeInvalid PathType = iota
+	PathTypeDirectory
+	PathTypeFile
 )
 
 type PathResolver struct{}
@@ -25,22 +23,22 @@ func NewPathResolver() *PathResolver {
 	return &PathResolver{}
 }
 
-func (pr *PathResolver) Resolve(path string) (PathType, string) {
+func (pr *PathResolver) Resolve(path string) (PathType, string, error) {
 	cleanPath := filepath.Clean(path)
 	if cleanPath == "." {
-		return PathTypeInvalid, ""
+		return PathTypeInvalid, "", nil
 	}
 
 	fileInfo, err := os.Stat(cleanPath)
-	if err == nil && fileInfo.IsDir() {
-		return PathTypeDirectory, cleanPath
+	if err != nil {
+		return PathTypeFile, "", fmt.Errorf("failed to access path: %w", err)
 	}
 
-	if _, err = checksum.AlgorithmFromExtension(cleanPath); err != nil {
-		return PathTypeDirectory, cleanPath
+	if fileInfo.IsDir() {
+		return PathTypeDirectory, cleanPath, nil
 	}
 
-	return PathTypeChecksumFile, cleanPath
+	return PathTypeFile, cleanPath, nil
 }
 
 func URIToFilePath(uri string) (string, error) {

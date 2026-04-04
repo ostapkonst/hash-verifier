@@ -31,7 +31,7 @@ func SelectDirectoryDialog(parent *gtk.Window, title, folder string) (string, bo
 		gtk.RESPONSE_CANCEL,
 	)
 	if err != nil {
-		ShowError(parent, "Error", fmt.Sprintf("Failed to create select directory dialog: %v", err))
+		ShowError(parent, "Select Directory Error", fmt.Sprintf("Failed to create select directory dialog: %v", err))
 		return "", false
 	}
 	defer dialog.Destroy()
@@ -57,7 +57,7 @@ func OpenFileDialog(parent *gtk.Window, title, path string) (string, bool) {
 		gtk.RESPONSE_CANCEL,
 	)
 	if err != nil {
-		ShowError(parent, "Error", fmt.Sprintf("Failed to create open file dialog: %v", err))
+		ShowError(parent, "Open File Error", fmt.Sprintf("Failed to create open file dialog: %v", err))
 		return "", false
 	}
 	defer dialog.Destroy()
@@ -86,7 +86,7 @@ func SaveFileDialog(parent *gtk.Window, title, path, ext string) (string, bool) 
 		gtk.RESPONSE_CANCEL,
 	)
 	if err != nil {
-		ShowError(parent, "Error", fmt.Sprintf("Failed to create save file dialog: %v", err))
+		ShowError(parent, "Save File Error", fmt.Sprintf("Failed to create save file dialog: %v", err))
 		return "", false
 	}
 	defer dialog.Destroy()

@@ -97,7 +97,7 @@ func AddFileFilters(dialog *gtk.FileChooserDialog) {
 func ShowAboutDialog(parent *gtk.Window, icon *gdk.Pixbuf) {
 	about, err := gtk.AboutDialogNew()
 	if err != nil {
-		ShowError(parent, "Error", fmt.Sprintf("Failed to create about dialog: %v", err))
+		ShowError(parent, "About Error", fmt.Sprintf("Failed to create about dialog: %v", err))
 		return
 	}
 	defer about.Destroy()
