@@ -20,15 +20,15 @@
   <screenshots>
     <screenshot type="default">
       <caption>Generate tab</caption>
-      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/refs/tags/v2026.3.30/docs/screenshots/generate-tab.png</image>
+      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/refs/tags/v2026.4.5/docs/screenshots/generate-tab.png</image>
     </screenshot>
     <screenshot>
       <caption>Verify tab</caption>
-      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/refs/tags/v2026.3.30/docs/screenshots/verify-tab.png</image>
+      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/refs/tags/v2026.4.5/docs/screenshots/verify-tab.png</image>
     </screenshot>
     <screenshot>
       <caption>Checksum result</caption>
-      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/refs/tags/v2026.3.30/docs/screenshots/checksum-result.png</image>
+      <image>https://raw.githubusercontent.com/ostapkonst/HashVerifier/refs/tags/v2026.4.5/docs/screenshots/checksum-result.png</image>
     </screenshot>
   </screenshots>
   <branding>
@@ -75,6 +75,17 @@
     <mediatype>application/x-blake3</mediatype>
   </provides>
   <releases>
+    <release version="v2026.4.5" date="2026-04-05">
+      <url type="details">https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.4.5</url>
+      <description>
+        <ul>
+          <li>Added field to manually specify validation algorithm</li>
+          <li>Prevent tab fill on drag and drop during active generation/verification</li>
+          <li>Prevent checksum filename population on root partition selection</li>
+          <li>Prevent auto-verification when algorithm is unknown</li>
+        </ul>
+      </description>
+    </release>
     <release version="v2026.3.30" date="2026-03-30">
       <url type="details">https://github.com/ostapkonst/HashVerifier/releases/tag/v2026.3.30</url>
       <description>

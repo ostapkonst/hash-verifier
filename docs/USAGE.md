@@ -27,6 +27,8 @@
 ```bash
 ./hashverifier verify ./data.sha256
 ./hashverifier verify ./archive.md5
+./hashverifier verify ./checksum.txt --ext .sha256
+./hashverifier verify ./checksum.txt -e .md5
 ```
 
 ## Configuration

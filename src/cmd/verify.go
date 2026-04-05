@@ -24,7 +24,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 	done := make(chan error, 1)
 
 	go func() {
-		done <- execVerify(ctx, args)
+		done <- execVerify(ctx, cmd, args)
 
 		gracer.GracefulShutdown()
 	}()
@@ -37,11 +37,14 @@ func runVerify(cmd *cobra.Command, args []string) error {
 	return gracer.Wait()
 }
 
-func execVerify(ctx context.Context, args []string) error {
+func execVerify(ctx context.Context, cmd *cobra.Command, args []string) error {
 	checksumFile := args[0]
+
+	algorithmFlag, _ := cmd.Flags().GetString("ext")
 
 	cfg := action.VerifyConfig{
 		ChecksumFile: checksumFile,
+		Extension:    algorithmFlag,
 		OnFileVerified: func(res checksum.VerifyResult) {
 			commonFields := func(event *zerolog.Event, err error) *zerolog.Event {
 				logger := event.
@@ -106,12 +109,15 @@ var verifyCmd = &cobra.Command{
 	Long: strings.Trim(dedent.Dedent(`
 		Verify files against checksum file.
 		Algorithm is determined automatically from file extension:
-		.sfv, .md4, .md5, .sha1, .sha256, .sha384, .sha512, .sha3-256, .sha3-384, .sha3-512, .blake3.`,
+		.sfv, .md4, .md5, .sha1, .sha256, .sha384, .sha512, .sha3-256, .sha3-384, .sha3-512, .blake3.
+
+		Use --ext flag to override algorithm detection.`,
 	), "\n"),
 	Args: cobra.ExactArgs(1),
 	RunE: runVerify,
 }
 
 func init() {
+	verifyCmd.Flags().StringP("ext", "e", "", "Hash algorithm extension (e.g., .sha256, .md5, .sfv). If not set, determined from checksum file extension")
 	rootCmd.AddCommand(verifyCmd)
 }
