@@ -173,9 +173,37 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+  build-innosetup:
+    runs-on: ubuntu-24.04
+    needs: [validate-version, build-windows]
+    strategy:
+      matrix:
+        arch: [amd64, i686]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download Windows (${{ matrix.arch }}) artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: hashverifier-windows-${{ matrix.arch }}
+          path: dist/windows-${{ matrix.arch }}
+
+      - name: Build Inno Setup installer (${{ matrix.arch }})
+        run: |
+          make innosetup-${{ matrix.arch }} VERSION="${{ needs.validate-version.outputs.version }}"
+
+      - name: Upload Inno Setup installer (${{ matrix.arch }}) artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: hashverifier-innosetup-${{ matrix.arch }}
+          path: .pkg-build/package/*.exe
+          retention-days: 7
+          if-no-files-found: error
+
   release:
     runs-on: ubuntu-24.04
-    needs: [validate-version, build-windows, build-packages, build-appimage]
+    needs: [validate-version, build-windows, build-packages, build-appimage, build-innosetup]
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -219,6 +247,18 @@ jobs:
           name: hashverifier-linux-appimage-arm64
           path: release/linux
 
+      - name: Download Inno Setup installer (amd64) artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: hashverifier-innosetup-amd64
+          path: release/windows
+
+      - name: Download Inno Setup installer (i686) artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: hashverifier-innosetup-i686
+          path: release/windows
+
       - name: Prepare Windows amd64 archive
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
@@ -239,8 +279,8 @@ jobs:
           name: Release ${{ needs.validate-version.outputs.version }}
           generate_release_notes: true
           files: |
-            release/windows/*-windows-amd64.zip
-            release/windows/*-windows-i686.zip
+            release/windows/*.exe
+            release/windows/*.zip
             release/linux/amd64/*.deb
             release/linux/amd64/*.rpm
             release/linux/arm64/*.deb

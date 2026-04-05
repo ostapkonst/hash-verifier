@@ -35,7 +35,7 @@ readonly SOURCE_ICON="${BUILD_DIR}/${PACKAGE_NAME}.png"
 readonly SOURCE_LICENSE="${BASE_DIR}/LICENSE"
 readonly SOURCE_THIRD_PARTY="${BASE_DIR}/THIRD_PARTY_NOTICES"
 
-readonly DEB_ROOT="${WORK_DIR}/dist/deb/${PACKAGE_NAME}_${DEB_VERSION}_${PACKAGE_ARCH}"
+readonly DEB_ROOT="${WORK_DIR}/dist/deb/${PACKAGE_ARCH}"
 readonly DEB_DIR="${DEB_ROOT}/DEBIAN"
 readonly DEB_BIN_DIR="${DEB_ROOT}/usr/bin"
 readonly DEB_DESKTOP_DIR="${DEB_ROOT}/usr/share/applications"
@@ -267,9 +267,9 @@ build_package() {
 
     cd "${WORK_DIR}/dist/deb"
 
-    dpkg-deb --build "${PACKAGE_NAME}_${DEB_VERSION}_${PACKAGE_ARCH}" 2>&1 | grep -v "^dpkg-deb:" || true
+    dpkg-deb --build "${PACKAGE_ARCH}" 2>&1 | grep -v "^dpkg-deb:" || true
 
-    mv "${DEB_PACKAGE_NAME}" "${OUT_DIR}/"
+    mv "${PACKAGE_ARCH}.deb" "${OUT_DIR}/${DEB_PACKAGE_NAME}"
 }
 
 show_package_info() {

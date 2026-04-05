@@ -23,8 +23,8 @@ A cross-platform checksum generation and verification tool with both CLI and GTK
 |------------------|--------------|--------|---------|
 | Linux | x86_64 (amd64) | ✅ | DEB, RPM, AppImage, Flatpak |
 | Linux | ARM64 (aarch64) | ✅ | DEB, RPM, AppImage, Flatpak |
-| Windows | x86_64 (amd64) | ✅ | ZIP |
-| Windows | x86 (i686) | ✅ | ZIP |
+| Windows | x86_64 (amd64) | ✅ | ZIP, EXE Installer |
+| Windows | x86 (i686) | ✅ | ZIP, EXE Installer |
 
 **Recommended installation:** Flatpak is the recommended installation method for Linux as it provides automatic updates and includes all dependencies.
 
@@ -69,23 +69,38 @@ flatpak run io.github.ostapkonst.HashVerifier
 **DEB (Debian/Ubuntu):**
 
 ```bash
-sudo apt install ./hashverifier_1.0.0_amd64.deb
+sudo apt install ./hashverifier_X.X.X_amd64.deb
 ```
 
 **RPM (Fedora/RHEL):**
 
 ```bash
-sudo dnf install ./hashverifier-1.0.0-1.x86_64.rpm
+sudo dnf install ./hashverifier-X.X.X-1.x86_64.rpm
 ```
 
 **AppImage (Universal Linux):**
 
 ```bash
-chmod +x HashVerifier-1.0.0-x86_64.AppImage
-./HashVerifier-1.0.0-x86_64.AppImage
+chmod +x HashVerifier-X.X.X-x86_64.AppImage
+./HashVerifier-X.X.X-x86_64.AppImage
 ```
 
 ### Windows
+
+**Installer (Recommended):**
+
+Download and run the Inno Setup installer for your architecture:
+
+- `hashverifier-X.X.X-windows-amd64.exe` (64-bit)
+- `hashverifier-X.X.X-windows-i686.exe` (32-bit)
+
+The installer will:
+- Install HashVerifier to your system
+- Create Start Menu and optional Desktop shortcuts
+- Add "Send To" menu entry for quick access via right-click
+- Register checksum file associations (`.sfv`, `.md4`, `.md5`, `.sha1`, `.sha256`, `.sha384`, `.sha512`, `.sha3-256`, `.sha3-384`, `.sha3-512`, `.blake3`)
+
+**Portable ZIP:**
 
 Download and extract the ZIP archive for your architecture:
 
