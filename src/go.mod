@@ -3,7 +3,7 @@ module github.com/ostapkonst/HashVerifier
 go 1.24.0
 
 require (
-	github.com/gotk3/gotk3 v0.6.5-0.20251124190141-e7a9e823ca35
+	github.com/gotk3/gotk3 v0.6.1
 	github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf
 	github.com/karrick/godirwalk v1.16.2
 	github.com/lithammer/dedent v1.1.0

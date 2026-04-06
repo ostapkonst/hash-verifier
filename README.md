@@ -30,7 +30,7 @@ A cross-platform checksum generation and verification tool with both CLI and GTK
 
 **Minimum OS versions:**
 
-- **Linux:** Ubuntu 22.04+, Fedora 35+, Debian 12+, RHEL 9+ (GLIBC 2.34+, GTK 3.24+)
+- **Linux:** Ubuntu 20.04+, Fedora 32+, Debian 11+, RHEL 9+ (GLIBC 2.31+, GTK 3.24+)
 - **Windows:** Windows 7 SP1 and later (32-bit and 64-bit)
 
 > **Note for Flatpak:** Minimum requirements depend on the Flatpak runtime version.

@@ -16,7 +16,7 @@ readonly PACKAGE_GROUP="Applications/System"
 
 readonly PACKAGE_DEPENDS=(
     "gtk3 >= 3.24"
-    "glibc >= 2.34"
+    "glibc >= 2.31"
 )
 
 readonly BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -127,7 +127,7 @@ validate_source_files() {
     fi
 }
 
-cleanup() {
+cleanup() {1
     local exit_code=$?
     if [[ ${exit_code} -ne 0 ]]; then
         log_error "Error occurred. Temporary files preserved in: ${WORK_DIR}"

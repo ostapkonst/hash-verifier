@@ -15,7 +15,7 @@ readonly PACKAGE_HOMEPAGE="https://github.com/ostapkonst/HashVerifier"
 
 readonly PACKAGE_DEPENDS=(
     "libgtk-3-0 (>= 3.24)"
-    "libc6 (>= 2.34)"
+    "libc6 (>= 2.31)"
 )
 
 DEB_VERSION="${VERSION#v}"  # Без этого: version number does not start with digit
