@@ -32,7 +32,6 @@ esac
 readonly DIST_DIR="${BASE_DIR}/dist/linux-${BUILD_ARCH}"
 readonly WORK_DIR="${BASE_DIR}/.pkg-build"
 readonly OUT_DIR="${WORK_DIR}/package"
-readonly ICONS_DIR="${WORK_DIR}/icons"
 
 RPM_VERSION="${VERSION#v}"
 readonly RPM_VERSION="${RPM_VERSION//-/\~}"
@@ -40,7 +39,8 @@ readonly RPM_VERSION="${RPM_VERSION//-/\~}"
 readonly SOURCE_BINARY="${DIST_DIR}/${PACKAGE_NAME}"
 readonly SOURCE_DESKTOP="${BUILD_DIR}/${PACKAGE_NAME}.desktop"
 readonly SOURCE_MIME="${BUILD_DIR}/${PACKAGE_NAME}-mime.xml"
-readonly SOURCE_ICON="${BUILD_DIR}/${PACKAGE_NAME}.png"
+readonly SOURCE_ICON="${BUILD_DIR}/${PACKAGE_NAME}.svg"
+readonly SOURCE_FILETYPE_ICON="${BUILD_DIR}/${PACKAGE_NAME}-filetype.svg"
 readonly SOURCE_LICENSE="${BASE_DIR}/LICENSE"
 readonly SOURCE_THIRD_PARTY="${BASE_DIR}/THIRD_PARTY_NOTICES"
 
@@ -105,6 +105,10 @@ validate_source_files() {
         missing_files+=("${SOURCE_ICON}")
     fi
 
+    if [[ ! -f "${SOURCE_FILETYPE_ICON}" ]]; then
+        missing_files+=("${SOURCE_FILETYPE_ICON}")
+    fi
+
     if [[ ! -f "${SOURCE_LICENSE}" ]]; then
         missing_files+=("${SOURCE_LICENSE}")
     fi
@@ -127,7 +131,7 @@ validate_source_files() {
     fi
 }
 
-cleanup() {1
+cleanup() {
     local exit_code=$?
     if [[ ${exit_code} -ne 0 ]]; then
         log_error "Error occurred. Temporary files preserved in: ${WORK_DIR}"
@@ -152,23 +156,6 @@ prepare_directories() {
     mkdir -p "${OUT_DIR}"
 }
 
-generate_icons() {
-    log_info "Generating icon sizes..."
-
-    local generate_script="${BUILD_DIR}/generate-icons.sh"
-
-    mkdir -p "${ICONS_DIR}"
-
-    export ICONS_OUTPUT_DIR="${ICONS_DIR}"
-
-    if [[ -f "${generate_script}" ]]; then
-        bash "${generate_script}"
-    else
-        log_error "Icon generation script not found: ${generate_script}"
-        exit 1
-    fi
-}
-
 prepare_source_tarball() {
     log_info "Preparing source tarball..."
 
@@ -181,12 +168,8 @@ prepare_source_tarball() {
     cp "${SOURCE_MIME}" "${source_dir}/"
     cp "${SOURCE_LICENSE}" "${source_dir}/"
     cp "${SOURCE_THIRD_PARTY}" "${source_dir}/"
-    cp "${SOURCE_ICON}" "${source_dir}/"
-
-    for size in 16 32 48 64 128 256 512; do
-        local icon_file="${ICONS_DIR}/${PACKAGE_NAME}-${size}.png"
-        cp "${icon_file}" "${source_dir}/"
-    done
+    cp "${SOURCE_ICON}" "${source_dir}/hashverifier.svg"
+    cp "${SOURCE_FILETYPE_ICON}" "${source_dir}/hashverifier-filetype.svg"
 
     tar -czf "${RPM_SOURCE_DIR}/${PACKAGE_NAME}-${RPM_VERSION}.tar.gz" \
         -C "${RPM_SOURCE_DIR}" "${PACKAGE_NAME}-${RPM_VERSION}"
@@ -233,13 +216,8 @@ mkdir -p %{buildroot}/usr/bin
 mkdir -p %{buildroot}/usr/share/applications
 mkdir -p %{buildroot}/usr/share/mime/packages
 mkdir -p %{buildroot}/usr/share/doc/%{name}
-mkdir -p %{buildroot}/usr/share/icons/hicolor/16x16/apps
-mkdir -p %{buildroot}/usr/share/icons/hicolor/32x32/apps
-mkdir -p %{buildroot}/usr/share/icons/hicolor/48x48/apps
-mkdir -p %{buildroot}/usr/share/icons/hicolor/64x64/apps
-mkdir -p %{buildroot}/usr/share/icons/hicolor/128x128/apps
-mkdir -p %{buildroot}/usr/share/icons/hicolor/256x256/apps
-mkdir -p %{buildroot}/usr/share/icons/hicolor/512x512/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/scalable/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/scalable/mimetypes
 
 cp hashverifier %{buildroot}/usr/bin/
 chmod +x %{buildroot}/usr/bin/hashverifier
@@ -247,13 +225,8 @@ cp hashverifier.desktop %{buildroot}/usr/share/applications/
 cp hashverifier-mime.xml %{buildroot}/usr/share/mime/packages/
 cp LICENSE %{buildroot}/usr/share/doc/%{name}/
 cp THIRD_PARTY_NOTICES %{buildroot}/usr/share/doc/%{name}/
-cp hashverifier-16.png %{buildroot}/usr/share/icons/hicolor/16x16/apps/hashverifier.png
-cp hashverifier-32.png %{buildroot}/usr/share/icons/hicolor/32x32/apps/hashverifier.png
-cp hashverifier-48.png %{buildroot}/usr/share/icons/hicolor/48x48/apps/hashverifier.png
-cp hashverifier-64.png %{buildroot}/usr/share/icons/hicolor/64x64/apps/hashverifier.png
-cp hashverifier-128.png %{buildroot}/usr/share/icons/hicolor/128x128/apps/hashverifier.png
-cp hashverifier-256.png %{buildroot}/usr/share/icons/hicolor/256x256/apps/hashverifier.png
-cp hashverifier-512.png %{buildroot}/usr/share/icons/hicolor/512x512/apps/hashverifier.png
+cp hashverifier.svg %{buildroot}/usr/share/icons/hicolor/scalable/apps/hashverifier.svg
+cp hashverifier-filetype.svg %{buildroot}/usr/share/icons/hicolor/scalable/mimetypes/hashverifier-filetype.svg
 
 %post
 update-desktop-database /usr/share/applications > /dev/null 2>&1 || :
@@ -271,13 +244,8 @@ gtk-update-icon-cache -f /usr/share/icons/hicolor > /dev/null 2>&1 || :
 /usr/share/mime/packages/hashverifier-mime.xml
 /usr/share/doc/%{name}/LICENSE
 /usr/share/doc/%{name}/THIRD_PARTY_NOTICES
-/usr/share/icons/hicolor/16x16/apps/hashverifier.png
-/usr/share/icons/hicolor/32x32/apps/hashverifier.png
-/usr/share/icons/hicolor/48x48/apps/hashverifier.png
-/usr/share/icons/hicolor/64x64/apps/hashverifier.png
-/usr/share/icons/hicolor/128x128/apps/hashverifier.png
-/usr/share/icons/hicolor/256x256/apps/hashverifier.png
-/usr/share/icons/hicolor/512x512/apps/hashverifier.png
+/usr/share/icons/hicolor/scalable/apps/hashverifier.svg
+/usr/share/icons/hicolor/scalable/mimetypes/hashverifier-filetype.svg
 EOF
 }
 
@@ -318,7 +286,6 @@ main() {
     log_stage "Preparation"
 
     prepare_directories
-    generate_icons
     prepare_source_tarball
 
     log_stage "Package Build"

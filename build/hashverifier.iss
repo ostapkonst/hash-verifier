@@ -5,7 +5,7 @@
 ; =============================================================================
 
 #define MyAppName "HashVerifier"
-#define MyAppPublisher "ostapkonst"
+#define MyAppPublisher "Ostap Konstantinov"
 #define MyAppURL "https://github.com/ostapkonst/HashVerifier"
 #define MyAppExeName "hashverifier.exe"
 
@@ -27,6 +27,7 @@
 
 [Setup]
 ; Application identity
+AppId={{49028601-93D0-4249-B2C5-ACAA48680F84}
 AppName={#MyAppName}
 AppVersion={#AppVersion}
 AppPublisher={#MyAppPublisher}
@@ -116,6 +117,9 @@ Source: "{#SourceDir}\share\themes\*"; DestDir: "{app}\share\themes"; Flags: ign
 Source: "{#SourceDir}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\THIRD_PARTY_NOTICES"; DestDir: "{app}"; Flags: ignoreversion
 
+; File type icon for associations (installed but not shown in UI)
+Source: "hashverifier-filetype.ico"; DestDir: "{app}"; Flags: ignoreversion
+
 [Icons]
 ; Start Menu (common = all users)
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -131,67 +135,67 @@ Name: "{userappdata}\Microsoft\Windows\SendTo\{#MyAppName}"; Filename: "{app}\{#
 ; File associations — SFV
 Root: HKCR; Subkey: ".sfv"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.SFV"; Flags: uninsdeletevalue; Tasks: assoc_sfv
 Root: HKCR; Subkey: "HashVerifier.SFV"; ValueType: string; ValueName: ""; ValueData: "SFV Checksum File"; Flags: uninsdeletekey; Tasks: assoc_sfv
-Root: HKCR; Subkey: "HashVerifier.SFV\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_sfv
+Root: HKCR; Subkey: "HashVerifier.SFV\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_sfv
 Root: HKCR; Subkey: "HashVerifier.SFV\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_sfv
 
 ; File associations — MD4
 Root: HKCR; Subkey: ".md4"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.MD4"; Flags: uninsdeletevalue; Tasks: assoc_md4
 Root: HKCR; Subkey: "HashVerifier.MD4"; ValueType: string; ValueName: ""; ValueData: "MD4 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_md4
-Root: HKCR; Subkey: "HashVerifier.MD4\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_md4
+Root: HKCR; Subkey: "HashVerifier.MD4\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_md4
 Root: HKCR; Subkey: "HashVerifier.MD4\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_md4
 
 ; File associations — MD5
 Root: HKCR; Subkey: ".md5"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.MD5"; Flags: uninsdeletevalue; Tasks: assoc_md5
 Root: HKCR; Subkey: "HashVerifier.MD5"; ValueType: string; ValueName: ""; ValueData: "MD5 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_md5
-Root: HKCR; Subkey: "HashVerifier.MD5\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_md5
+Root: HKCR; Subkey: "HashVerifier.MD5\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_md5
 Root: HKCR; Subkey: "HashVerifier.MD5\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_md5
 
 ; File associations — SHA1
 Root: HKCR; Subkey: ".sha1"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.SHA1"; Flags: uninsdeletevalue; Tasks: assoc_sha1
 Root: HKCR; Subkey: "HashVerifier.SHA1"; ValueType: string; ValueName: ""; ValueData: "SHA1 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_sha1
-Root: HKCR; Subkey: "HashVerifier.SHA1\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_sha1
+Root: HKCR; Subkey: "HashVerifier.SHA1\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_sha1
 Root: HKCR; Subkey: "HashVerifier.SHA1\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_sha1
 
 ; File associations — SHA256
 Root: HKCR; Subkey: ".sha256"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.SHA256"; Flags: uninsdeletevalue; Tasks: assoc_sha256
 Root: HKCR; Subkey: "HashVerifier.SHA256"; ValueType: string; ValueName: ""; ValueData: "SHA256 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_sha256
-Root: HKCR; Subkey: "HashVerifier.SHA256\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_sha256
+Root: HKCR; Subkey: "HashVerifier.SHA256\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_sha256
 Root: HKCR; Subkey: "HashVerifier.SHA256\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_sha256
 
 ; File associations — SHA384
 Root: HKCR; Subkey: ".sha384"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.SHA384"; Flags: uninsdeletevalue; Tasks: assoc_sha384
 Root: HKCR; Subkey: "HashVerifier.SHA384"; ValueType: string; ValueName: ""; ValueData: "SHA384 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_sha384
-Root: HKCR; Subkey: "HashVerifier.SHA384\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_sha384
+Root: HKCR; Subkey: "HashVerifier.SHA384\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_sha384
 Root: HKCR; Subkey: "HashVerifier.SHA384\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_sha384
 
 ; File associations — SHA512
 Root: HKCR; Subkey: ".sha512"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.SHA512"; Flags: uninsdeletevalue; Tasks: assoc_sha512
 Root: HKCR; Subkey: "HashVerifier.SHA512"; ValueType: string; ValueName: ""; ValueData: "SHA512 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_sha512
-Root: HKCR; Subkey: "HashVerifier.SHA512\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_sha512
+Root: HKCR; Subkey: "HashVerifier.SHA512\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_sha512
 Root: HKCR; Subkey: "HashVerifier.SHA512\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_sha512
 
 ; File associations — SHA3-256
 Root: HKCR; Subkey: ".sha3-256"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.SHA3_256"; Flags: uninsdeletevalue; Tasks: assoc_sha3_256
 Root: HKCR; Subkey: "HashVerifier.SHA3_256"; ValueType: string; ValueName: ""; ValueData: "SHA3-256 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_sha3_256
-Root: HKCR; Subkey: "HashVerifier.SHA3_256\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_sha3_256
+Root: HKCR; Subkey: "HashVerifier.SHA3_256\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_sha3_256
 Root: HKCR; Subkey: "HashVerifier.SHA3_256\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_sha3_256
 
 ; File associations — SHA3-384
 Root: HKCR; Subkey: ".sha3-384"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.SHA3_384"; Flags: uninsdeletevalue; Tasks: assoc_sha3_384
 Root: HKCR; Subkey: "HashVerifier.SHA3_384"; ValueType: string; ValueName: ""; ValueData: "SHA3-384 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_sha3_384
-Root: HKCR; Subkey: "HashVerifier.SHA3_384\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_sha3_384
+Root: HKCR; Subkey: "HashVerifier.SHA3_384\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_sha3_384
 Root: HKCR; Subkey: "HashVerifier.SHA3_384\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_sha3_384
 
 ; File associations — SHA3-512
 Root: HKCR; Subkey: ".sha3-512"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.SHA3_512"; Flags: uninsdeletevalue; Tasks: assoc_sha3_512
 Root: HKCR; Subkey: "HashVerifier.SHA3_512"; ValueType: string; ValueName: ""; ValueData: "SHA3-512 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_sha3_512
-Root: HKCR; Subkey: "HashVerifier.SHA3_512\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_sha3_512
+Root: HKCR; Subkey: "HashVerifier.SHA3_512\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_sha3_512
 Root: HKCR; Subkey: "HashVerifier.SHA3_512\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_sha3_512
 
 ; File associations — BLAKE3
 Root: HKCR; Subkey: ".blake3"; ValueType: string; ValueName: ""; ValueData: "HashVerifier.BLAKE3"; Flags: uninsdeletevalue; Tasks: assoc_blake3
 Root: HKCR; Subkey: "HashVerifier.BLAKE3"; ValueType: string; ValueName: ""; ValueData: "BLAKE3 Checksum File"; Flags: uninsdeletekey; Tasks: assoc_blake3
-Root: HKCR; Subkey: "HashVerifier.BLAKE3\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: assoc_blake3
+Root: HKCR; Subkey: "HashVerifier.BLAKE3\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\hashverifier-filetype.ico"; Tasks: assoc_blake3
 Root: HKCR; Subkey: "HashVerifier.BLAKE3\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: assoc_blake3
 
 [Run]

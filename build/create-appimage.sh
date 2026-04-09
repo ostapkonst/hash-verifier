@@ -20,13 +20,13 @@ esac
 readonly DIST_DIR="${BASE_DIR}/dist/linux-${BUILD_ARCH}"
 readonly WORK_DIR="${BASE_DIR}/.pkg-build"
 readonly OUT_DIR="${WORK_DIR}/package"
-readonly ICONS_DIR="${WORK_DIR}/icons"
 
 APPIMAGE_VERSION="${VERSION#v}"
 readonly APPIMAGE_VERSION="${APPIMAGE_VERSION//-/\~}"
 
 readonly SOURCE_BINARY="${DIST_DIR}/${PACKAGE_NAME}"
 readonly SOURCE_DESKTOP="${BUILD_DIR}/${PACKAGE_NAME}.desktop"
+readonly SOURCE_ICON="${BUILD_DIR}/${PACKAGE_NAME}.svg"
 readonly SOURCE_LICENSE="${BASE_DIR}/LICENSE"
 readonly SOURCE_THIRD_PARTY="${BASE_DIR}/THIRD_PARTY_NOTICES"
 
@@ -34,6 +34,7 @@ readonly APPDIR_ROOT="${WORK_DIR}/dist/appimage/${BUILD_ARCH}"
 readonly APPDIR_BIN="${APPDIR_ROOT}/usr/bin"
 readonly APPDIR_DESKTOP="${APPDIR_ROOT}/usr/share/applications"
 readonly APPDIR_DOC="${APPDIR_ROOT}/usr/share/doc/${PACKAGE_NAME}"
+readonly APPDIR_ICON_DIR="${APPDIR_ROOT}/usr/share/icons/hicolor/scalable/apps"
 
 readonly DESKTOP_NAME="HashVerifier"
 
@@ -115,23 +116,6 @@ cleanup() {
     return ${exit_code}
 }
 
-generate_icons() {
-    log_info "Generating icon sizes..."
-
-    local generate_script="${BUILD_DIR}/generate-icons.sh"
-
-    mkdir -p "${ICONS_DIR}"
-
-    export ICONS_OUTPUT_DIR="${ICONS_DIR}"
-
-    if [[ -f "${generate_script}" ]]; then
-        bash "${generate_script}"
-    else
-        log_error "Icon generation script not found: ${generate_script}"
-        exit 1
-    fi
-}
-
 prepare_appdir() {
     log_info "Creating AppDir structure..."
 
@@ -141,11 +125,8 @@ prepare_appdir() {
     mkdir -p "${APPDIR_BIN}"
     mkdir -p "${APPDIR_DESKTOP}"
     mkdir -p "${APPDIR_DOC}"
+    mkdir -p "${APPDIR_ICON_DIR}"
     mkdir -p "${OUT_DIR}"
-
-    for size in 16 32 48 64 128 256 512; do
-        mkdir -p "${APPDIR_ROOT}/usr/share/icons/hicolor/${size}x${size}/apps"
-    done
 }
 
 copy_files() {
@@ -160,10 +141,7 @@ copy_files() {
     cp "${SOURCE_LICENSE}" "${APPDIR_DOC}/LICENSE"
     cp "${SOURCE_THIRD_PARTY}" "${APPDIR_DOC}/THIRD_PARTY_NOTICES"
 
-    for size in 16 32 48 64 128 256 512; do
-        local icon_file="${ICONS_DIR}/${PACKAGE_NAME}-${size}.png"
-        cp "${icon_file}" "${APPDIR_ROOT}/usr/share/icons/hicolor/${size}x${size}/apps/hashverifier.png"
-    done
+    cp "${SOURCE_ICON}" "${APPDIR_ICON_DIR}/hashverifier.svg"
 }
 
 deploy_dependencies() {
@@ -177,7 +155,7 @@ deploy_dependencies() {
         --appdir "${APPDIR_ROOT}" \
         --executable "${APPDIR_BIN}/${PACKAGE_NAME}" \
         --desktop-file="${APPDIR_DESKTOP}/${PACKAGE_NAME}.desktop" \
-        --icon-file="${APPDIR_ROOT}/usr/share/icons/hicolor/256x256/apps/hashverifier.png" \
+        --icon-file="${APPDIR_ICON_DIR}/hashverifier.svg" \
         --plugin gtk \
         --output appimage
 }
@@ -210,7 +188,6 @@ main() {
     log_stage "Preparation"
 
     prepare_appdir
-    generate_icons
     copy_files
 
     log_stage "Build"

@@ -180,11 +180,11 @@ RUN mkdir -p etc/gtk-3.0 && \
 
 RUN echo -e "[Settings]\ngtk-theme-name=Adwaita\ngtk-icon-theme-name=Adwaita\ngtk-application-prefer-dark-theme=0" > etc/gtk-3.0/settings.ini
 
-RUN cp /usr/x86_64-w64-mingw32/sys-root/mingw/share/glib-2.0/schemas/*.gschema.xml share/glib-2.0/schemas/ && \
-    glib-compile-schemas share/glib-2.0/schemas
+RUN cp /usr/x86_64-w64-mingw32/sys-root/mingw/share/glib-2.0/schemas/gschemas.compiled share/glib-2.0/schemas/
 
 RUN cp -r /usr/x86_64-w64-mingw32/sys-root/mingw/share/themes/Adwaita share/themes/ 2>/dev/null || true && \
-    cp -r /usr/x86_64-w64-mingw32/sys-root/mingw/share/icons/Adwaita share/icons/
+    cp -r /usr/x86_64-w64-mingw32/sys-root/mingw/share/icons/Adwaita share/icons/ && \
+    rm -rf share/icons/Adwaita/cursors
 
 COPY LICENSE ./
 COPY THIRD_PARTY_NOTICES ./
@@ -211,11 +211,11 @@ RUN mkdir -p etc/gtk-3.0 && \
 
 RUN echo -e "[Settings]\ngtk-theme-name=Adwaita\ngtk-icon-theme-name=Adwaita\ngtk-application-prefer-dark-theme=0" > etc/gtk-3.0/settings.ini
 
-RUN cp /usr/i686-w64-mingw32/sys-root/mingw/share/glib-2.0/schemas/*.gschema.xml share/glib-2.0/schemas/ && \
-    glib-compile-schemas share/glib-2.0/schemas
+RUN cp /usr/i686-w64-mingw32/sys-root/mingw/share/glib-2.0/schemas/gschemas.compiled share/glib-2.0/schemas/
 
 RUN cp -r /usr/i686-w64-mingw32/sys-root/mingw/share/themes/Adwaita share/themes/ 2>/dev/null || true && \
-    cp -r /usr/i686-w64-mingw32/sys-root/mingw/share/icons/Adwaita share/icons/
+    cp -r /usr/i686-w64-mingw32/sys-root/mingw/share/icons/Adwaita share/icons/ && \
+    rm -rf share/icons/Adwaita/cursors
 
 COPY LICENSE ./
 COPY THIRD_PARTY_NOTICES ./

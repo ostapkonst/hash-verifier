@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     dpkg-dev \
     rpm \
     file \
-    imagemagick \
     desktop-file-utils \
     shared-mime-info \
     tree \
@@ -26,7 +25,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     dpkg-dev \
     rpm \
     file \
-    imagemagick \
     desktop-file-utils \
     shared-mime-info \
     tree \

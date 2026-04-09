@@ -8,7 +8,6 @@ FROM fedora:${FEDORA_VERSION} AS appimage-builder
 RUN dnf install -y \
     wget librsvg2-devel file findutils pkgconfig gtk3 gtk3-devel \
     gobject-introspection-devel \
-    ImageMagick \
     appstream \
     && dnf clean all
 
@@ -38,7 +37,6 @@ FROM fedora:${FEDORA_VERSION} AS appimage-builder-arm64
 RUN dnf install -y \
     wget librsvg2-devel file findutils pkgconfig gtk3 gtk3-devel \
     gobject-introspection-devel \
-    ImageMagick \
     appstream \
     && dnf clean all
 

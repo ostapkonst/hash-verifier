@@ -26,12 +26,12 @@ readonly BUILD_DIR="${BASE_DIR}/build"
 readonly DIST_DIR="${BASE_DIR}/dist/linux-${PACKAGE_ARCH}"
 readonly WORK_DIR="${BASE_DIR}/.pkg-build"
 readonly OUT_DIR="${WORK_DIR}/package"
-readonly ICONS_DIR="${WORK_DIR}/icons"
 
 readonly SOURCE_BINARY="${DIST_DIR}/${PACKAGE_NAME}"
 readonly SOURCE_DESKTOP="${BUILD_DIR}/${PACKAGE_NAME}.desktop"
 readonly SOURCE_MIME="${BUILD_DIR}/${PACKAGE_NAME}-mime.xml"
-readonly SOURCE_ICON="${BUILD_DIR}/${PACKAGE_NAME}.png"
+readonly SOURCE_ICON="${BUILD_DIR}/${PACKAGE_NAME}.svg"
+readonly SOURCE_FILETYPE_ICON="${BUILD_DIR}/${PACKAGE_NAME}-filetype.svg"
 readonly SOURCE_LICENSE="${BASE_DIR}/LICENSE"
 readonly SOURCE_THIRD_PARTY="${BASE_DIR}/THIRD_PARTY_NOTICES"
 
@@ -41,6 +41,8 @@ readonly DEB_BIN_DIR="${DEB_ROOT}/usr/bin"
 readonly DEB_DESKTOP_DIR="${DEB_ROOT}/usr/share/applications"
 readonly DEB_MIME_DIR="${DEB_ROOT}/usr/share/mime/packages"
 readonly DEB_DOC_DIR="${DEB_ROOT}/usr/share/doc/${PACKAGE_NAME}"
+readonly DEB_ICON_DIR="${DEB_ROOT}/usr/share/icons/hicolor/scalable/apps"
+readonly DEB_MIMETYPE_ICON_DIR="${DEB_ROOT}/usr/share/icons/hicolor/scalable/mimetypes"
 
 readonly DEB_PACKAGE_NAME="${PACKAGE_NAME}_${DEB_VERSION}_${PACKAGE_ARCH}.deb"
 
@@ -97,6 +99,10 @@ validate_source_files() {
         missing_files+=("${SOURCE_ICON}")
     fi
 
+    if [[ ! -f "${SOURCE_FILETYPE_ICON}" ]]; then
+        missing_files+=("${SOURCE_FILETYPE_ICON}")
+    fi
+
     if [[ ! -f "${SOURCE_LICENSE}" ]]; then
         missing_files+=("${SOURCE_LICENSE}")
     fi
@@ -141,28 +147,9 @@ prepare_directories() {
     mkdir -p "${DEB_DESKTOP_DIR}"
     mkdir -p "${DEB_MIME_DIR}"
     mkdir -p "${DEB_DOC_DIR}"
+    mkdir -p "${DEB_ICON_DIR}"
+    mkdir -p "${DEB_MIMETYPE_ICON_DIR}"
     mkdir -p "${OUT_DIR}"
-
-    for size in 16 32 48 64 128 256 512; do
-        mkdir -p "${DEB_ROOT}/usr/share/icons/hicolor/${size}x${size}/apps"
-    done
-}
-
-generate_icons() {
-    log_info "Generating icon sizes..."
-
-    local generate_script="${BUILD_DIR}/generate-icons.sh"
-
-    mkdir -p "${ICONS_DIR}"
-
-    export ICONS_OUTPUT_DIR="${ICONS_DIR}"
-
-    if [[ -f "${generate_script}" ]]; then
-        bash "${generate_script}"
-    else
-        log_error "Icon generation script not found: ${generate_script}"
-        exit 1
-    fi
 }
 
 copy_files() {
@@ -178,10 +165,9 @@ copy_files() {
     cp "${SOURCE_LICENSE}" "${DEB_DOC_DIR}/LICENSE"
     cp "${SOURCE_THIRD_PARTY}" "${DEB_DOC_DIR}/THIRD_PARTY_NOTICES"
 
-    for size in 16 32 48 64 128 256 512; do
-        local icon_file="${ICONS_DIR}/${PACKAGE_NAME}-${size}.png"
-        cp "${icon_file}" "${DEB_ROOT}/usr/share/icons/hicolor/${size}x${size}/apps/hashverifier.png"
-    done
+    cp "${SOURCE_ICON}" "${DEB_ICON_DIR}/hashverifier.svg"
+
+    cp "${SOURCE_FILETYPE_ICON}" "${DEB_MIMETYPE_ICON_DIR}/hashverifier-filetype.svg"
 }
 
 calculate_installed_size() {
@@ -297,7 +283,6 @@ main() {
     log_stage "Preparation"
 
     prepare_directories
-    generate_icons
     copy_files
     calculate_installed_size
 

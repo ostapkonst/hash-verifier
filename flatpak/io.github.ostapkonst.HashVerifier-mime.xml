@@ -3,56 +3,56 @@
   <mime-type type="application/x-sfv">
     <comment>SFV Checksum File</comment>
     <glob pattern="*.sfv"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-md4">
     <comment>MD4 Checksum File</comment>
     <glob pattern="*.md4"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-md5">
     <comment>MD5 Checksum File</comment>
     <glob pattern="*.md5"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-sha1">
     <comment>SHA1 Checksum File</comment>
     <glob pattern="*.sha1"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-sha256">
     <comment>SHA256 Checksum File</comment>
     <glob pattern="*.sha256"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-sha384">
     <comment>SHA384 Checksum File</comment>
     <glob pattern="*.sha384"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-sha512">
     <comment>SHA512 Checksum File</comment>
     <glob pattern="*.sha512"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-sha3-256">
     <comment>SHA3-256 Checksum File</comment>
     <glob pattern="*.sha3-256"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-sha3-384">
     <comment>SHA3-384 Checksum File</comment>
     <glob pattern="*.sha3-384"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-sha3-512">
     <comment>SHA3-512 Checksum File</comment>
     <glob pattern="*.sha3-512"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
   <mime-type type="application/x-blake3">
     <comment>BLAKE3 Checksum File</comment>
     <glob pattern="*.blake3"/>
-    <icon name="hashverifier-filetype"/>
+    <icon name="io.github.ostapkonst.HashVerifier-filetype"/>
   </mime-type>
 </mime-info>

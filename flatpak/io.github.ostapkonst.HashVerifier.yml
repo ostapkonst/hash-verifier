@@ -33,8 +33,11 @@ modules:
       # Install SVG icon
       - install -Dm644 build/hashverifier.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/${FLATPAK_ID}.svg
 
+      # Install MIME type icon
+      - install -Dm644 build/hashverifier-filetype.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/mimetypes/${FLATPAK_ID}-filetype.svg
+
       # Install MIME types
-      - install -Dm644 build/hashverifier-mime.xml ${FLATPAK_DEST}/share/mime/packages/${FLATPAK_ID}-mime.xml
+      - install -Dm644 flatpak/io.github.ostapkonst.HashVerifier-mime.xml ${FLATPAK_DEST}/share/mime/packages/${FLATPAK_ID}-mime.xml
 
       # Install AppStream metainfo
       - install -Dm644 flatpak/io.github.ostapkonst.HashVerifier.metainfo.xml ${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml

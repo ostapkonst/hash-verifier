@@ -17,6 +17,7 @@ readonly OUT_DIR="${WORK_DIR}/package"
 readonly SOURCE_BINARY="${DIST_DIR}/${PACKAGE_NAME}.exe"
 readonly SOURCE_ISS="${BUILD_DIR}/${PACKAGE_NAME}.iss"
 readonly SOURCE_ICON="${BASE_DIR}/src/internal/gui/widgets/glade/favicon.ico"
+readonly SOURCE_FILETYPE_ICON="${BUILD_DIR}/hashverifier-filetype.ico"
 readonly SOURCE_LICENSE="${BASE_DIR}/LICENSE"
 readonly SOURCE_THIRD_PARTY="${BASE_DIR}/THIRD_PARTY_NOTICES"
 
@@ -71,7 +72,11 @@ validate_source_files() {
     fi
 
     if [[ ! -f "${SOURCE_ICON}" ]]; then
-        log_warn "Icon file not found: ${SOURCE_ICON}. Installer will use default icon."
+        missing_files+=("${SOURCE_ICON}")
+    fi
+
+    if [[ ! -f "${SOURCE_FILETYPE_ICON}" ]]; then
+        missing_files+=("${SOURCE_FILETYPE_ICON}")
     fi
 
     if [[ ! -f "${SOURCE_LICENSE}" ]]; then
@@ -129,9 +134,8 @@ copy_files_to_staging() {
 
     cp "${SOURCE_ISS}" "${ISS_OUTPUT_DIR}/"
 
-    if [[ -f "${SOURCE_ICON}" ]]; then
-        cp "${SOURCE_ICON}" "${ISS_OUTPUT_DIR}/"
-    fi
+    cp "${SOURCE_ICON}" "${ISS_OUTPUT_DIR}/"
+    cp "${SOURCE_FILETYPE_ICON}" "${ISS_OUTPUT_DIR}/"
 
     # Create combined license file for Inno Setup (LICENSE + THIRD_PARTY_NOTICES)
     log_info "Creating combined license file..."
