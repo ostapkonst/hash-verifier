@@ -56,6 +56,11 @@ type VerifySettings struct {
 	SortOrder    SortOrder `yaml:"sort_order"`
 }
 
+type HashSettings struct {
+	Algorithms []string `yaml:"algorithms"`
+	HashOnOpen bool     `yaml:"hash_on_open"`
+}
+
 type WindowSettings struct {
 	TabOrder    []string    `yaml:"tab_order"`
 	CurrentPage int         `yaml:"current_page"`
@@ -75,6 +80,7 @@ type Settings struct {
 	Window   WindowSettings   `yaml:"window"`
 	Generate GenerateSettings `yaml:"generate"`
 	Verify   VerifySettings   `yaml:"verify"`
+	Hash     HashSettings     `yaml:"hash"`
 	Flatpak  FlatpakSettings  `yaml:"flatpak"`
 	mu       sync.Mutex
 }
@@ -82,7 +88,7 @@ type Settings struct {
 func DefaultSettings() *Settings {
 	return &Settings{
 		Window: WindowSettings{
-			TabOrder:    []string{"generate", "verify"},
+			TabOrder:    []string{"generate", "verify", "hash"},
 			CurrentPage: 0,
 			RestoreMode: RestoreModeAll,
 			Width:       0,
@@ -104,6 +110,10 @@ func DefaultSettings() *Settings {
 			ColumnOrder:  []string{"idx", "status", "path", "size", "hash", "expected_hash", "note"},
 			SortColumn:   "status",
 			SortOrder:    SortOrderDesc,
+		},
+		Hash: HashSettings{
+			Algorithms: []string{".md5", ".sha1", ".sha256"},
+			HashOnOpen: true,
 		},
 		Flatpak: FlatpakSettings{
 			SuppressSandboxWarning: false,
@@ -192,6 +202,7 @@ func Load() (*Settings, error) {
 	}
 
 	settings.fixColumnOrder()
+	settings.fixTabOrder()
 
 	return settings, nil
 }
@@ -209,6 +220,17 @@ func (s *Settings) fixColumnOrder() {
 	for _, col := range defaultSettings.Verify.ColumnOrder {
 		if !slices.Contains(s.Verify.ColumnOrder, col) {
 			s.Verify.ColumnOrder = defaultSettings.Verify.ColumnOrder
+			break
+		}
+	}
+}
+
+func (s *Settings) fixTabOrder() {
+	defaultSettings := DefaultSettings()
+
+	for _, tab := range defaultSettings.Window.TabOrder {
+		if !slices.Contains(s.Window.TabOrder, tab) {
+			s.Window.TabOrder = defaultSettings.Window.TabOrder
 			break
 		}
 	}

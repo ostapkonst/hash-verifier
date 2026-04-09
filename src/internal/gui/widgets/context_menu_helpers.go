@@ -78,6 +78,22 @@ func (p *ContextMenuProvider) CreateMenu(fullPathIdx int, columnLabels []string)
 	p.menu = menu
 }
 
+func (p *ContextMenuProvider) CreateSimpleMenu(columnIndices []int, columnLabels []string) {
+	menu, _ := gtk.MenuNew()
+
+	for i, idx := range columnIndices {
+		label := columnLabels[i]
+		copyItem, _ := gtk.MenuItemNewWithLabel(fmt.Sprintf("Copy %s", label))
+		copyItem.Connect("activate", func() {
+			p.copyColumnValue(idx, nil)
+		})
+		menu.Append(copyItem)
+	}
+
+	menu.ShowAll()
+	p.menu = menu
+}
+
 func (p *ContextMenuProvider) ShowMenu() {
 	if p.menu == nil {
 		return

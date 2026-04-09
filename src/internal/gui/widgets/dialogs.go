@@ -50,7 +50,7 @@ func OpenFileDialog(parent *gtk.Window, title, path string) (string, bool) {
 	dialog, err := gtk.FileChooserDialogNewWith2Buttons(
 		title,
 		parent,
-		gtk.FILE_CHOOSER_ACTION_OPEN,
+		gtk.FILE_CHOOSER_ACTION_SAVE,
 		"_Open",
 		gtk.RESPONSE_ACCEPT,
 		"_Cancel",
@@ -65,7 +65,36 @@ func OpenFileDialog(parent *gtk.Window, title, path string) (string, bool) {
 	folder, filename := SplitPath(path)
 	dialog.SetCurrentFolder(folder)
 	dialog.SetCurrentName(filename)
-	AddFileFilters(dialog)
+
+	AddFileFilters(dialog, filename)
+
+	if dialog.Run() == gtk.RESPONSE_ACCEPT {
+		file := dialog.GetFilename()
+		return file, true
+	}
+
+	return "", false
+}
+
+func OpenAnyFileDialog(parent *gtk.Window, title, path string) (string, bool) {
+	dialog, err := gtk.FileChooserDialogNewWith2Buttons(
+		title,
+		parent,
+		gtk.FILE_CHOOSER_ACTION_SAVE,
+		"_Open",
+		gtk.RESPONSE_ACCEPT,
+		"_Cancel",
+		gtk.RESPONSE_CANCEL,
+	)
+	if err != nil {
+		ShowError(parent, "Open File Error", fmt.Sprintf("Failed to create open file dialog: %v", err))
+		return "", false
+	}
+	defer dialog.Destroy()
+
+	folder, filename := SplitPath(path)
+	dialog.SetCurrentFolder(folder)
+	dialog.SetCurrentName(filename)
 
 	if dialog.Run() == gtk.RESPONSE_ACCEPT {
 		file := dialog.GetFilename()

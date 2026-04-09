@@ -271,3 +271,66 @@ func GetGrid(builder *gtk.Builder, id string) *gtk.Grid {
 
 	return grid
 }
+
+func GetFrame(builder *gtk.Builder, id string) *gtk.Frame {
+	frame, err := func() (*gtk.Frame, error) {
+		obj, err := builder.GetObject(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get frame %s: %w", id, err)
+		}
+
+		frame, ok := obj.(*gtk.Frame)
+		if !ok {
+			return nil, fmt.Errorf("object %s is not a Frame", id)
+		}
+
+		return frame, nil
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	return frame
+}
+
+func GetCellRendererToggle(builder *gtk.Builder, id string) *gtk.CellRendererToggle {
+	renderer, err := func() (*gtk.CellRendererToggle, error) {
+		obj, err := builder.GetObject(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get cell renderer toggle %s: %w", id, err)
+		}
+
+		r, ok := obj.(*gtk.CellRendererToggle)
+		if !ok {
+			return nil, fmt.Errorf("object %s is not a CellRendererToggle", id)
+		}
+
+		return r, nil
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	return renderer
+}
+
+func GetSearchEntry(builder *gtk.Builder, id string) *gtk.SearchEntry {
+	entry, err := func() (*gtk.SearchEntry, error) {
+		obj, err := builder.GetObject(id)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get search entry %s: %w", id, err)
+		}
+
+		e, ok := obj.(*gtk.SearchEntry)
+		if !ok {
+			return nil, fmt.Errorf("object %s is not a SearchEntry", id)
+		}
+
+		return e, nil
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	return entry
+}

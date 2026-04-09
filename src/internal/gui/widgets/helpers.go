@@ -8,6 +8,7 @@ import (
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 
+	"github.com/ostapkonst/HashVerifier/internal/checksum"
 	"github.com/ostapkonst/HashVerifier/internal/header"
 )
 
@@ -45,7 +46,7 @@ func SplitPath(fullPath string) (directory, filename string) {
 	return directory, filename
 }
 
-func AddFileFilters(dialog *gtk.FileChooserDialog) {
+func AddFileFilters(dialog *gtk.FileChooserDialog, filename string) {
 	supportedFiles := [][]string{
 		{"CRC-32", "*.sfv"},
 		{"MD4", "*.md4"},
@@ -91,7 +92,12 @@ func AddFileFilters(dialog *gtk.FileChooserDialog) {
 	filterAny.AddPattern("*")
 
 	dialog.AddFilter(filterAny)
-	dialog.SetFilter(filterAllSupported)
+
+	if _, err := checksum.AlgorithmFromExtension(filename); err == nil || filename == "" {
+		dialog.SetFilter(filterAllSupported)
+	} else {
+		dialog.SetFilter(filterAny)
+	}
 }
 
 func ShowAboutDialog(parent *gtk.Window, icon *gdk.Pixbuf) {

@@ -42,6 +42,10 @@ func NewHashCalculator(path string, a Algorithm, st *SpeedTracker) *calculator.H
 	return calculator.NewHashCalculator(path, a, st)
 }
 
+func NewMultiHashCalculator(path string, algorithms []Algorithm, st *SpeedTracker) *calculator.MultiHashCalculator {
+	return calculator.NewMultiHashCalculator(path, algorithms, st)
+}
+
 func WalkDir(ctx context.Context, path string, followSymbolicLinks, sortPaths bool) ([]string, error) {
 	return calculator.WalkDir(ctx, path, followSymbolicLinks, sortPaths)
 }
@@ -64,4 +68,8 @@ func NewGeneratorStats() GeneratorStats {
 
 func NewVerifierStats() VerifierStats {
 	return stats.NewVerifierStats()
+}
+
+func AlgorithmFromSumsFile(path string) (Algorithm, error) {
+	return algo.AlgorithmFromSumsFile(path)
 }

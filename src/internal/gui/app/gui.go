@@ -9,6 +9,7 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/rs/zerolog/log"
 
+	"github.com/ostapkonst/HashVerifier/internal/checksum"
 	"github.com/ostapkonst/HashVerifier/internal/gui/tabs"
 	"github.com/ostapkonst/HashVerifier/internal/gui/widgets"
 	"github.com/ostapkonst/HashVerifier/internal/settings"
@@ -20,6 +21,7 @@ type App struct {
 	builder      *gtk.Builder
 	generateTab  *tabs.GenerateTab
 	verifyTab    *tabs.VerifyTab
+	hashTab      *tabs.HashTab
 	icon         *gdk.Pixbuf
 	ctx          context.Context
 	settings     *settings.Settings
@@ -52,6 +54,7 @@ func Run(path string) error {
 		cancel()
 		app.generateTab.Wait()
 		app.verifyTab.Wait()
+		app.hashTab.Wait()
 		gtk.MainQuit()
 
 		return nil
@@ -77,11 +80,22 @@ func (a *App) fillTabAndSwitch(path string) {
 
 		a.tabManager.ApplySelectedPage(a.tabManager.GetTabNumberByName("generate"))
 	case PathTypeFile:
-		if err := a.verifyTab.Fill(resolvedPath); err != nil {
-			return
-		}
+		_, errAlgFromExt := checksum.AlgorithmFromExtension(resolvedPath)
+		_, errAlgFromSums := checksum.AlgorithmFromSumsFile(resolvedPath)
 
-		a.tabManager.ApplySelectedPage(a.tabManager.GetTabNumberByName("verify"))
+		if errAlgFromExt == nil || errAlgFromSums == nil {
+			if err := a.verifyTab.Fill(resolvedPath); err != nil {
+				return
+			}
+
+			a.tabManager.ApplySelectedPage(a.tabManager.GetTabNumberByName("verify"))
+		} else {
+			if err := a.hashTab.Fill(resolvedPath); err != nil {
+				return
+			}
+
+			a.tabManager.ApplySelectedPage(a.tabManager.GetTabNumberByName("hash"))
+		}
 	}
 }
 
@@ -124,6 +138,7 @@ func (a *App) initUI() error {
 
 	a.generateTab = tabs.NewGenerateTab(a.ctx, a.builder, a.window, a.settings)
 	a.verifyTab = tabs.NewVerifyTab(a.ctx, a.builder, a.window, a.settings)
+	a.hashTab = tabs.NewHashTab(a.ctx, a.builder, a.window, a.settings)
 	a.notebook = widgets.GetNotebook(a.builder, "notebook")
 	a.tabManager = NewTabManager(a.notebook, a.window, a.settings)
 	a.windowGeom = NewWindowGeometry(a.window, a.settings)

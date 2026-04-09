@@ -38,7 +38,7 @@ Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `window.tab_order` | `generate, verify` | Order of tabs in main window |
+| `window.tab_order` | `generate, verify, hash` | Order of tabs in main window |
 | `window.current_page` | `0` | Currently active tab |
 | `window.restore_mode` | `all` | Restore window size/position on startup (`default`, `size`, `position`, `all`) |
 | `window.width` | `0` | Window width (saved automatically) |
@@ -75,6 +75,13 @@ Opens the settings file in your default text editor (`$VISUAL` or `$EDITOR`).
 | `verify.column_order` | `idx, status, path, size, hash, expected_hash, note` | Order of columns in Verify tab |
 | `verify.sort_column` | `status` | Column to sort by in Verify tab |
 | `verify.sort_order` | `desc` | Sort order in Verify tab (asc/desc) |
+
+### Hash Tab Settings
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `hash.algorithms` | `.md5, .sha1, .sha256` | Default hash algorithms for `hash` command and GUI (e.g., `.md5`,`.sha256`) |
+| `hash.hash_on_open` | `true` | Auto-start hashing when opening a file |
 
 ### Flatpak Settings
 

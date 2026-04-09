@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"sync"
 	"time"
 
 	"github.com/ostapkonst/HashVerifier/internal/checksum"
@@ -59,37 +58,37 @@ func GenerateChecksumsStreamingToFile(ctx context.Context, cfg GenerateStreaming
 	resultCh := make(chan GenerateStreamingResult, 1)
 
 	go func() {
-		ctx, cancel := context.WithCancel(ctx)
-		wg := sync.WaitGroup{}
-
-		defer close(resultCh)
-		defer wg.Wait()
-		defer cancel()
 		defer f.Close() //nolint:errcheck
+		defer close(resultCh)
+
+		ctx, cancel := context.WithCancel(ctx)
+		defer cancel()
 
 		generator := NewGenerator(ctx, cfg.InputDir, algo, dirPrefix, cfg.FollowSymbolicLinks, cfg.SortPaths)
 		generator.Start()
 
 		var hasError error
 
-		wg.Add(1)
+		done := make(chan struct{})
 
 		go func() {
-			defer wg.Done()
+			defer close(done)
 
 			ticker := time.NewTicker(statsUpdateInterval)
 			defer ticker.Stop()
 
-			for range ticker.C {
+			for {
 				select {
 				case <-ctx.Done():
 					return
-				case resultCh <- GenerateStreamingResult{
-					Stats:            generator.Stats(),
-					IsProgressUpdate: true,
-				}:
-				default:
-					// пропускаем, если канал полон
+				case <-ticker.C:
+					select {
+					case resultCh <- GenerateStreamingResult{
+						Stats:            generator.Stats(),
+						IsProgressUpdate: true,
+					}:
+					default:
+					}
 				}
 			}
 		}()
@@ -111,6 +110,9 @@ func GenerateChecksumsStreamingToFile(ctx context.Context, cfg GenerateStreaming
 		if err := generator.Wait(); err != nil && hasError == nil {
 			hasError = fmt.Errorf("failed to generate checksums: %w", err)
 		}
+
+		cancel()
+		<-done
 
 		isCanceled := errors.Is(hasError, context.Canceled)
 		if _, err := bw.WriteString(formatStatsFooter(generator.Stats(), isCanceled)); err != nil && hasError == nil {

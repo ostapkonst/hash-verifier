@@ -43,13 +43,13 @@ windows-i686:
 
 appimage-amd64:
 	@echo "Building AppImage package for AMD64..."
-	@mkdir -p .pkg-build/dist/appimage/amd64 .pkg-build/icons .pkg-build/package dist/linux-amd64
+	@mkdir -p .pkg-build/dist/appimage/amd64 .pkg-build/package dist/linux-amd64
 	VERSION=$(VERSION) docker compose -f build/docker-compose.appimage.yml run --rm appimage-builder /app/build/create-appimage.sh
 	@echo "✓ AppImage package (amd64): .pkg-build/package/*.AppImage"
 
 appimage-arm64:
 	@echo "Building AppImage package for ARM64..."
-	@mkdir -p .pkg-build/dist/appimage/arm64 .pkg-build/icons .pkg-build/package dist/linux-arm64
+	@mkdir -p .pkg-build/dist/appimage/arm64 .pkg-build/package dist/linux-arm64
 	VERSION=$(VERSION) docker compose -f build/docker-compose.appimage.yml run --rm appimage-builder-arm64 /app/build/create-appimage.sh
 	@echo "✓ AppImage package (arm64): .pkg-build/package/*.AppImage"
 
@@ -90,25 +90,25 @@ flatpak-validate:
 
 deb-amd64:
 	@echo "Building DEB package for AMD64..."
-	@mkdir -p .pkg-build/dist/deb/amd64 .pkg-build/icons .pkg-build/package dist/linux-amd64
+	@mkdir -p .pkg-build/dist/deb/amd64 .pkg-build/package dist/linux-amd64
 	VERSION=$(VERSION) docker compose -f build/docker-compose.packages.yml run --rm package-builder /app/build/create-deb.sh
 	@echo "✓ DEB package (amd64): .pkg-build/package/*.deb"
 
 rpm-amd64:
 	@echo "Building RPM package for AMD64..."
-	@mkdir -p .pkg-build/dist/rpm/x86_64 .pkg-build/icons .pkg-build/package dist/linux-amd64
+	@mkdir -p .pkg-build/dist/rpm/x86_64 .pkg-build/package dist/linux-amd64
 	VERSION=$(VERSION) docker compose -f build/docker-compose.packages.yml run --rm package-builder /app/build/create-rpm.sh
 	@echo "✓ RPM package (amd64): .pkg-build/package/*.rpm"
 
 deb-arm64:
 	@echo "Building DEB package for ARM64..."
-	@mkdir -p .pkg-build/dist/deb/arm64 .pkg-build/icons .pkg-build/package dist/linux-arm64
+	@mkdir -p .pkg-build/dist/deb/arm64 .pkg-build/package dist/linux-arm64
 	VERSION=$(VERSION) docker compose -f build/docker-compose.packages.yml run --rm deb-arm64 /app/build/create-deb.sh
 	@echo "✓ DEB package (arm64): .pkg-build/package/*.deb"
 
 rpm-arm64:
 	@echo "Building RPM package for ARM64..."
-	@mkdir -p .pkg-build/dist/rpm/aarch64 .pkg-build/icons .pkg-build/package dist/linux-arm64
+	@mkdir -p .pkg-build/dist/rpm/aarch64 .pkg-build/package dist/linux-arm64
 	VERSION=$(VERSION) docker compose -f build/docker-compose.packages.yml run --rm rpm-arm64 /app/build/create-rpm.sh
 	@echo "✓ RPM package (arm64): .pkg-build/package/*.rpm"
 

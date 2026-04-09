@@ -35,43 +35,55 @@ Author: ostapkonst
   <!-- interface-authors ostapkonst -->
   <object class="GtkListStore" id="liststore_generate">
     <columns>
-      <!-- column-name gint -->
+      <!-- column-name index -->
       <column type="gint64"/>
-      <!-- column-name gchararray -->
+      <!-- column-name path -->
       <column type="gchararray"/>
-      <!-- column-name gchararray1 -->
+      <!-- column-name size -->
       <column type="gchararray"/>
-      <!-- column-name gchararray2 -->
+      <!-- column-name hash -->
       <column type="gchararray"/>
-      <!-- column-name gchararray3 -->
+      <!-- column-name note -->
       <column type="gchararray"/>
-      <!-- column-name gint1 -->
+      <!-- column-name read_bytes -->
       <column type="gint64"/>
-      <!-- column-name gchararray4 -->
+      <!-- column-name fullpath -->
       <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="liststore_hash">
+    <columns>
+      <!-- column-name algorithm -->
+      <column type="gchararray"/>
+      <!-- column-name hashsum -->
+      <column type="gchararray"/>
+      <!-- column-name extension -->
+      <column type="gchararray"/>
+      <!-- column-name calc_enabled -->
+      <column type="gboolean"/>
     </columns>
   </object>
   <object class="GtkListStore" id="liststore_validate">
     <columns>
-      <!-- column-name gint -->
+      <!-- column-name index -->
       <column type="gint64"/>
-      <!-- column-name gchararray -->
+      <!-- column-name path -->
       <column type="gchararray"/>
-      <!-- column-name gchararray1 -->
+      <!-- column-name size -->
       <column type="gchararray"/>
-      <!-- column-name gchararray2 -->
+      <!-- column-name status -->
       <column type="gchararray"/>
-      <!-- column-name gchararray3 -->
+      <!-- column-name hash -->
       <column type="gchararray"/>
-      <!-- column-name gchararray4 -->
+      <!-- column-name expected_hash -->
       <column type="gchararray"/>
-      <!-- column-name gchararray5 -->
+      <!-- column-name note -->
       <column type="gchararray"/>
-      <!-- column-name gchararray6 -->
+      <!-- column-name status_color -->
       <column type="gchararray"/>
-      <!-- column-name gint1 -->
+      <!-- column-name read_bytes -->
       <column type="gint64"/>
-      <!-- column-name gchararray7 -->
+      <!-- column-name fullpath -->
       <column type="gchararray"/>
     </columns>
   </object>
@@ -244,7 +256,7 @@ Author: ostapkonst
                     </child>
                     <child>
                       <object class="GtkButton" id="btn_save_gen_checksum">
-                        <property name="label" translatable="yes">Save...</property>
+                        <property name="label" translatable="yes">Save…</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
@@ -411,7 +423,7 @@ Author: ostapkonst
                     <property name="orientation">vertical</property>
                     <property name="spacing">8</property>
                     <child>
-                      <object class="GtkScrolledWindow" id="scrolled_generate">
+                      <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="shadow-type">in</property>
@@ -950,7 +962,7 @@ Author: ostapkonst
                     <property name="orientation">vertical</property>
                     <property name="spacing">8</property>
                     <child>
-                      <object class="GtkScrolledWindow" id="scrolled_validate">
+                      <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="shadow-type">in</property>
@@ -1208,6 +1220,258 @@ Author: ostapkonst
               </object>
               <packing>
                 <property name="position">1</property>
+                <property name="tab-fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="name">hash</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <!-- n-columns=2 n-rows=3 -->
+                  <object class="GtkGrid">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">8</property>
+                    <property name="row-spacing">6</property>
+                    <property name="column-spacing">6</property>
+                    <child>
+                      <object class="GtkEntry" id="entry_hash_file">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="placeholder-text" translatable="yes">Source file</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="btn_browse_hash_file">
+                        <property name="label" translatable="yes">Browse…</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkCheckButton" id="chk_hash_hashing_on_open">
+                            <property name="label" translatable="yes">Hash on open</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">False</property>
+                            <property name="active">True</property>
+                            <property name="draw-indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">1</property>
+                        <property name="width">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="spacing">6</property>
+                        <property name="homogeneous">True</property>
+                        <child>
+                          <object class="GtkButton" id="btn_start_hashing">
+                            <property name="label" translatable="yes">Calculate Hashes</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btn_stop_hashing">
+                            <property name="label" translatable="yes">Stop</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <style>
+                              <class name="destructive-action"/>
+                            </style>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">2</property>
+                        <property name="width">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">8</property>
+                    <child>
+                      <object class="GtkSearchEntry" id="search_hash_in_table">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">8</property>
+                        <property name="primary-icon-name">edit-find-symbolic</property>
+                        <property name="primary-icon-activatable">False</property>
+                        <property name="primary-icon-sensitive">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="shadow-type">in</property>
+                        <child>
+                          <object class="GtkTreeView" id="tree_hash">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="model">liststore_hash</property>
+                            <property name="search-column">1</property>
+                            <property name="enable-grid-lines">both</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection"/>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn">
+                                <child>
+                                  <object class="GtkCellRendererToggle" id="cell_renderer_hash_toggle"/>
+                                  <attributes>
+                                    <attribute name="active">3</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn">
+                                <property name="resizable">True</property>
+                                <property name="title" translatable="yes">Algorithm</property>
+                                <child>
+                                  <object class="GtkCellRendererText"/>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn">
+                                <property name="resizable">True</property>
+                                <property name="title" translatable="yes">Hashsum</property>
+                                <child>
+                                  <object class="GtkCellRendererText"/>
+                                  <attributes>
+                                    <attribute name="text">1</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="grid_hash_progress">
+                        <property name="can-focus">False</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-bottom">8</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
+                        <child>
+                          <object class="GtkProgressBar" id="progress_hash">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="margin-bottom">6</property>
+                            <property name="label" translatable="yes">File hashing progress</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">2</property>
+                <property name="reorderable">True</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Hash</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
                 <property name="tab-fill">False</property>
               </packing>
             </child>

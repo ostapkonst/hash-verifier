@@ -108,10 +108,9 @@ var verifyCmd = &cobra.Command{
 	Short: "Verify files against checksum file",
 	Long: strings.Trim(dedent.Dedent(`
 		Verify files against checksum file.
-		Algorithm is determined automatically from file extension:
-		.sfv, .md4, .md5, .sha1, .sha256, .sha384, .sha512, .sha3-256, .sha3-384, .sha3-512, .blake3.
+		Algorithm is determined automatically from file extension or can be set via --ext flag.
 
-		Use --ext flag to override algorithm detection.`,
+		Supported algorithms: .sfv (CRC32), .md4, .md5, .sha1, .sha256, .sha384, .sha512, .sha3-256, .sha3-384, .sha3-512, .blake3.`,
 	), "\n"),
 	Args: cobra.ExactArgs(1),
 	RunE: runVerify,

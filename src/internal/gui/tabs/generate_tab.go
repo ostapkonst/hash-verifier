@@ -176,11 +176,11 @@ func (t *GenerateTab) onStart() {
 	lastStats := checksum.NewGeneratorStats()
 	currentIdx := int64(0)
 
-	t.listStore.Clear()
-	t.updateStats(lastStats)
 	t.activateStopState()
+
 	ctx, cancel := context.WithCancel(t.Ctx)
 	t.Cancel = cancel
+
 	cfg := action.GenerateStreamingConfig{
 		InputDir:            inputDir,
 		OutputFile:          outputFile,
@@ -203,6 +203,7 @@ func (t *GenerateTab) onStart() {
 		Str("input_dir", inputDir).
 		Str("output_file", outputFile).
 		Msg("Starting checksum generation")
+
 	t.Wg.Add(1)
 
 	var hasError error
@@ -216,12 +217,14 @@ func (t *GenerateTab) onStart() {
 					lastStats = res.Stats
 					t.updateStats(lastStats)
 				})
+			}
 
-				if res.Err != nil {
-					hasError = res.Err
-					break
-				}
+			if res.Err != nil {
+				hasError = res.Err
+				break
+			}
 
+			if res.IsProgressUpdate {
 				continue
 			}
 
@@ -284,6 +287,11 @@ func (t *GenerateTab) onStop() {
 }
 
 func (t *GenerateTab) activateStopState() {
+	lastStats := checksum.NewGeneratorStats()
+
+	t.listStore.Clear()
+	t.updateStats(lastStats)
+
 	t.btnStart.SetVisible(false)
 	t.btnStop.SetVisible(true)
 	t.progressTracker.ActivateStopState()
@@ -324,10 +332,6 @@ func (t *GenerateTab) Wait() {
 }
 
 func (t *GenerateTab) applySettingsToUI() {
-	if t.Settings == nil {
-		return
-	}
-
 	t.chkBtnFollowSymlinks.SetActive(t.Settings.Generate.FollowSymbolicLinks)
 	t.chkBtnSortPaths.SetActive(t.Settings.Generate.SortPaths)
 	t.cmbTxtAlgorithm.SetActiveID(t.Settings.Generate.Algorithm)
@@ -336,8 +340,7 @@ func (t *GenerateTab) applySettingsToUI() {
 }
 
 func (t *GenerateTab) saveSettings() error {
-	if t.Settings == nil ||
-		t.Window.InDestruction() {
+	if t.Window.InDestruction() {
 		return nil
 	}
 

@@ -22,6 +22,8 @@
 ./hashverifier generate ./photos ./photos.md5
 ```
 
+Settings `generate.follow_symbolic_links` and `generate.sort_paths` are loaded from configuration file.
+
 **Verify files:**
 
 ```bash
@@ -30,6 +32,15 @@
 ./hashverifier verify ./checksum.txt --ext .sha256
 ./hashverifier verify ./checksum.txt -e .md5
 ```
+
+**Calculate file hash:**
+
+```bash
+./hashverifier hash ./document.pdf
+./hashverifier hash ./image.png
+```
+
+Algorithms are determined from the `hash.algorithms` configuration setting.
 
 ## Configuration
 

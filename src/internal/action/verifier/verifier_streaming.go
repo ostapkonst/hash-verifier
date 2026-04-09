@@ -3,7 +3,6 @@ package verifier
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/ostapkonst/HashVerifier/internal/checksum"
@@ -36,11 +35,9 @@ func VerifyChecksumsStreaming(ctx context.Context, cfg VerifyStreamingConfig) (<
 	resultCh := make(chan VerifyStreamingResult, 1)
 
 	go func() {
-		ctx, cancel := context.WithCancel(ctx)
-		wg := sync.WaitGroup{}
-
 		defer close(resultCh)
-		defer wg.Wait()
+
+		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
 		verifier := NewVerifier(ctx, cfg.CheckSumFile, algo)
@@ -48,24 +45,26 @@ func VerifyChecksumsStreaming(ctx context.Context, cfg VerifyStreamingConfig) (<
 
 		var hasError error
 
-		wg.Add(1)
+		done := make(chan struct{})
 
 		go func() {
-			defer wg.Done()
+			defer close(done)
 
 			ticker := time.NewTicker(statsUpdateInterval)
 			defer ticker.Stop()
 
-			for range ticker.C {
+			for {
 				select {
 				case <-ctx.Done():
 					return
-				case resultCh <- VerifyStreamingResult{
-					Stats:            verifier.Stats(),
-					IsProgressUpdate: true,
-				}:
-				default:
-					// пропускаем, если канал полон
+				case <-ticker.C:
+					select {
+					case resultCh <- VerifyStreamingResult{
+						Stats:            verifier.Stats(),
+						IsProgressUpdate: true,
+					}:
+					default:
+					}
 				}
 			}
 		}()
@@ -80,6 +79,9 @@ func VerifyChecksumsStreaming(ctx context.Context, cfg VerifyStreamingConfig) (<
 		if err := verifier.Wait(); err != nil {
 			hasError = fmt.Errorf("verification failed: %w", err)
 		}
+
+		cancel()
+		<-done
 
 		resultCh <- VerifyStreamingResult{
 			Stats:            verifier.Stats(),

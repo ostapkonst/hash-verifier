@@ -64,14 +64,7 @@ func (t *VerifyTab) Fill(path string) error {
 	}
 
 	t.entryChecksum.SetText(path)
-
-	if _, err := checksum.AlgorithmFromExtension(path); err != nil {
-		return nil //nolint:nilerr
-	}
-
-	if t.chkBoxVerifyOnOpen.GetActive() {
-		t.onStart()
-	}
+	t.onEntryChecksumChanged(true, t.onStart)
 
 	return nil
 }
@@ -100,18 +93,11 @@ func (t *VerifyTab) setupHandlers() {
 		path, _ := t.entryChecksum.GetText()
 		if file, ok := widgets.OpenFileDialog(t.Window, "Select Checksum File", path); ok {
 			t.entryChecksum.SetText(file)
-
-			if _, err := checksum.AlgorithmFromExtension(file); err != nil {
-				return
-			}
-
-			if t.chkBoxVerifyOnOpen.GetActive() {
-				t.onStart()
-			}
+			t.onEntryChecksumChanged(true, t.onStart)
 		}
 	})
 	t.entryChecksum.Connect("changed", func() {
-		t.onEntryChecksumChanged(true)
+		t.onEntryChecksumChanged(true, nil)
 	})
 	t.btnStart.Connect("clicked", t.onStart)
 	t.btnStop.Connect("clicked", t.onStop)
@@ -139,11 +125,11 @@ func (t *VerifyTab) onStart() {
 	lastStats := checksum.NewVerifierStats()
 	currentIdx := int64(0)
 
-	t.listStore.Clear()
-	t.updateStats(lastStats)
 	t.activateStopState()
+
 	ctx, cancel := context.WithCancel(t.Ctx)
 	t.Cancel = cancel
+
 	cfg := action.VerifyStreamingConfig{
 		CheckSumFile: checksumFile,
 		Extension:    t.cmbTxtAlgorithm.GetActiveID(),
@@ -163,6 +149,7 @@ func (t *VerifyTab) onStart() {
 	log.Info().
 		Str("checksum_file", checksumFile).
 		Msg("Starting verification")
+
 	t.Wg.Add(1)
 
 	var hasError error
@@ -176,12 +163,14 @@ func (t *VerifyTab) onStart() {
 					lastStats = res.Stats
 					t.updateStats(lastStats)
 				})
+			}
 
-				if res.Err != nil {
-					hasError = res.Err
-					break
-				}
+			if res.Err != nil {
+				hasError = res.Err
+				break
+			}
 
+			if res.IsProgressUpdate {
 				continue
 			}
 
@@ -257,6 +246,11 @@ func (t *VerifyTab) onStop() {
 }
 
 func (t *VerifyTab) activateStopState() {
+	lastStats := checksum.NewVerifierStats()
+
+	t.listStore.Clear()
+	t.updateStats(lastStats)
+
 	t.btnStart.SetVisible(false)
 	t.btnStop.SetVisible(true)
 	t.progressTracker.ActivateStopState()
@@ -273,7 +267,8 @@ func (t *VerifyTab) setStartState() {
 	t.btnBrowseChk.SetSensitive(true)
 	t.entryChecksum.SetSensitive(true)
 	t.chkBoxVerifyOnOpen.SetSensitive(true)
-	t.onEntryChecksumChanged(false)
+
+	t.onEntryChecksumChanged(false, nil)
 }
 
 func (t *VerifyTab) updateStats(stats checksum.VerifierStats) {
@@ -292,18 +287,13 @@ func (t *VerifyTab) Wait() {
 }
 
 func (t *VerifyTab) applySettingsToUI() {
-	if t.Settings == nil {
-		return
-	}
-
 	t.chkBoxVerifyOnOpen.SetActive(t.Settings.Verify.VerifyOnOpen)
 	t.ColumnConfig.ApplyColumnOrder(t.treeValidate, t.Settings.Verify.ColumnOrder)
 	t.ApplySortOrder(t.treeValidate, t.Settings.Verify.SortColumn, t.Settings.Verify.SortOrder)
 }
 
 func (t *VerifyTab) saveSettings() error {
-	if t.Settings == nil ||
-		t.Window.InDestruction() {
+	if t.Window.InDestruction() {
 		return nil
 	}
 
@@ -329,23 +319,33 @@ func (t *VerifyTab) setupContextMenu() {
 	})
 }
 
-func (t *VerifyTab) onEntryChecksumChanged(updateActiveID bool) {
-	checksumPath, _ := t.entryChecksum.GetText()
+func (t *VerifyTab) onEntryChecksumChanged(updateActiveID bool, onStartFunc func()) {
+	path, _ := t.entryChecksum.GetText()
 
-	algo, err := checksum.AlgorithmFromExtension(checksumPath)
-	if err != nil {
-		t.cmbTxtAlgorithm.SetSensitive(true)
+	algo, err := checksum.AlgorithmFromExtension(path)
+	foundByExt := err == nil
+
+	if !foundByExt {
+		algo, err = checksum.AlgorithmFromSumsFile(path)
+	}
+
+	if err == nil {
+		t.cmbTxtAlgorithm.SetSensitive(!foundByExt)
 
 		if updateActiveID {
-			t.cmbTxtAlgorithm.SetActiveID(".unknown")
+			t.cmbTxtAlgorithm.SetActiveID(algo.Extension())
+		}
+
+		if onStartFunc != nil && t.chkBoxVerifyOnOpen.GetActive() {
+			onStartFunc()
 		}
 
 		return
 	}
 
-	t.cmbTxtAlgorithm.SetSensitive(false)
+	t.cmbTxtAlgorithm.SetSensitive(true)
 
 	if updateActiveID {
-		t.cmbTxtAlgorithm.SetActiveID(algo.Extension())
+		t.cmbTxtAlgorithm.SetActiveID(".unknown")
 	}
 }

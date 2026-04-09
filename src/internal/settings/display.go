@@ -28,6 +28,8 @@ var descriptionsMap = map[string]string{
 	"verify.column_order":              "Order of columns in Verify tab",
 	"verify.sort_column":               "Column to sort by in Verify tab",
 	"verify.sort_order":                "Sort order in Verify tab (asc/desc)",
+	"hash.algorithms":                  "Default hash algorithms for hash command and GUI (e.g., .sha256, .md5)",
+	"hash.hash_on_open":                "Auto-start hashing when opening a file",
 	"window.tab_order":                 "Order of tabs in main window",
 	"window.current_page":              "Currently active tab",
 	"window.restore_mode":              "Restore window size and/or position on startup (default, size, position, all)",
@@ -161,6 +163,23 @@ func GetAllSettingsInfo(cfg, defaults *Settings) []SettingsSection {
 					Value:       formatSettingValue(cfg.Verify.SortOrder),
 					Default:     formatSettingValue(defaults.Verify.SortOrder),
 					Description: descriptionsMap["verify.sort_order"],
+				},
+			},
+		},
+		{
+			Name: "Hash",
+			Settings: []SettingInfo{
+				{
+					Name:        "algorithms",
+					Value:       formatSettingValueSlice(cfg.Hash.Algorithms),
+					Default:     formatSettingValueSlice(defaults.Hash.Algorithms),
+					Description: descriptionsMap["hash.algorithms"],
+				},
+				{
+					Name:        "hash_on_open",
+					Value:       formatSettingValue(cfg.Hash.HashOnOpen),
+					Default:     formatSettingValue(defaults.Hash.HashOnOpen),
+					Description: descriptionsMap["hash.hash_on_open"],
 				},
 			},
 		},

@@ -164,3 +164,15 @@ func NewHasher(algo Algorithm) hash.Hash {
 func IsValidHashLength(hash string, algo Algorithm) bool {
 	return len(hash) == GetHashLength(algo)
 }
+
+func AlgorithmFromSumsFile(path string) (Algorithm, error) {
+	base := strings.ToUpper(filepath.Base(path))
+	if !strings.HasSuffix(base, "SUMS") {
+		return Unknown, fmt.Errorf("not a SUMS file")
+	}
+
+	prefix := strings.TrimSuffix(base, "SUMS")
+	ext := "." + prefix
+
+	return AlgorithmFromExtension(ext)
+}
