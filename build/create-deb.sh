@@ -167,7 +167,7 @@ copy_files() {
 
     cp "${SOURCE_ICON}" "${DEB_ICON_DIR}/hashverifier.svg"
 
-    cp "${SOURCE_FILETYPE_ICON}" "${DEB_MIMETYPE_ICON_DIR}/hashverifier-filetype.svg"
+    cp "${SOURCE_FILETYPE_ICON}" "${DEB_MIMETYPE_ICON_DIR}/application-x-hashverifier-filetype.svg"
 }
 
 calculate_installed_size() {

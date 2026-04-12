@@ -169,7 +169,7 @@ prepare_source_tarball() {
     cp "${SOURCE_LICENSE}" "${source_dir}/"
     cp "${SOURCE_THIRD_PARTY}" "${source_dir}/"
     cp "${SOURCE_ICON}" "${source_dir}/hashverifier.svg"
-    cp "${SOURCE_FILETYPE_ICON}" "${source_dir}/hashverifier-filetype.svg"
+    cp "${SOURCE_FILETYPE_ICON}" "${source_dir}/application-x-hashverifier-filetype.svg"
 
     tar -czf "${RPM_SOURCE_DIR}/${PACKAGE_NAME}-${RPM_VERSION}.tar.gz" \
         -C "${RPM_SOURCE_DIR}" "${PACKAGE_NAME}-${RPM_VERSION}"

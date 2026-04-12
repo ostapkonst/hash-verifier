@@ -95,6 +95,7 @@ Download and run the Inno Setup installer for your architecture:
 - `hashverifier-X.X.X-windows-i686.exe` (32-bit)
 
 The installer will:
+
 - Install HashVerifier to your system
 - Create Start Menu and optional Desktop shortcuts
 - Add "Send To" menu entry for quick access via right-click
@@ -104,8 +105,8 @@ The installer will:
 
 Download and extract the ZIP archive for your architecture:
 
-- `hashverifier-vX.X.X-windows-amd64.zip` (64-bit)
-- `hashverifier-vX.X.X-windows-i686.zip` (32-bit)
+- `hashverifier-X.X.X-windows-amd64.zip` (64-bit)
+- `hashverifier-X.X.X-windows-i686.zip` (32-bit)
 
 ## Usage
 

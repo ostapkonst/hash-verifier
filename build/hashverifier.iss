@@ -11,7 +11,7 @@
 
 ; Version passed from command line: /DAppVersion=1.0.0
 #ifndef AppVersion
-  #define AppVersion "0.0.0"
+  #error AppVersion is not set. Pass /DAppVersion=X.X.X to the compiler.
 #endif
 
 ; Architecture passed from command line: /DAppArch=amd64 or /DAppArch=i686
@@ -57,6 +57,12 @@ OutputBaseFilename=hashverifier-{#AppVersion}-windows-{#AppArch}
 SetupIconFile=favicon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
+; File version information
+VersionInfoVersion=1.0.0.0
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoDescription={#MyAppName} Installer
+VersionInfoCopyright=Copyright © 2026 {#MyAppPublisher}
+
 ; Compression
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -75,6 +81,9 @@ MinVersion=6.1sp1
 ; Suppress warning about user areas with admin privileges
 ; SendTo is intentionally per-user; all other paths use common areas
 UsedUserAreasWarning=no
+
+; Prevent multiple instances
+SetupMutex=HashVerifierSetupMutex
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number (e.g., v2026.3.1)'
+        description: 'Version number (e.g., v2026.4.1)'
         required: true
         type: string
 
@@ -262,12 +262,12 @@ jobs:
       - name: Prepare Windows amd64 archive
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
-          (cd release/windows && zip -r hashverifier-${VERSION}-windows-amd64.zip amd64)
+          (cd release/windows && zip -r hashverifier-${VERSION#v}-windows-amd64.zip amd64)
 
       - name: Prepare Windows i686 archive
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
-          (cd release/windows && zip -r hashverifier-${VERSION}-windows-i686.zip i686)
+          (cd release/windows && zip -r hashverifier-${VERSION#v}-windows-i686.zip i686)
 
       - name: Remove Windows directories
         run: rm -rf release/windows/amd64 release/windows/i686
@@ -286,5 +286,3 @@ jobs:
             release/linux/arm64/*.deb
             release/linux/arm64/*.rpm
             release/linux/*.AppImage
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
