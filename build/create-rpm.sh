@@ -226,7 +226,7 @@ cp hashverifier-mime.xml %{buildroot}/usr/share/mime/packages/
 cp LICENSE %{buildroot}/usr/share/doc/%{name}/
 cp THIRD_PARTY_NOTICES %{buildroot}/usr/share/doc/%{name}/
 cp hashverifier.svg %{buildroot}/usr/share/icons/hicolor/scalable/apps/hashverifier.svg
-cp hashverifier-filetype.svg %{buildroot}/usr/share/icons/hicolor/scalable/mimetypes/hashverifier-filetype.svg
+cp application-x-hashverifier-filetype.svg %{buildroot}/usr/share/icons/hicolor/scalable/mimetypes/application-x-hashverifier-filetype.svg
 
 %post
 update-desktop-database /usr/share/applications > /dev/null 2>&1 || :
@@ -245,7 +245,7 @@ gtk-update-icon-cache -f /usr/share/icons/hicolor > /dev/null 2>&1 || :
 /usr/share/doc/%{name}/LICENSE
 /usr/share/doc/%{name}/THIRD_PARTY_NOTICES
 /usr/share/icons/hicolor/scalable/apps/hashverifier.svg
-/usr/share/icons/hicolor/scalable/mimetypes/hashverifier-filetype.svg
+/usr/share/icons/hicolor/scalable/mimetypes/application-x-hashverifier-filetype.svg
 EOF
 }
 

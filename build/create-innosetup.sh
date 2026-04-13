@@ -125,6 +125,9 @@ prepare_directories() {
 
     mkdir -p "${ISS_OUTPUT_DIR}"
     mkdir -p "${OUT_DIR}"
+
+    # Hotfix: The output file appears to be in use (5).
+    chmod 777 "${ISS_OUTPUT_DIR}"
 }
 
 copy_files_to_staging() {

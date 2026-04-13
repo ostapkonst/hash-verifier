@@ -137,11 +137,10 @@ func (t *VerifyTab) onStart() {
 
 	results, err := action.VerifyChecksumsStreaming(ctx, cfg)
 	if err != nil {
-		widgets.ShowError(t.Window, "Verification Error", fmt.Sprintf("Failed to start verification: %v", err))
-		cancel()
-
-		t.Cancel = nil
+		t.CancelOperation()
 		t.setStartState()
+
+		widgets.ShowError(t.Window, "Verification Error", fmt.Sprintf("Failed to start verification: %v", err))
 
 		return
 	}
@@ -235,7 +234,6 @@ func (t *VerifyTab) onStart() {
 		}()
 		glib.IdleAdd(func() {
 			t.CancelOperation()
-			t.Cancel = nil
 			t.setStartState()
 		})
 	}()

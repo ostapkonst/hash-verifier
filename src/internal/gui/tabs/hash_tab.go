@@ -295,11 +295,10 @@ func (t *HashTab) onStart() {
 
 	results, err := hasher.HashFileStreaming(ctx, cfg)
 	if err != nil {
-		widgets.ShowError(t.Window, "Hashing Error", fmt.Sprintf("Failed to start hashing: %v", err))
-		cancel()
-
-		t.Cancel = nil
+		t.CancelOperation()
 		t.setStartState()
+
+		widgets.ShowError(t.Window, "Hashing Error", fmt.Sprintf("Failed to start hashing: %v", err))
 
 		return
 	}
@@ -360,7 +359,6 @@ func (t *HashTab) onStart() {
 		}()
 		glib.IdleAdd(func() {
 			t.CancelOperation()
-			t.Cancel = nil
 			t.setStartState()
 		})
 	}()

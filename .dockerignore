@@ -32,9 +32,6 @@ profile.cov
 .DS_Store
 Thumbs.db
 
-# Docker files (not needed inside container)
-build/
-
 # Hash files (user-generated)
 *.sfv
 *.md4

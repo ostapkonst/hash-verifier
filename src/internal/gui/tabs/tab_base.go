@@ -38,6 +38,8 @@ func (tb *TabBase) CancelOperation() {
 	if tb.Cancel != nil {
 		tb.Cancel()
 	}
+
+	tb.Cancel = nil
 }
 
 func (tb *TabBase) SetupColumnHandlers(treeView *gtk.TreeView, onColumnChanged func()) {

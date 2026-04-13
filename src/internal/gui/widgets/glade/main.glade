@@ -1357,6 +1357,7 @@ Author: ostapkonst
                         <property name="primary-icon-name">edit-find-symbolic</property>
                         <property name="primary-icon-activatable">False</property>
                         <property name="primary-icon-sensitive">False</property>
+                        <property name="placeholder-text" translatable="yes">The desired hash</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
