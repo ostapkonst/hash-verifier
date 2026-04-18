@@ -212,21 +212,20 @@ Features:
 %setup -q
 
 %install
-mkdir -p %{buildroot}/usr/bin
-mkdir -p %{buildroot}/usr/share/applications
-mkdir -p %{buildroot}/usr/share/mime/packages
-mkdir -p %{buildroot}/usr/share/doc/%{name}
-mkdir -p %{buildroot}/usr/share/icons/hicolor/scalable/apps
-mkdir -p %{buildroot}/usr/share/icons/hicolor/scalable/mimetypes
+%{__mkdir} -p %{buildroot}%{_bindir}
+%{__mkdir} -p %{buildroot}%{_datadir}/applications
+%{__mkdir} -p %{buildroot}%{_datadir}/mime/packages
+%{__mkdir} -p %{buildroot}%{_datadir}/doc/%{name}
+%{__mkdir} -p %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
+%{__mkdir} -p %{buildroot}%{_datadir}/icons/hicolor/scalable/mimetypes
 
-cp hashverifier %{buildroot}/usr/bin/
-chmod +x %{buildroot}/usr/bin/hashverifier
-cp hashverifier.desktop %{buildroot}/usr/share/applications/
-cp hashverifier-mime.xml %{buildroot}/usr/share/mime/packages/
-cp LICENSE %{buildroot}/usr/share/doc/%{name}/
-cp THIRD_PARTY_NOTICES %{buildroot}/usr/share/doc/%{name}/
-cp hashverifier.svg %{buildroot}/usr/share/icons/hicolor/scalable/apps/hashverifier.svg
-cp application-x-hashverifier-filetype.svg %{buildroot}/usr/share/icons/hicolor/scalable/mimetypes/application-x-hashverifier-filetype.svg
+install -p -m 755 %{name} %{buildroot}%{_bindir}/%{name}
+install -p -m 644 %{name}.desktop %{buildroot}%{_datadir}/applications/%{name}.desktop
+install -p -m 644 %{name}-mime.xml %{buildroot}%{_datadir}/mime/packages/%{name}-mime.xml
+install -p -m 644 LICENSE %{buildroot}%{_datadir}/doc/%{name}/LICENSE
+install -p -m 644 THIRD_PARTY_NOTICES %{buildroot}%{_datadir}/doc/%{name}/THIRD_PARTY_NOTICES
+install -p -m 644 %{name}.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
+install -p -m 644 application-x-%{name}-filetype.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/mimetypes/application-x-%{name}-filetype.svg
 
 %post
 update-desktop-database /usr/share/applications > /dev/null 2>&1 || :
@@ -239,13 +238,13 @@ update-mime-database /usr/share/mime > /dev/null 2>&1 || :
 gtk-update-icon-cache -f /usr/share/icons/hicolor > /dev/null 2>&1 || :
 
 %files
-/usr/bin/hashverifier
-/usr/share/applications/hashverifier.desktop
-/usr/share/mime/packages/hashverifier-mime.xml
-/usr/share/doc/%{name}/LICENSE
-/usr/share/doc/%{name}/THIRD_PARTY_NOTICES
-/usr/share/icons/hicolor/scalable/apps/hashverifier.svg
-/usr/share/icons/hicolor/scalable/mimetypes/application-x-hashverifier-filetype.svg
+%{_bindir}/%{name}
+%{_datadir}/applications/%{name}.desktop
+%{_datadir}/mime/packages/%{name}-mime.xml
+%{_datadir}/doc/%{name}/LICENSE
+%{_datadir}/doc/%{name}/THIRD_PARTY_NOTICES
+%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
+%{_datadir}/icons/hicolor/scalable/mimetypes/application-x-%{name}-filetype.svg
 EOF
 }
 

@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := help
+
 .PHONY: all build run clean help
 .PHONY: linux-amd64 linux-arm64 windows-amd64 windows-i686 deb-amd64 deb-arm64 rpm-amd64 rpm-arm64 appimage-amd64 appimage-arm64
 .PHONY: innosetup-amd64 innosetup-i686
@@ -5,17 +7,17 @@
 .PHONY: lint lint-install lint-fix format
 .PHONY: third-party-notices reset-config
 
-GO_LICENSES_VERSION   = v2.0.1
-GOLANGCI_LINT_VERSION = v2.11.4
-VERSION              ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "unknown")
-
-all: help
+GO_LICENSES_VERSION   := v2.0.1
+GOLANGCI_LINT_VERSION := v2.11.4
+VERSION               ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "unknown")
 
 build:
-	cd src && go build -trimpath -ldflags="-s -w -X 'github.com/ostapkonst/HashVerifier/internal/header.Version=$(VERSION)'" -o ../hashverifier .
+	cd src && \
+	go build -trimpath -ldflags="-s -w -X 'github.com/ostapkonst/HashVerifier/internal/header.Version=$(VERSION)'" -o ../hashverifier .
 
 run:
-	cd src && go run .
+	cd src && \
+	go run .
 
 linux-amd64:
 	@echo "Building for Linux/amd64..."

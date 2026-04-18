@@ -221,11 +221,9 @@ create_postinst_script() {
 #!/bin/bash
 set -e
 
-if [ "$1" = "configure" ] || [ "$1" = "install" ]; then
-    update-desktop-database /usr/share/applications 2>/dev/null || true
-    update-mime-database /usr/share/mime 2>/dev/null || true
-    gtk-update-icon-cache -f /usr/share/icons/hicolor 2>/dev/null || true
-fi
+update-desktop-database /usr/share/applications 2>/dev/null || true
+update-mime-database /usr/share/mime 2>/dev/null || true
+gtk-update-icon-cache -f /usr/share/icons/hicolor 2>/dev/null || true
 EOF
 
     chmod +x "${DEB_DIR}/postinst"
@@ -238,11 +236,9 @@ create_postrm_script() {
 #!/bin/bash
 set -e
 
-if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
-    update-desktop-database /usr/share/applications 2>/dev/null || true
-    update-mime-database /usr/share/mime 2>/dev/null || true
-    gtk-update-icon-cache -f /usr/share/icons/hicolor 2>/dev/null || true
-fi
+update-desktop-database /usr/share/applications 2>/dev/null || true
+update-mime-database /usr/share/mime 2>/dev/null || true
+gtk-update-icon-cache -f /usr/share/icons/hicolor 2>/dev/null || true
 EOF
 
     chmod +x "${DEB_DIR}/postrm"
