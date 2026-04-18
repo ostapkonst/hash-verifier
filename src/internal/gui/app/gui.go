@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"runtime"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
@@ -33,34 +34,50 @@ type App struct {
 }
 
 func Run(path string) error {
-	gtk.Init(nil)
+	readyToStartGTKLoop := make(chan error)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	go func() {
+		// Без этого может возникнуть такая ошибка:
+		// NSInternalInconsistencyException: 'NSWindow should only be instantiated on the main thread!'
+		runtime.LockOSThread()
 
-	app := &App{ctx: ctx}
-	if err := app.initUI(); err != nil {
-		return fmt.Errorf("failed to initialize UI: %w", err)
+		gtk.Init(nil)
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		app := &App{ctx: ctx}
+		if err := app.initUI(); err != nil {
+			readyToStartGTKLoop <- fmt.Errorf("failed to initialize UI: %w", err)
+			return
+		}
+
+		app.window.Show()
+
+		glib.IdleAdd(func() {
+			app.showFlatpakWarningIfNeeded()
+			app.fillTabAndSwitch(path)
+		})
+
+		gracer.AddCallback(func() error {
+			cancel()
+			app.generateTab.Wait()
+			app.verifyTab.Wait()
+			app.hashTab.Wait()
+			gtk.MainQuit()
+
+			return nil
+		})
+
+		readyToStartGTKLoop <- nil
+
+		gtk.Main()
+	}()
+
+	err := <-readyToStartGTKLoop
+	if err != nil {
+		return err
 	}
-
-	app.window.Show()
-
-	glib.IdleAdd(func() {
-		app.showFlatpakWarningIfNeeded()
-		app.fillTabAndSwitch(path)
-	})
-
-	gracer.AddCallback(func() error {
-		cancel()
-		app.generateTab.Wait()
-		app.verifyTab.Wait()
-		app.hashTab.Wait()
-		gtk.MainQuit()
-
-		return nil
-	})
-
-	go gtk.Main()
 
 	return gracer.Wait()
 }
