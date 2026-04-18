@@ -70,6 +70,6 @@ func NewVerifierStats() VerifierStats {
 	return stats.NewVerifierStats()
 }
 
-func AlgorithmFromSumsFile(path string) (Algorithm, error) {
-	return algo.AlgorithmFromSumsFile(path)
+func AlgorithmFromAllSumsFiles(path string) (Algorithm, error) {
+	return algo.AlgorithmFromAllSumsFiles(path)
 }

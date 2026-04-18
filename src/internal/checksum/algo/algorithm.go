@@ -165,13 +165,28 @@ func IsValidHashLength(hash string, algo Algorithm) bool {
 	return len(hash) == GetHashLength(algo)
 }
 
-func AlgorithmFromSumsFile(path string) (Algorithm, error) {
+func AlgorithmFromAllSumsFiles(path string) (Algorithm, error) {
+	allSuffixes := []string{"SUMS", "SUM", "SUMS.TXT", "SUM.TXT"}
+
+	for _, suffix := range allSuffixes {
+		a, err := algorithmFromSumsFile(path, suffix)
+		if err == nil {
+			return a, nil
+		}
+	}
+
+	return Unknown, fmt.Errorf("not a SUMS file")
+}
+
+func algorithmFromSumsFile(path, suffix string) (Algorithm, error) {
+	upperSuffix := strings.ToUpper(suffix)
+
 	base := strings.ToUpper(filepath.Base(path))
-	if !strings.HasSuffix(base, "SUMS") {
+	if !strings.HasSuffix(base, upperSuffix) {
 		return Unknown, fmt.Errorf("not a SUMS file")
 	}
 
-	prefix := strings.TrimSuffix(base, "SUMS")
+	prefix := strings.TrimSuffix(base, upperSuffix)
 	ext := "." + prefix
 
 	return AlgorithmFromExtension(ext)

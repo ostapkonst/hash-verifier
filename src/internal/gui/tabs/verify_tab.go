@@ -324,7 +324,7 @@ func (t *VerifyTab) onEntryChecksumChanged(updateActiveID bool, onStartFunc func
 	foundByExt := err == nil
 
 	if !foundByExt {
-		algo, err = checksum.AlgorithmFromSumsFile(path)
+		algo, err = checksum.AlgorithmFromAllSumsFiles(path)
 	}
 
 	if err == nil {

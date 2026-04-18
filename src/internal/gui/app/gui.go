@@ -98,7 +98,7 @@ func (a *App) fillTabAndSwitch(path string) {
 		a.tabManager.ApplySelectedPage(a.tabManager.GetTabNumberByName("generate"))
 	case PathTypeFile:
 		_, errAlgFromExt := checksum.AlgorithmFromExtension(resolvedPath)
-		_, errAlgFromSums := checksum.AlgorithmFromSumsFile(resolvedPath)
+		_, errAlgFromSums := checksum.AlgorithmFromAllSumsFiles(resolvedPath)
 
 		if errAlgFromExt == nil || errAlgFromSums == nil {
 			if err := a.verifyTab.Fill(resolvedPath); err != nil {
