@@ -1,4 +1,4 @@
-ARG FEDORA_VERSION=35
+ARG FEDORA_VERSION=32
 
 # =============================================================================
 # AppImage Builder for AMD64 (x86_64)
